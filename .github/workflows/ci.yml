@@ -113,27 +113,23 @@ jobs:
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
 
-  notify:
-    name: Notify Team
+  summary:
+    name: CI Summary
     needs: [lint-docs, validate-structure, security-scan]
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Notify Slack
-        if: failure()
-        uses: slackapi/slack-github-action@v1
-        with:
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          payload: |
-            {
-              "text": "❌ CI Failed on ewh-monorepo",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "CI pipeline failed on `${{ github.repository }}`\n*Branch:* ${{ github.ref }}\n*Commit:* <${{ github.event.head_commit.url }}|${{ github.sha }}>\n*Author:* ${{ github.actor }}"
-                  }
-                }
-              ]
-            }
+      - name: Check results
+        run: |
+          echo "CI Pipeline Results:"
+          echo "==================="
+          echo "Lint Docs: ${{ needs.lint-docs.result }}"
+          echo "Validate Structure: ${{ needs.validate-structure.result }}"
+          echo "Security Scan: ${{ needs.security-scan.result }}"
+
+          if [ "${{ needs.lint-docs.result }}" == "failure" ] || [ "${{ needs.validate-structure.result }}" == "failure" ] || [ "${{ needs.security-scan.result }}" == "failure" ]; then
+            echo "❌ CI Failed - check logs above"
+            exit 1
+          else
+            echo "✅ CI Passed"
+          fi

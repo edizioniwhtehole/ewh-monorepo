@@ -31,7 +31,7 @@
 2. **Lint Documentation** - Validates markdown links and YAML
 3. **Validate Structure** - Ensures all 52 submodules registered
 4. **Security Scan** - Runs Trivy and TruffleHog for vulnerabilities
-5. **Notify** - Sends Slack notification on failure
+5. **Summary** - Aggregates results and reports pass/fail
 
 ### PR Checks (`pr-checks.yml`)
 
@@ -44,13 +44,12 @@
 4. **Auto-label** - Adds labels based on files changed
 5. **Assign Reviewers** - Auto-assigns reviewers
 
-### Deploy Notifications (`notify-deploy.yml`)
+### Release Notes (`notify-deploy.yml`)
 
-**Triggers:** Push to `main`/`develop`
+**Triggers:** Push to `main`
 
 **Jobs:**
-1. **Notify Deploy** - Sends Slack notification with commit info
-2. **Create Release Notes** - Creates GitHub release for production deploys
+1. **Create Release Notes** - Automatically creates GitHub release for production deploys with changelog
 
 ## 📝 Templates
 
@@ -72,12 +71,12 @@ Comprehensive PR template covering:
 
 ## 🔧 Configuration
 
-### Required Secrets
+### Optional Secrets
 
-Add these in GitHub Settings → Secrets:
+These can be added in GitHub Settings → Secrets if needed:
 
 ```bash
-SLACK_WEBHOOK_URL    # Slack webhook for notifications
+# None required currently - all workflows use GitHub's built-in GITHUB_TOKEN
 GITHUB_TOKEN         # Auto-provided by GitHub Actions
 ```
 
