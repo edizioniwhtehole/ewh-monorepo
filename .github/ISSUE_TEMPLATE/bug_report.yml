@@ -1,0 +1,141 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this bug! Please fill out the form below.
+
+  - type: dropdown
+    id: service
+    attributes:
+      label: Service/Component
+      description: Which service is affected?
+      options:
+        - "Core: svc-api-gateway"
+        - "Core: svc-auth"
+        - "Core: svc-plugins"
+        - "Core: svc-media"
+        - "Core: svc-billing"
+        - "Creative: svc-image-orchestrator"
+        - "Creative: svc-job-worker"
+        - "Creative: svc-writer"
+        - "Creative: svc-content"
+        - "Creative: svc-layout"
+        - "ERP: svc-products"
+        - "ERP: svc-orders"
+        - "ERP: svc-inventory"
+        - "ERP: svc-crm"
+        - "Publishing: svc-projects"
+        - "Publishing: svc-search"
+        - "Publishing: svc-site-builder"
+        - "Collab: svc-chat"
+        - "Collab: svc-pm"
+        - "Collab: svc-support"
+        - "Platform: svc-comm"
+        - "Platform: svc-enrichment"
+        - "Platform: svc-bi"
+        - "Frontend: app-web-frontend"
+        - "Frontend: app-admin-console"
+        - "Frontend: app-*-editor"
+        - "Infrastructure: ops-infra"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - "Critical - Production down"
+        - "High - Major feature broken"
+        - "Medium - Feature partially broken"
+        - "Low - Minor inconvenience"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: "When I try to..., the system..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: "I expected..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: "Instead, I got..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs
+      description: Paste any relevant error logs or screenshots
+      placeholder: |
+        ```
+        Paste error logs here
+        ```
+      render: shell
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Where did this bug occur?
+      options:
+        - "Production (polosaas.it)"
+        - "Staging (staging.ewhsaas.it)"
+        - "Development (localhost)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: "This started happening after..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have included all relevant information above
+          required: true
+        - label: I have read the [CONTRIBUTING.md](../CONTRIBUTING.md)
+          required: false

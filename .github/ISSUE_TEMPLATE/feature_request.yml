@@ -1,0 +1,115 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please describe it below.
+
+  - type: dropdown
+    id: service
+    attributes:
+      label: Service/Component
+      description: Which service should this feature be added to?
+      options:
+        - "Core: svc-api-gateway"
+        - "Core: svc-auth"
+        - "Core: svc-plugins"
+        - "Core: svc-media"
+        - "Core: svc-billing"
+        - "Creative: svc-image-orchestrator"
+        - "Creative: svc-writer"
+        - "Creative: svc-content"
+        - "ERP: svc-products"
+        - "ERP: svc-orders"
+        - "ERP: svc-crm"
+        - "Publishing: svc-projects"
+        - "Publishing: svc-search"
+        - "Collab: svc-chat"
+        - "Collab: svc-pm"
+        - "Platform: svc-comm"
+        - "Frontend: app-web-frontend"
+        - "Frontend: app-admin-console"
+        - "New Service"
+        - "Cross-cutting concern"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature?
+      options:
+        - "Critical - Blocking launch"
+        - "High - Important for business"
+        - "Medium - Nice to have"
+        - "Low - Future consideration"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve?
+      placeholder: "As a [user type], I need [feature] so that [benefit]"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe how you envision this feature working
+      placeholder: "The feature should..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other solutions have you considered?
+      placeholder: "I also thought about..."
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How do we know when this feature is complete?
+      placeholder: |
+        - [ ] User can do X
+        - [ ] System validates Y
+        - [ ] Tests are added
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact Analysis
+      description: What other services/features will be affected?
+      placeholder: "This will require changes to..."
+
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technical Notes
+      description: Any technical considerations or constraints?
+      placeholder: "We'll need to use..."
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have discussed this feature with the team (if applicable)
+          required: false
+        - label: I have read the [ARCHITECTURE.md](../ARCHITECTURE.md)
+          required: false

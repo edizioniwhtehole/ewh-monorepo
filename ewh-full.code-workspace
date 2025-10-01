@@ -1,58 +1,313 @@
 {
   "folders": [
-    { "path": "../ewh-master" },
-    { "path": "../ops-infra" },
-    { "path": "../svc-api-gateway" },
-    { "path": "../svc-auth" },
-    { "path": "../svc-media" },
-    { "path": "../svc-image-orchestrator" },
-    { "path": "../svc-job-worker" },
-    { "path": "../svc-writer" },
-    { "path": "../svc-content" },
-    { "path": "../svc-layout" },
-    { "path": "../svc-prepress" },
-    { "path": "../svc-vector-lab" },
-    { "path": "../svc-mockup" },
-    { "path": "../svc-video-orchestrator" },
-    { "path": "../svc-video-runtime" },
-    { "path": "../svc-raster-runtime" },
-    { "path": "../svc-projects" },
-    { "path": "../svc-search" },
-    { "path": "../svc-site-builder" },
-    { "path": "../svc-site-renderer" },
-    { "path": "../svc-site-publisher" },
-    { "path": "../svc-connectors-web" },
-    { "path": "../svc-products" },
-    { "path": "../svc-orders" },
-    { "path": "../svc-inventory" },
-    { "path": "../svc-channels" },
-    { "path": "../svc-quotation" },
-    { "path": "../svc-procurement" },
-    { "path": "../svc-mrp" },
-    { "path": "../svc-shipping" },
-    { "path": "../svc-crm" },
-    { "path": "../svc-pm" },
-    { "path": "../svc-support" },
-    { "path": "../svc-chat" },
-    { "path": "../svc-boards" },
-    { "path": "../svc-kb" },
-    { "path": "../svc-collab" },
-    { "path": "../svc-dms" },
-    { "path": "../svc-timesheet" },
-    { "path": "../svc-forms" },
-    { "path": "../svc-forum" },
-    { "path": "../svc-assistant" },
-    { "path": "../svc-comm" },
-    { "path": "../svc-enrichment" },
-    { "path": "../svc-billing" },
-    { "path": "../svc-bi" },
-    { "path": "../svc-plugins" },
-    { "path": "../svc-n8n" },
-    { "path": "../app-web-frontend" },
-    { "path": "../app-admin-console" },
-    { "path": "../app-raster-editor" },
-    { "path": "../app-layout-editor" },
-    { "path": "../app-video-editor" }
+    {
+      "path": ".",
+      "name": "📦 Monorepo Root"
+    },
+    {
+      "path": "ewh-master",
+      "name": "📚 Master Docs & Config"
+    },
+    {
+      "path": "ops-infra",
+      "name": "🔧 Infrastructure"
+    },
+    {
+      "name": "--- Core Services ---"
+    },
+    {
+      "path": "svc-api-gateway",
+      "name": "🌐 API Gateway (4000)"
+    },
+    {
+      "path": "svc-auth",
+      "name": "🔐 Auth & Multi-Tenancy (4001)"
+    },
+    {
+      "path": "svc-plugins",
+      "name": "🔌 Plugins Registry (4002)"
+    },
+    {
+      "path": "svc-media",
+      "name": "📁 Media & Storage (4003)"
+    },
+    {
+      "path": "svc-billing",
+      "name": "💳 Billing & Payments (4004)"
+    },
+    {
+      "name": "--- Creative Services ---"
+    },
+    {
+      "path": "svc-image-orchestrator",
+      "name": "🖼️ Image Pipeline (4100)"
+    },
+    {
+      "path": "svc-job-worker",
+      "name": "⚙️ Background Jobs (4101)"
+    },
+    {
+      "path": "svc-writer",
+      "name": "✍️ AI Writer (4102)"
+    },
+    {
+      "path": "svc-content",
+      "name": "📝 CMS Headless (4103)"
+    },
+    {
+      "path": "svc-layout",
+      "name": "📐 Layout Engine (4104)"
+    },
+    {
+      "path": "svc-prepress",
+      "name": "📄 PDF Prepress (4105)"
+    },
+    {
+      "path": "svc-vector-lab",
+      "name": "🎨 Vector Editor (4106)"
+    },
+    {
+      "path": "svc-mockup",
+      "name": "🎭 Mockup 3D (4107)"
+    },
+    {
+      "path": "svc-video-orchestrator",
+      "name": "🎬 Video Pipeline (4108)"
+    },
+    {
+      "path": "svc-video-runtime",
+      "name": "📹 Video Streaming (4109)"
+    },
+    {
+      "path": "svc-raster-runtime",
+      "name": "🖌️ Raster Rendering (4110)"
+    },
+    {
+      "name": "--- Publishing Services ---"
+    },
+    {
+      "path": "svc-projects",
+      "name": "📂 Projects (4200)"
+    },
+    {
+      "path": "svc-search",
+      "name": "🔍 Search Engine (4201)"
+    },
+    {
+      "path": "svc-site-builder",
+      "name": "🏗️ Website Builder (4202)"
+    },
+    {
+      "path": "svc-site-renderer",
+      "name": "🖥️ Site SSR (4203)"
+    },
+    {
+      "path": "svc-site-publisher",
+      "name": "🚀 Site Deploy (4204)"
+    },
+    {
+      "path": "svc-connectors-web",
+      "name": "🔗 Web Connectors (4205)"
+    },
+    {
+      "name": "--- ERP Services ---"
+    },
+    {
+      "path": "svc-products",
+      "name": "📦 Products Catalog (4300)"
+    },
+    {
+      "path": "svc-orders",
+      "name": "🛒 Orders & Cart (4301)"
+    },
+    {
+      "path": "svc-inventory",
+      "name": "📊 Inventory (4302)"
+    },
+    {
+      "path": "svc-channels",
+      "name": "📢 Multi-Channel (4303)"
+    },
+    {
+      "path": "svc-quotation",
+      "name": "💰 Quotations (4304)"
+    },
+    {
+      "path": "svc-procurement",
+      "name": "🛍️ Procurement (4305)"
+    },
+    {
+      "path": "svc-mrp",
+      "name": "📈 MRP Planning (4306)"
+    },
+    {
+      "path": "svc-shipping",
+      "name": "🚚 Shipping (4307)"
+    },
+    {
+      "path": "svc-crm",
+      "name": "👥 CRM (4308)"
+    },
+    {
+      "name": "--- Collaboration Services ---"
+    },
+    {
+      "path": "svc-pm",
+      "name": "📋 Project Management (4400)"
+    },
+    {
+      "path": "svc-support",
+      "name": "🎧 Support Ticketing (4401)"
+    },
+    {
+      "path": "svc-chat",
+      "name": "💬 Real-time Chat (4402)"
+    },
+    {
+      "path": "svc-boards",
+      "name": "📌 Kanban Boards (4403)"
+    },
+    {
+      "path": "svc-kb",
+      "name": "📖 Knowledge Base (4404)"
+    },
+    {
+      "path": "svc-collab",
+      "name": "🤝 Collaboration (4405)"
+    },
+    {
+      "path": "svc-dms",
+      "name": "📂 Document Management (4406)"
+    },
+    {
+      "path": "svc-timesheet",
+      "name": "⏱️ Timesheet (4407)"
+    },
+    {
+      "path": "svc-forms",
+      "name": "📝 Forms Builder (4408)"
+    },
+    {
+      "path": "svc-forum",
+      "name": "💭 Community Forum (4409)"
+    },
+    {
+      "path": "svc-assistant",
+      "name": "🤖 AI Assistant (4410)"
+    },
+    {
+      "name": "--- Platform Services ---"
+    },
+    {
+      "path": "svc-comm",
+      "name": "📧 Email/SMS (4500)"
+    },
+    {
+      "path": "svc-enrichment",
+      "name": "✨ Data Enrichment (4501)"
+    },
+    {
+      "path": "svc-bi",
+      "name": "📊 Business Intelligence (4502)"
+    },
+    {
+      "name": "--- Frontend Apps ---"
+    },
+    {
+      "path": "app-web-frontend",
+      "name": "🌐 Web App (3100)"
+    },
+    {
+      "path": "app-admin-console",
+      "name": "⚙️ Admin Console (3200)"
+    },
+    {
+      "path": "app-raster-editor",
+      "name": "🖼️ Raster Editor (3300)"
+    },
+    {
+      "path": "app-layout-editor",
+      "name": "📐 Layout Editor (3400)"
+    },
+    {
+      "path": "app-video-editor",
+      "name": "🎬 Video Editor (3500)"
+    }
   ],
-  "settings": { "editor.formatOnSave": true }
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "files.exclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.next": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.next": true,
+      "**/pnpm-lock.yaml": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+      "prisma.prisma",
+      "ms-azuretools.vscode-docker",
+      "github.vscode-pull-request-github",
+      "eamodio.gitlens"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug Current Service",
+        "program": "${workspaceFolder}/src/index.ts",
+        "runtimeExecutable": "pnpm",
+        "runtimeArgs": ["run", "dev"],
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen"
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Docker: Start All Services",
+        "type": "shell",
+        "command": "docker-compose -f compose/docker-compose.dev.yml up",
+        "problemMatcher": [],
+        "group": "build"
+      },
+      {
+        "label": "Docker: Start Core Services",
+        "type": "shell",
+        "command": "docker-compose -f compose/docker-compose.dev.yml --profile core up",
+        "problemMatcher": [],
+        "group": "build"
+      },
+      {
+        "label": "Pull All Submodules",
+        "type": "shell",
+        "command": "./scripts/pull-all.sh",
+        "problemMatcher": []
+      },
+      {
+        "label": "Status All Submodules",
+        "type": "shell",
+        "command": "./scripts/status-all.sh",
+        "problemMatcher": []
+      }
+    ]
+  }
 }

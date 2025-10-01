@@ -1,0 +1,45 @@
+# Auto-assign reviewers configuration
+# See: https://github.com/kentaro-m/auto-assign-action
+
+# Add reviewers to pull requests
+addReviewers: true
+
+# Add assignees to pull requests
+addAssignees: false
+
+# Number of reviewers to add
+numberOfReviewers: 2
+
+# List of reviewers (GitHub usernames)
+reviewers:
+  # TODO: Add team member usernames
+  # - username1
+  # - username2
+  # - username3
+
+# Assign based on file patterns (optional)
+# reviewGroups:
+#   backend:
+#     - username1
+#     - username2
+#   frontend:
+#     - username3
+#     - username4
+
+# File patterns for each group (optional)
+# fileReviewers:
+#   '**/*.ts':
+#     - username1
+#   '**/*.tsx':
+#     - username3
+#   '**/*.md':
+#     - username2
+
+# Skip keywords in title or body (optional)
+skipKeywords:
+  - wip
+  - WIP
+  - draft
+
+# Run only when PR is ready for review
+runOnDraft: false

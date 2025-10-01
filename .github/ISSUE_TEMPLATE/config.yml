@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/edizioniwhtehole/ewh-monorepo/blob/main/README.md
+    about: Read the platform documentation
+  - name: 💬 Team Discussion
+    url: https://slack.com
+    about: Discuss with the team on Slack #dev channel
+  - name: 🔒 Security Issue
+    url: mailto:security@ewhsaas.it
+    about: Report security vulnerabilities privately
