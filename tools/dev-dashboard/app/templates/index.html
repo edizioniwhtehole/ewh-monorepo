@@ -1,0 +1,2979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>EWH Dev Dashboard</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; background: #111826; color: #f2f4f7; }
+    h1 { margin-bottom: 16px; }
+    nav { margin-bottom: 16px; }
+    button { cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #334155; background: #1f2937; color: inherit; margin-right: 8px; }
+    button:hover { background: #2563eb; }
+    .nav-button.active { background: #2563eb; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { padding: 10px; border-bottom: 1px solid #1f2937; text-align: left; }
+    pre { background: #0f172a; padding: 12px; border-radius: 8px; overflow-x: auto; }
+    .hidden { display: none; }
+    .view { margin-top: 16px; }
+    .result { margin-top: 24px; }
+    .status-ok { color: #22c55e; }
+    .status-fail { color: #ef4444; }
+    #knowledge-form { margin-top: 24px; max-width: 600px; }
+    #knowledge-form input, #knowledge-form textarea { width: 100%; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: inherit; padding: 8px; }
+    #knowledge-form label { display: block; margin-bottom: 12px; }
+    #kb-feedback { margin-left: 12px; }
+    .status-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .status-note { color: #94a3b8; margin-top: 8px; }
+    .status-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .status-actions button { margin-right: 0; }
+    .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 16px; align-items: start; }
+    .status-card { background: #0f172a; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; position: relative; }
+    .status-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .card-title { font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .indicator-ok { background: #22c55e; }
+    .indicator-warn { background: #facc15; }
+    .indicator-error { background: #ef4444; }
+    .indicator-info { background: #94a3b8; }
+    .status-card-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: #111c2f; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 12px; flex-wrap: wrap; }
+    .status-card-toolbar .toolbar-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .status-card-toolbar label { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+    .status-card-toolbar select { padding: 6px 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: inherit; }
+    .status-card-toolbar button { padding: 6px 10px; font-size: 0.85rem; margin: 0; }
+    .status-card-toolbar button.loading,
+    .entry-actions button.loading { opacity: 0.6; cursor: progress; }
+    .status-entry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .status-entry-grid.empty { display: block; }
+    .entry-card { background: #111c2f; border: 1px solid #1f2937; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 12px; position: relative; }
+    .entry-card.collapsed .entry-body { display: none; }
+    .entry-card.expanded .entry-body { display: flex; }
+    .entry-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .entry-summary { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .entry-summary input.entry-select { margin: 0 4px 0 0; cursor: pointer; }
+    .entry-summary-main { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .entry-handle { display: flex; align-items: center; justify-content: center; color: #64748b; cursor: grab; user-select: none; font-size: 1.1rem; }
+    .entry-icon { font-size: 1.1rem; }
+    .entry-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .entry-meta { margin-left: auto; font-size: 0.85rem; color: #94a3b8; white-space: nowrap; }
+    .entry-toggle { background: none; border: 1px solid #334155; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: inherit; cursor: pointer; }
+    .entry-card.expanded .entry-toggle { transform: rotate(90deg); }
+    .entry-body { display: flex; flex-direction: column; gap: 10px; }
+    .entry-body .details { white-space: pre-wrap; color: #e2e8f0; font-size: 0.9rem; }
+    .entry-body .status-hint { margin-top: 4px; }
+    .entry-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .entry-actions button { padding: 4px 8px; font-size: 0.8rem; }
+    .entry-select { accent-color: #2563eb; }
+    .status-hint { font-size: 0.85rem; color: #94a3b8; }
+    .status-feedback { margin-top: 12px; font-size: 0.9rem; padding: 8px 12px; border-radius: 8px; background: #111c2f; border: 1px solid #1f2937; }
+    .status-feedback.ok { border-color: #22c55e; color: #22c55e; }
+    .status-feedback.error { border-color: #ef4444; color: #f87171; }
+    .status-feedback.warn { border-color: #facc15; color: #facc15; }
+    .status-columns-bar { display: flex; align-items: center; gap: 12px; margin: 12px 0; flex-wrap: wrap; }
+    .status-columns-bar button { margin-right: 0; }
+    .column-manager { display: flex; gap: 12px; flex-wrap: wrap; background: #111c2f; border: 1px solid #1f2937; border-radius: 10px; padding: 12px; }
+    .column-manager.hidden { display: none; }
+    .column-manager label { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+    .card-handle { border: 1px solid #334155; background: #1e293b; color: inherit; border-radius: 8px; padding: 4px 8px; cursor: grab; font-size: 1rem; }
+    .status-card { position: relative; }
+    .status-card.dragging { opacity: 0.6; }
+    .overview-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .overview-section { margin-top: 24px; }
+    .environment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .environment-card { background: #0f172a; border: 1px solid #1f2937; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .environment-card h4 { margin: 0; font-size: 1rem; }
+    .environment-card .counts { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.9rem; color: #94a3b8; }
+    .critical-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .critical-item { background: #111c2f; border: 1px solid #1f2937; border-radius: 10px; padding: 12px; }
+    .critical-item strong { display: block; font-size: 0.95rem; }
+    .critical-item .critical-meta { font-size: 0.85rem; color: #94a3b8; margin-top: 6px; }
+    .git-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .git-item { background: #111c2f; border: 1px solid #1f2937; border-radius: 10px; padding: 12px; }
+    .git-item .git-meta { font-size: 0.85rem; color: #94a3b8; margin-top: 6px; }
+    .storage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .storage-grid ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .storage-item { background: #111c2f; border: 1px solid #1f2937; border-radius: 10px; padding: 12px; }
+    .storage-item .storage-note { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; }
+    .overview-empty { color: #94a3b8; font-size: 0.9rem; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .summary-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .summary-item { background: #111c2f; border: 1px solid #1f2937; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .summary-item strong { font-size: 0.95rem; }
+    .summary-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: #1e293b; font-size: 0.8rem; color: #cbd5f5; }
+    .summary-pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .chart-card { background: #0f172a; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .chart-card h4 { margin: 0; font-size: 1rem; }
+    .chart-canvas { width: 100%; height: 160px; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: #cbd5f5; }
+    .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .chart-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .scripts-layout { display: flex; flex-direction: column; gap: 24px; }
+    .scripts-detail { background: #0f172a; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; display: none; flex-direction: column; gap: 12px; }
+    .scripts-detail.visible { display: flex; }
+    .script-detail-meta { color: #94a3b8; font-size: 0.85rem; }
+    .scripts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .script-card { background: #0f172a; border: 1px solid #1f2937; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: border-color 0.2s ease, transform 0.2s ease; }
+    .script-card:hover { border-color: #2563eb; transform: translateY(-2px); }
+    .script-card.active { border-color: #2563eb; box-shadow: 0 0 0 1px #2563eb inset; }
+    .script-card h3 { margin: 0; font-size: 1rem; }
+    .script-summary { color: #94a3b8; font-size: 0.9rem; min-height: 2.6em; }
+    .commands-panel { background: #0f172a; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; }
+    .command-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+    .command-item { border: 1px solid #1f2937; border-radius: 10px; padding: 12px; background: #111c2f; display: flex; flex-direction: column; gap: 8px; }
+    .command-item .command-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .command-item code { background: #0f172a; padding: 6px 8px; border-radius: 6px; display: inline-block; }
+    .command-copy { align-self: flex-start; font-size: 0.8rem; }
+    .script-run-block { display: flex; flex-direction: column; gap: 6px; }
+    .script-action-note { font-size: 0.85rem; color: #cbd5f5; background: #111c2f; border: 1px solid #1f2937; border-radius: 8px; padding: 6px 8px; }
+    .knowledge-template-actions { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+    .form-hint { font-size: 0.85rem; color: #94a3b8; }
+    .entry-groups { display: flex; flex-direction: column; gap: 12px; }
+    .entry-group { background: #111c2f; border: 1px solid #1f2937; border-radius: 10px; padding: 12px; }
+    .entry-group-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .entry-group-title { font-weight: 600; }
+    .entry-group-count { font-size: 0.85rem; color: #94a3b8; }
+    .entry-group-body { display: flex; flex-direction: column; gap: 12px; }
+    .entry-group-empty { font-size: 0.85rem; color: #94a3b8; }
+    .entry-group-manager { margin-top: 12px; background: #111c2f; border: 1px solid #1f2937; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .entry-group-manager.hidden { display: none; }
+    .group-manager-row { display: flex; align-items: center; gap: 8px; }
+    .group-manager-row input { flex: 1; padding: 4px 6px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: inherit; }
+    .group-manager-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .prompts-layout { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: stretch; }
+    .prompt-sidebar { background: #0f172a; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .prompt-file-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+    .prompt-list-section { margin-top: 12px; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; }
+    .prompt-list-item { padding: 6px 8px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+    .prompt-list-item:hover { border-color: #2563eb; }
+    .prompt-list-item.active { border-color: #2563eb; background: #111c2f; }
+    .prompt-editor-pane { background: #0f172a; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .prompt-editor-pane textarea { width: 100%; min-height: 320px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: inherit; padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; }
+    .prompt-editor-pane textarea:disabled { opacity: 0.6; cursor: not-allowed; }
+    .prompt-editor-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .prompt-status-badge { font-size: 0.85rem; color: #94a3b8; }
+    @media (max-width: 900px) {
+      .prompts-layout { display: flex; flex-direction: column; }
+      .prompt-sidebar { max-height: none; }
+    }
+  </style>
+</head>
+<body data-scripts-root="{{ scripts_root }}">
+  <header>
+    <h1>EWH Dev Dashboard</h1>
+    <nav>
+      <button data-view="overview" class="nav-button active">Panoramica</button>
+      <button data-view="scripts" class="nav-button">Script</button>
+      <button data-view="prompts" class="nav-button">Prompts</button>
+      <button data-view="knowledge" class="nav-button">Knowledge base</button>
+      <button data-view="status" class="nav-button">Stato servizi</button>
+    </nav>
+    <p class="subtitle">Workspace script: <code id="scripts-root">{{ scripts_root }}</code></p>
+  </header>
+
+  <section id="view-overview" class="view">
+    <div class="overview-header">
+      <h2>Panoramica</h2>
+      <div class="status-actions">
+        <button id="overview-refresh" type="button">Aggiorna</button>
+      </div>
+    </div>
+    <div id="overview-feedback" class="status-feedback hidden"></div>
+
+    <div class="overview-section">
+      <h3>Criticità</h3>
+      <ul id="critical-list" class="critical-list"></ul>
+    </div>
+
+    <div class="overview-section">
+      <h3>Stato ambienti</h3>
+      <div id="environment-cards" class="environment-grid"></div>
+    </div>
+
+    <div class="overview-section">
+      <h3>Database e bucket</h3>
+      <div class="summary-grid">
+        <div>
+          <h4>Database</h4>
+          <ul id="database-summary-list" class="summary-list"></ul>
+        </div>
+        <div>
+          <h4>Bucket</h4>
+          <ul id="bucket-summary-list" class="summary-list"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="overview-section">
+      <h3>Modifiche locali</h3>
+      <ul id="git-dirty-list" class="git-list"></ul>
+    </div>
+
+    <div class="overview-section">
+      <h3>Trend risorse</h3>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h4>CPU %</h4>
+          <svg id="cpu-chart" class="chart-canvas" role="img" aria-label="Andamento utilizzo CPU"></svg>
+          <div id="cpu-legend" class="chart-legend"></div>
+        </div>
+        <div class="chart-card">
+          <h4>Spazio disco (GB)</h4>
+          <svg id="disk-chart" class="chart-canvas" role="img" aria-label="Andamento utilizzo disco"></svg>
+          <div id="disk-legend" class="chart-legend"></div>
+        </div>
+      </div>
+      <p id="usage-history-note" class="status-hint"></p>
+    </div>
+
+    <div class="overview-section">
+      <h3>Costi</h3>
+      <div id="costs-content" class="status-hint"></div>
+    </div>
+  </section>
+
+  <section id="view-scripts" class="view hidden">
+    <div class="scripts-layout">
+      <div id="scripts-detail" class="scripts-detail">
+        <div>
+          <h2 id="script-detail-name"></h2>
+          <p id="script-detail-description" class="script-summary"></p>
+          <p class="script-detail-meta">Percorso: <code id="script-detail-path"></code></p>
+        </div>
+        <button id="script-detail-run" type="button">Esegui script</button>
+      </div>
+
+      <div id="scripts-grid" class="scripts-grid"></div>
+
+      <div class="commands-panel">
+        <h3>Comandi frequenti</h3>
+        <p class="status-hint">Copiali rapidamente durante lo sviluppo.</p>
+        <ul id="command-list" class="command-list"></ul>
+      </div>
+    </div>
+
+    <div id="result" class="result hidden">
+      <h2>Risultato esecuzione</h2>
+      <p>Script: <code id="result-script"></code> · Exit code: <span id="result-exit"></span></p>
+      <details open>
+        <summary>Stdout</summary>
+        <pre id="result-stdout"></pre>
+      </details>
+      <details>
+        <summary>Stderr</summary>
+        <pre id="result-stderr"></pre>
+      </details>
+    </div>
+  </section>
+
+  <section id="view-prompts" class="view hidden">
+    <div class="prompts-layout">
+      <aside class="prompt-sidebar">
+        <h3>File prompt</h3>
+        <ul id="prompt-file-list" class="prompt-file-list"></ul>
+      </aside>
+      <div class="prompt-editor-pane">
+        <h2 id="prompt-file-title">Seleziona un file</h2>
+        <p class="status-hint">Percorso: <code id="prompt-file-path">—</code></p>
+        <textarea id="prompt-editor-content" placeholder="Seleziona un file per iniziare a modificarlo." disabled></textarea>
+        <div class="prompt-editor-actions">
+          <button id="prompt-save" type="button" disabled>Salva</button>
+          <span id="prompt-status" class="prompt-status-badge"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-knowledge" class="view hidden">
+    <h2>Knowledge base</h2>
+    <p>Annotazioni rapide su tool e procedure. Ogni voce viene salvata in <code>app/data/knowledge.json</code>.</p>
+    <p class="status-hint">Usa questo spazio come runbook: documenta cosa hai fatto, come ripeterlo e chi contattare in caso di problemi.</p>
+    <ul id="knowledge-list"></ul>
+
+    <form id="knowledge-form">
+      <h3>Nuova nota</h3>
+      <label>
+        Titolo<br />
+        <input type="text" id="kb-title" required maxlength="200" />
+      </label>
+      <br />
+      <label>
+        Descrizione<br />
+        <textarea id="kb-description" rows="4" required maxlength="4000"></textarea>
+      </label>
+      <div class="knowledge-template-actions">
+        <button type="button" id="kb-template-runbook">Usa template runbook</button>
+        <span class="form-hint">Prefill con sezioni per contesto, procedura e verifica.</span>
+      </div>
+      <br />
+      <label>
+        Tag (separati da virgola)<br />
+        <input type="text" id="kb-tags" placeholder="es. deploy, scripts" />
+      </label>
+      <br />
+      <button type="submit">Salva nota</button>
+      <span id="kb-feedback" class="hidden"></span>
+    </form>
+  </section>
+
+  <section id="view-status" class="view hidden">
+    <div class="status-header">
+      <h2>Stato servizi</h2>
+      <div class="status-actions">
+        <button id="status-refresh" type="button">Aggiorna</button>
+      </div>
+    </div>
+    <p class="status-note">Configura le variabili `STATUS_BUCKETS`, `STATUS_DB_URLS` (o i rispettivi file) per monitorare bucket e database. La CLI Scalingo e le credenziali devono essere accessibili dal container per mostrare lo stato degli ambienti.</p>
+    <div id="status-feedback" class="status-feedback hidden"></div>
+    <div class="status-columns-bar">
+      <button id="toggle-column-manager" type="button">Gestisci colonne</button>
+      <div id="status-column-manager" class="column-manager hidden"></div>
+    </div>
+    <div id="status-grid" class="status-grid"></div>
+  </section>
+
+  <script>
+    const scriptsGrid = document.getElementById('scripts-grid');
+    const scriptsDetail = document.getElementById('scripts-detail');
+    const scriptDetailName = document.getElementById('script-detail-name');
+    const scriptDetailDescription = document.getElementById('script-detail-description');
+    const scriptDetailPath = document.getElementById('script-detail-path');
+    const scriptDetailRun = document.getElementById('script-detail-run');
+    const commandList = document.getElementById('command-list');
+    const overviewRefresh = document.getElementById('overview-refresh');
+    const overviewFeedback = document.getElementById('overview-feedback');
+    const criticalList = document.getElementById('critical-list');
+    const environmentCards = document.getElementById('environment-cards');
+    const gitDirtyList = document.getElementById('git-dirty-list');
+    const bucketUsageList = document.getElementById('bucket-usage-list');
+    const databaseUsageList = document.getElementById('database-usage-list');
+    const databaseSummaryList = document.getElementById('database-summary-list');
+    const bucketSummaryList = document.getElementById('bucket-summary-list');
+    const cpuChart = document.getElementById('cpu-chart');
+    const diskChart = document.getElementById('disk-chart');
+    const cpuLegend = document.getElementById('cpu-legend');
+    const diskLegend = document.getElementById('disk-legend');
+    const usageHistoryNote = document.getElementById('usage-history-note');
+    const toggleColumnManagerBtn = document.getElementById('toggle-column-manager');
+    const columnManager = document.getElementById('status-column-manager');
+    const promptFileList = document.getElementById('prompt-file-list');
+    const promptFileTitle = document.getElementById('prompt-file-title');
+    const promptFilePath = document.getElementById('prompt-file-path');
+    const promptEditorContent = document.getElementById('prompt-editor-content');
+    const promptSaveBtn = document.getElementById('prompt-save');
+    const promptStatus = document.getElementById('prompt-status');
+    const costsContent = document.getElementById('costs-content');
+    const resultBox = document.getElementById('result');
+    const resultScript = document.getElementById('result-script');
+    const resultExit = document.getElementById('result-exit');
+    const resultStdout = document.getElementById('result-stdout');
+    const resultStderr = document.getElementById('result-stderr');
+    const scriptsRoot = document.getElementById('scripts-root');
+    const rootEl = document.body;
+    const navButtons = document.querySelectorAll('.nav-button');
+    const views = document.querySelectorAll('.view');
+    const knowledgeList = document.getElementById('knowledge-list');
+    const knowledgeForm = document.getElementById('knowledge-form');
+    const knowledgeFeedback = document.getElementById('kb-feedback');
+    const knowledgeTemplateButton = document.getElementById('kb-template-runbook');
+    const statusRefresh = document.getElementById('status-refresh');
+    const statusGrid = document.getElementById('status-grid');
+    const statusFeedback = document.getElementById('status-feedback');
+
+    const baseCommands = [
+      {
+        label: 'Riavvia la dev dashboard',
+        command: 'docker compose restart ewh-dev-dashboard',
+        description: 'Riavvia rapidamente il container della dashboard di sviluppo.',
+      },
+      {
+        label: 'Sincronizza il template nel container',
+        command: 'docker cp tools/dev-dashboard/app/templates/index.html ewh-dev-dashboard:/app/app/templates/index.html',
+        description: 'Copia l\'HTML aggiornato dentro il container esistente.',
+      },
+      {
+        label: 'Controlla lo stato dei container',
+        command: 'docker ps --format "{' + '{.Names}}\t{' + '{.Status}}"',
+        description: 'Elenca i container locali con stato sintetico.',
+      },
+      {
+        label: 'Verifica modifiche git',
+        command: 'git status --short',
+        description: 'Mostra un riepilogo breve delle modifiche locali.',
+      },
+    ];
+
+    const ENV_COLORS = {
+      local: '#38bdf8',
+      staging: '#f97316',
+      production: '#22c55e',
+      global: '#a855f7',
+    };
+
+    let scriptsCache = [];
+    let currentScript = null;
+    let overviewLoaded = false;
+    let overviewLoading = false;
+    let latestStatusCategories = [];
+    let cardDragInitialized = false;
+    let promptsLoaded = false;
+    let promptFiles = [];
+    let currentPrompt = null;
+    let promptDirty = false;
+    let promptLoading = false;
+    let activeView = 'overview';
+
+    const storage = (() => {
+      try {
+        const store = window.localStorage;
+        if (!store) return null;
+        const testKey = '__ewh-dashboard-test__';
+        store.setItem(testKey, '1');
+        store.removeItem(testKey);
+        return store;
+      } catch (error) {
+        return null;
+      }
+    })();
+
+    const ENTRY_ORDER_PREFIX = 'ewh-dev-dashboard-entry-order:';
+    const ENTRY_SORT_MODE_PREFIX = 'ewh-dev-dashboard-entry-sort-mode:';
+    const VALID_SORT_MODES = ['manual', 'status', 'name'];
+    const STATUS_WEIGHT = { error: 0, warn: 1, ok: 2, info: 3 };
+    const dragState = new Map();
+    const CARD_ORDER_KEY = 'ewh-dev-dashboard-card-order';
+    const CARD_HIDDEN_KEY = 'ewh-dev-dashboard-card-hidden';
+    const CARD_GROUPS_PREFIX = 'ewh-dev-dashboard-card-groups:';
+    const DEFAULT_GROUP_ID = 'primary';
+    const DEFAULT_GROUP_LABEL = 'Gruppo principale';
+    const openGroupManagers = new Set();
+
+    function getSavedCardOrder() {
+      if (!storage) return [];
+      try {
+        const raw = storage.getItem(CARD_ORDER_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveCardOrder(order) {
+      if (!storage) return;
+      try {
+        storage.setItem(CARD_ORDER_KEY, JSON.stringify(order));
+      } catch (error) {
+        /* ignore quota issues */
+      }
+    }
+
+    function getHiddenCards() {
+      if (!storage) return new Set();
+      try {
+        const raw = storage.getItem(CARD_HIDDEN_KEY);
+        if (!raw) return new Set();
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return new Set();
+        return new Set(parsed);
+      } catch (error) {
+        return new Set();
+      }
+    }
+
+    function setHiddenCards(hiddenSet) {
+      if (!storage) return;
+      try {
+        storage.setItem(CARD_HIDDEN_KEY, JSON.stringify(Array.from(hiddenSet)));
+      } catch (error) {
+        /* ignore quota issues */
+      }
+    }
+
+    function syncCardOrder(categories) {
+      const ids = categories
+        .map((category) => resolveCardId(category))
+        .filter(Boolean);
+      if (!ids.length) {
+        saveCardOrder(ids);
+        return;
+      }
+      const saved = getSavedCardOrder();
+      const nextOrder = [];
+      saved.forEach((id) => {
+        if (ids.includes(id) && !nextOrder.includes(id)) {
+          nextOrder.push(id);
+        }
+      });
+      ids.forEach((id) => {
+        if (!nextOrder.includes(id)) {
+          nextOrder.push(id);
+        }
+      });
+      saveCardOrder(nextOrder);
+    }
+
+    function applyCardOrder(list) {
+      const order = getSavedCardOrder();
+      if (!order.length) {
+        return [...list];
+      }
+      const mapping = new Map();
+      list.forEach((item) => {
+        const id = resolveCardId(item);
+        if (id) {
+          mapping.set(id, item);
+        }
+      });
+      const ordered = [];
+      order.forEach((id) => {
+        if (mapping.has(id)) {
+          ordered.push(mapping.get(id));
+          mapping.delete(id);
+        }
+      });
+      mapping.forEach((value) => ordered.push(value));
+      return ordered;
+    }
+
+    function persistCardOrderFromDom() {
+      if (!statusGrid) return;
+      const visibleIds = Array.from(statusGrid.querySelectorAll('.status-card'))
+        .map((node) => node.dataset.cardId)
+        .filter(Boolean);
+      if (!visibleIds.length) {
+        return;
+      }
+      const existingOrder = getSavedCardOrder();
+      const hidden = Array.from(getHiddenCards());
+      const combined = [...visibleIds];
+      existingOrder.forEach((id) => {
+        if (!combined.includes(id) && !hidden.includes(id)) {
+          combined.push(id);
+        }
+      });
+      hidden.forEach((id) => {
+        if (!combined.includes(id)) {
+          combined.push(id);
+        }
+      });
+      saveCardOrder(combined);
+    }
+
+    function getColumnAfterElement(container, y) {
+      const cards = [...container.querySelectorAll('.status-card:not(.dragging)')];
+      let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+      cards.forEach((card) => {
+        const box = card.getBoundingClientRect();
+        const offset = y - (box.top + box.height / 2);
+        if (offset < 0 && offset > closest.offset) {
+          closest = { offset, element: card };
+        }
+      });
+      return closest.element;
+    }
+
+    function resolveCardId(card) {
+      if (!card) return null;
+      return card.id || card.title || null;
+    }
+
+    function normalizeGroupData(data) {
+      const groups = Array.isArray(data.groups) ? data.groups.filter((g) => g && g.id) : [];
+      const assignments = data.assignments && typeof data.assignments === 'object' ? { ...data.assignments } : {};
+      const unique = new Map();
+      groups.forEach((group) => {
+        const id = String(group.id);
+        if (!unique.has(id)) {
+          unique.set(id, {
+            id,
+            label: group.label || 'Gruppo',
+            locked: Boolean(group.locked),
+          });
+        }
+      });
+      if (!unique.has(DEFAULT_GROUP_ID)) {
+        unique.set(DEFAULT_GROUP_ID, {
+          id: DEFAULT_GROUP_ID,
+          label: DEFAULT_GROUP_LABEL,
+          locked: true,
+        });
+      } else {
+        const base = unique.get(DEFAULT_GROUP_ID);
+        unique.set(DEFAULT_GROUP_ID, {
+          id: DEFAULT_GROUP_ID,
+          label: base.label || DEFAULT_GROUP_LABEL,
+          locked: true,
+        });
+      }
+      const normalizedGroups = Array.from(unique.values());
+      Object.keys(assignments).forEach((key) => {
+        if (!unique.has(assignments[key])) {
+          assignments[key] = DEFAULT_GROUP_ID;
+        }
+      });
+      return { groups: normalizedGroups, assignments };
+    }
+
+    function loadGroupData(cardId) {
+      const fallback = normalizeGroupData({ groups: [{ id: DEFAULT_GROUP_ID, label: DEFAULT_GROUP_LABEL, locked: true }], assignments: {} });
+      if (!cardId || !storage) {
+        return JSON.parse(JSON.stringify(fallback));
+      }
+      try {
+        const raw = storage.getItem(`${CARD_GROUPS_PREFIX}${cardId}`);
+        if (!raw) {
+          return JSON.parse(JSON.stringify(fallback));
+        }
+        const parsed = JSON.parse(raw);
+        return normalizeGroupData(parsed || {});
+      } catch (error) {
+        return JSON.parse(JSON.stringify(fallback));
+      }
+    }
+
+    function saveGroupData(cardId, data) {
+      if (!storage || !cardId) {
+        return;
+      }
+      try {
+        const normalized = normalizeGroupData(data || {});
+        storage.setItem(`${CARD_GROUPS_PREFIX}${cardId}`, JSON.stringify(normalized));
+      } catch (error) {
+        /* ignore quota issues */
+      }
+    }
+
+    function createGroupId() {
+      return `grp-${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function updateEntryGroupAssignment(cardId, entryKey, groupId) {
+      if (!entryKey) return;
+      const data = loadGroupData(cardId);
+      const targetGroup = data.groups.find((group) => group.id === groupId) || data.groups[0];
+      if (!targetGroup) return;
+      if (data.assignments[entryKey] !== targetGroup.id) {
+        data.assignments[entryKey] = targetGroup.id;
+        saveGroupData(cardId, data);
+      }
+    }
+
+    function updateGroupEmptyState(groupBody) {
+      if (!groupBody) return;
+      const emptyMessage = groupBody.querySelector('.entry-group-empty');
+      const hasEntries = groupBody.querySelector('.entry-card');
+      if (hasEntries) {
+        if (emptyMessage) emptyMessage.remove();
+      } else if (!emptyMessage) {
+        const msg = document.createElement('p');
+        msg.className = 'entry-group-empty';
+        msg.textContent = 'Nessun servizio in questo gruppo.';
+        groupBody.appendChild(msg);
+      }
+    }
+
+    function updateGroupCount(groupBody) {
+      if (!groupBody) return;
+      const countSpan = groupBody.parentElement?.querySelector('.entry-group-count');
+      if (!countSpan) return;
+      const count = groupBody.querySelectorAll('.entry-card').length;
+      countSpan.textContent = `${count} servizio${count === 1 ? '' : 'i'}`;
+    }
+
+    function renderGroupManagerUI(cardId, managerEl) {
+      if (!managerEl) return;
+      const data = loadGroupData(cardId);
+      managerEl.innerHTML = '';
+
+      data.groups.forEach((group, index) => {
+        const row = document.createElement('div');
+        row.className = 'group-manager-row';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = group.label || '';
+        input.disabled = Boolean(group.locked);
+        input.addEventListener('change', () => {
+          const updated = loadGroupData(cardId);
+          const target = updated.groups.find((item) => item.id === group.id);
+          if (target) {
+            target.label = input.value.trim() || (target.locked ? DEFAULT_GROUP_LABEL : 'Nuovo gruppo');
+            saveGroupData(cardId, updated);
+            openGroupManagers.add(cardId);
+            renderStatus(latestStatusCategories);
+          }
+        });
+        row.appendChild(input);
+        if (group.locked) {
+          const badge = document.createElement('span');
+          badge.className = 'summary-pill';
+          badge.textContent = 'Predefinito';
+          row.appendChild(badge);
+        } else {
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.textContent = 'Rimuovi';
+          deleteBtn.addEventListener('click', () => {
+            const updated = loadGroupData(cardId);
+            updated.groups = updated.groups.filter((item) => item.id !== group.id);
+            Object.keys(updated.assignments).forEach((key) => {
+              if (updated.assignments[key] === group.id) {
+                updated.assignments[key] = DEFAULT_GROUP_ID;
+              }
+            });
+            saveGroupData(cardId, updated);
+            openGroupManagers.add(cardId);
+            renderStatus(latestStatusCategories);
+          });
+          row.appendChild(deleteBtn);
+        }
+        managerEl.appendChild(row);
+      });
+
+      const actions = document.createElement('div');
+      actions.className = 'group-manager-actions';
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.textContent = 'Aggiungi gruppo';
+      addBtn.addEventListener('click', () => {
+        const updated = loadGroupData(cardId);
+        updated.groups.push({ id: createGroupId(), label: `Gruppo ${updated.groups.length + 1}`, locked: false });
+        saveGroupData(cardId, updated);
+        openGroupManagers.add(cardId);
+        renderStatus(latestStatusCategories);
+      });
+      actions.appendChild(addBtn);
+      managerEl.appendChild(actions);
+    }
+
+    function resetPromptEditor() {
+      if (!promptEditorContent || !promptFileTitle || !promptFilePath || !promptSaveBtn || !promptStatus) {
+        return;
+      }
+      promptFileTitle.textContent = 'Seleziona un file';
+      promptFilePath.textContent = '—';
+      promptEditorContent.value = '';
+      promptEditorContent.disabled = true;
+      promptSaveBtn.disabled = true;
+      promptStatus.textContent = '';
+      promptFiles = Array.isArray(promptFiles) ? promptFiles : [];
+      currentPrompt = null;
+      promptDirty = false;
+      if (promptFileList) {
+        promptFileList.querySelectorAll('.prompt-list-item.active').forEach((node) => node.classList.remove('active'));
+      }
+    }
+
+    function normalizePromptFiles(data) {
+      const entries = [];
+      if (data && data.master) {
+        entries.push({
+          id: 'master',
+          group: 'Master',
+          label: 'MASTER_PROMPT.md',
+          path: data.master.path,
+          exists: Boolean(data.master.exists),
+        });
+      }
+      (data?.repos || []).forEach((repo) => {
+        const repoName = repo.name || 'Repository';
+        if (repo.prompt) {
+          entries.push({
+            id: `${repoName}:prompt`,
+            group: repoName,
+            label: 'prompt.md',
+            path: repo.prompt.path,
+            exists: Boolean(repo.prompt.exists),
+          });
+        }
+        if (repo.readme) {
+          entries.push({
+            id: `${repoName}:readme`,
+            group: repoName,
+            label: 'README.md',
+            path: repo.readme.path,
+            exists: Boolean(repo.readme.exists),
+          });
+        }
+      });
+      return entries;
+    }
+
+    function renderPromptFileList() {
+      if (!promptFileList) return;
+      promptFileList.innerHTML = '';
+      if (!promptFiles.length) {
+        const empty = document.createElement('li');
+        empty.className = 'prompt-list-section';
+        empty.textContent = 'Nessun file trovato';
+        promptFileList.appendChild(empty);
+        return;
+      }
+      const grouped = new Map();
+      promptFiles.forEach((file) => {
+        const group = file.group || 'Altro';
+        if (!grouped.has(group)) grouped.set(group, []);
+        grouped.get(group).push(file);
+      });
+      grouped.forEach((files, groupName) => {
+        const section = document.createElement('li');
+        section.className = 'prompt-list-section';
+        section.textContent = groupName;
+        promptFileList.appendChild(section);
+        files.forEach((file) => {
+          const item = document.createElement('li');
+          item.className = 'prompt-list-item';
+          item.dataset.path = file.path;
+          item.dataset.id = file.id;
+          item.textContent = file.exists ? file.label : `${file.label} (nuovo)`;
+          if (currentPrompt && currentPrompt.id === file.id) {
+            item.classList.add('active');
+          }
+          item.addEventListener('click', () => selectPromptFile(file));
+          promptFileList.appendChild(item);
+        });
+      });
+    }
+
+    async function loadPromptFiles(preserveSelection = false) {
+      if (!promptFileList) return;
+      if (!preserveSelection) {
+        resetPromptEditor();
+      }
+      promptStatus.textContent = '';
+      try {
+        promptLoading = true;
+        const res = await fetch('/api/prompt-files');
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        promptFiles = normalizePromptFiles(data);
+        renderPromptFileList();
+        promptsLoaded = true;
+      } catch (error) {
+        promptStatus.textContent = `Errore caricamento: ${error.message}`;
+      } finally {
+        promptLoading = false;
+      }
+    }
+
+    function setActivePromptItem(fileId) {
+      if (!promptFileList) return;
+      promptFileList.querySelectorAll('.prompt-list-item').forEach((item) => {
+        item.classList.toggle('active', item.dataset.id === fileId);
+      });
+    }
+
+    async function selectPromptFile(file) {
+      if (!file || !promptEditorContent) return;
+      if (promptDirty) {
+        const proceed = window.confirm('Hai modifiche non salvate. Vuoi continuare?');
+        if (!proceed) {
+          setActivePromptItem(currentPrompt?.id || null);
+          return;
+        }
+      }
+      promptStatus.textContent = 'Caricamento...';
+      try {
+        const res = await fetch(`/api/prompt-files/content?path=${encodeURIComponent(file.path)}`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const payload = await res.json();
+        currentPrompt = { ...file };
+        promptEditorContent.disabled = false;
+        promptEditorContent.value = payload.content || '';
+        promptFileTitle.textContent = `${file.label} · ${file.group || ''}`.trim();
+        promptFilePath.textContent = file.path;
+        promptSaveBtn.disabled = false;
+        promptDirty = false;
+        promptStatus.textContent = payload.exists ? 'File caricato' : 'File nuovo: salva per creare';
+        setActivePromptItem(file.id);
+      } catch (error) {
+        promptStatus.textContent = `Errore caricamento: ${error.message}`;
+      }
+    }
+
+    async function savePromptContent() {
+      if (!currentPrompt || !promptEditorContent || !promptSaveBtn) return;
+      promptSaveBtn.disabled = true;
+      promptStatus.textContent = 'Salvataggio in corso...';
+      try {
+        const res = await fetch('/api/prompt-files/content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path: currentPrompt.path, content: promptEditorContent.value }),
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        promptDirty = false;
+        promptStatus.textContent = 'Salvato';
+        currentPrompt.exists = true;
+        await loadPromptFiles(true);
+        setActivePromptItem(currentPrompt.id);
+        setTimeout(() => {
+          if (!promptDirty) {
+            promptStatus.textContent = '';
+          }
+        }, 2000);
+      } catch (error) {
+        promptStatus.textContent = `Errore salvataggio: ${error.message}`;
+      } finally {
+        promptSaveBtn.disabled = false;
+      }
+    }
+
+    function renderColumnManager() {
+      if (!columnManager) return;
+      columnManager.innerHTML = '';
+      if (!latestStatusCategories.length) {
+        columnManager.textContent = 'Nessuna colonna disponibile.';
+        if (toggleColumnManagerBtn) {
+          toggleColumnManagerBtn.textContent = 'Gestisci colonne';
+        }
+        return;
+      }
+      const hidden = getHiddenCards();
+      latestStatusCategories.forEach((category) => {
+        const cardId = resolveCardId(category);
+        if (!cardId) return;
+        const label = document.createElement('label');
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = cardId;
+        input.checked = !hidden.has(cardId);
+        input.addEventListener('change', () => {
+          const updated = getHiddenCards();
+          if (!input.checked) {
+            updated.add(cardId);
+          } else {
+            updated.delete(cardId);
+          }
+          setHiddenCards(updated);
+          renderStatus(latestStatusCategories);
+        });
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(category.title || cardId));
+        columnManager.appendChild(label);
+      });
+      if (toggleColumnManagerBtn) {
+        const isHidden = columnManager.classList.contains('hidden');
+        toggleColumnManagerBtn.textContent = isHidden ? 'Gestisci colonne' : 'Nascondi gestione colonne';
+      }
+    }
+
+    function ensureCardDragHandlers() {
+      if (cardDragInitialized || !statusGrid) return;
+      let draggingCard = null;
+
+      statusGrid.addEventListener('dragstart', (event) => {
+        const card = event.target.closest('.status-card');
+        if (!card || !statusGrid.contains(card)) {
+          return;
+        }
+        if (card.dataset.cardDragReady !== '1') {
+          event.preventDefault();
+          return;
+        }
+        draggingCard = card;
+        card.classList.add('dragging');
+        delete card.dataset.cardDragReady;
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', card.dataset.cardId || '');
+        }
+      });
+
+      const clearDragState = () => {
+        if (draggingCard) {
+          draggingCard.classList.remove('dragging');
+          draggingCard = null;
+        }
+      };
+
+      statusGrid.addEventListener('dragover', (event) => {
+        if (!draggingCard) {
+          return;
+        }
+        event.preventDefault();
+        if (event.dataTransfer) {
+          event.dataTransfer.dropEffect = 'move';
+        }
+        const afterElement = getColumnAfterElement(statusGrid, event.clientY);
+        if (!afterElement) {
+          statusGrid.appendChild(draggingCard);
+        } else if (afterElement !== draggingCard) {
+          statusGrid.insertBefore(draggingCard, afterElement);
+        }
+      });
+
+      statusGrid.addEventListener('drop', (event) => {
+        if (!draggingCard) {
+          return;
+        }
+        event.preventDefault();
+        clearDragState();
+        persistCardOrderFromDom();
+      });
+
+      statusGrid.addEventListener('dragend', () => {
+        clearDragState();
+        persistCardOrderFromDom();
+      });
+
+      statusGrid.addEventListener('dragenter', (event) => {
+        if (draggingCard) {
+          event.preventDefault();
+        }
+      });
+
+      cardDragInitialized = true;
+    }
+
+    async function loadScripts() {
+      const res = await fetch('/api/scripts');
+      const scripts = await res.json();
+      scriptsCache = scripts;
+      scriptsGrid.innerHTML = '';
+      renderBaseCommands();
+      if (!scripts.length) {
+        scriptsGrid.innerHTML = '<p class="status-hint">Nessuno script trovato.</p>';
+        scriptsDetail?.classList.remove('visible');
+        if (scriptDetailRun) {
+          scriptDetailRun.disabled = true;
+          scriptDetailRun.dataset.scriptName = '';
+        }
+        return;
+      }
+
+      scripts.forEach((script, index) => {
+        const card = document.createElement('article');
+        card.className = 'script-card';
+        card.dataset.scriptName = script.name;
+        card.dataset.scriptIndex = String(index);
+
+        const heading = document.createElement('h3');
+        heading.textContent = script.name;
+        card.appendChild(heading);
+
+        const summary = document.createElement('p');
+        summary.className = 'script-summary';
+        summary.textContent = script.path ? `Percorso: ${script.path}` : 'Percorso non disponibile.';
+        card.appendChild(summary);
+
+        const runBlock = document.createElement('div');
+        runBlock.className = 'script-run-block';
+
+        const runBtn = document.createElement('button');
+        runBtn.type = 'button';
+        runBtn.textContent = 'Esegui script';
+        if (script.description) {
+          runBtn.title = script.description;
+        }
+        runBtn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          selectScript(script, card);
+          runScript(runBtn, script.name);
+        });
+        runBlock.appendChild(runBtn);
+
+        const runNote = document.createElement('p');
+        runNote.className = 'script-action-note';
+        runNote.textContent = script.description ? `Cosa fa: ${script.description}` : 'Descrizione non disponibile.';
+        runBlock.appendChild(runNote);
+
+        card.appendChild(runBlock);
+
+        card.addEventListener('click', () => selectScript(script, card));
+        scriptsGrid.appendChild(card);
+      });
+      selectScript(scripts[0], scriptsGrid.querySelector('.script-card'));
+    }
+
+    async function runScript(button, name) {
+      resultBox.classList.add('hidden');
+      if (!button) {
+        return;
+      }
+      const originalLabel = button.textContent;
+      button.disabled = true;
+      button.textContent = 'In esecuzione...';
+      try {
+        const res = await fetch(`/api/scripts/${encodeURIComponent(name)}/run`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ args: [] }),
+        });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.detail || 'Errore sconosciuto');
+        }
+        const data = await res.json();
+        renderResult(data);
+      } catch (error) {
+        renderResult({ script: name, exit_code: -1, stdout: '', stderr: error.message });
+      } finally {
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    }
+
+    function renderResult(data) {
+      resultScript.textContent = data.script;
+      resultExit.textContent = data.exit_code;
+      resultExit.className = data.exit_code === 0 ? 'status-ok' : 'status-fail';
+      resultStdout.textContent = data.stdout || '(vuoto)';
+      resultStderr.textContent = data.stderr || '(vuoto)';
+      resultBox.classList.remove('hidden');
+    }
+
+    function clearElement(node) {
+      if (!node) return;
+      while (node.firstChild) {
+        node.removeChild(node.firstChild);
+      }
+    }
+
+    function selectScript(script, card) {
+      if (!scriptsDetail || !script) {
+        return;
+      }
+      currentScript = script;
+      scriptDetailName.textContent = script.name;
+      scriptDetailDescription.textContent = script.description || 'Nessuna descrizione disponibile.';
+      scriptDetailPath.textContent = script.path || '—';
+      if (scriptDetailRun) {
+        scriptDetailRun.dataset.scriptName = script.name;
+        scriptDetailRun.disabled = false;
+      }
+      scriptsDetail.classList.add('visible');
+      document.querySelectorAll('.script-card.active').forEach((node) => node.classList.remove('active'));
+      if (card) {
+        card.classList.add('active');
+      } else {
+        const activeCard = Array.from(document.querySelectorAll('.script-card')).find(
+          (node) => node.dataset.scriptName === script.name
+        );
+        if (activeCard) activeCard.classList.add('active');
+      }
+    }
+
+    function renderBaseCommands() {
+      if (!commandList) {
+        return;
+      }
+      clearElement(commandList);
+      baseCommands.forEach((item) => {
+        const li = document.createElement('li');
+        li.className = 'command-item';
+
+        const header = document.createElement('div');
+        header.className = 'command-header';
+        const title = document.createElement('strong');
+        title.textContent = item.label;
+        header.appendChild(title);
+
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'command-copy';
+        copyBtn.textContent = 'Copia';
+        copyBtn.addEventListener('click', () => copyCommand(copyBtn, item.command));
+        header.appendChild(copyBtn);
+
+        li.appendChild(header);
+
+        if (item.description) {
+          const desc = document.createElement('p');
+          desc.className = 'status-hint';
+          desc.textContent = item.description;
+          li.appendChild(desc);
+        }
+
+        const code = document.createElement('code');
+        code.textContent = item.command;
+        li.appendChild(code);
+
+        commandList.appendChild(li);
+      });
+    }
+
+    async function copyCommand(button, command) {
+      if (!command || !button) {
+        return;
+      }
+      const original = button.textContent;
+      try {
+        if (navigator?.clipboard?.writeText) {
+          await navigator.clipboard.writeText(command);
+          button.textContent = 'Copiato!';
+        } else {
+          const textarea = document.createElement('textarea');
+          textarea.value = command;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          button.textContent = 'Copiato!';
+        }
+      } catch (error) {
+        button.textContent = 'Copia manuale';
+      } finally {
+        setTimeout(() => {
+          button.textContent = original;
+        }, 1500);
+      }
+    }
+
+    function environmentLabel(environment) {
+      const value = (environment || '').toLowerCase();
+      if (value === 'local') return 'Locale';
+      if (value === 'staging') return 'Staging';
+      if (value === 'production') return 'Produzione';
+      if (value === 'global') return 'Globale';
+      return environment || '—';
+    }
+
+    function formatBytes(bytes) {
+      if (typeof bytes !== 'number' || Number.isNaN(bytes)) {
+        return '—';
+      }
+      if (bytes === 0) {
+        return '0 B';
+      }
+      const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+      const exponent = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
+      const value = bytes / 1024 ** exponent;
+      const formatted = value >= 10 ? value.toFixed(0) : value.toFixed(1);
+      return `${formatted} ${units[exponent]}`;
+    }
+
+    function setOverviewFeedback(message, variant = 'info') {
+      if (!overviewFeedback) {
+        return;
+      }
+      if (!message) {
+        overviewFeedback.textContent = '';
+        overviewFeedback.className = 'status-feedback hidden';
+        return;
+      }
+      const classes = ['status-feedback'];
+      if (variant && variant !== 'info') {
+        classes.push(variant);
+      }
+      overviewFeedback.textContent = message;
+      overviewFeedback.className = classes.join(' ');
+    }
+
+    function renderOverview(data) {
+      const payload = data || {};
+      renderCriticalList(payload.critical || []);
+      renderEnvironmentSummary(payload.environment_summary || {});
+      renderDatabaseSummary(payload.database_summary || {});
+      renderBucketSummary(payload.bucket_summary || {});
+      renderGitDirty(payload.git_dirty || []);
+      renderUsageCharts(payload.usage_history || {});
+      renderCosts(payload.costs || {});
+      const generatedAt = payload.generated_at ? new Date(payload.generated_at) : null;
+      if (generatedAt && !Number.isNaN(generatedAt.getTime())) {
+        setOverviewFeedback(`Aggiornato alle ${generatedAt.toLocaleString()}`);
+      } else {
+        setOverviewFeedback('Panoramica aggiornata');
+      }
+      overviewLoaded = true;
+    }
+
+    function renderCriticalList(items) {
+      if (!criticalList) return;
+      clearElement(criticalList);
+      if (!items.length) {
+        const empty = document.createElement('li');
+        empty.className = 'overview-empty';
+        empty.textContent = 'Nessuna criticità rilevata.';
+        criticalList.appendChild(empty);
+        return;
+      }
+      items.forEach((item) => {
+        const li = document.createElement('li');
+        li.className = 'critical-item';
+        const title = document.createElement('strong');
+        title.textContent = item.entry || item.category_title || 'Servizio';
+        li.appendChild(title);
+
+        if (item.details) {
+          const details = document.createElement('div');
+          details.textContent = item.details;
+          li.appendChild(details);
+        }
+
+        const meta = document.createElement('div');
+        meta.className = 'critical-meta';
+        const parts = [];
+        if (item.category_title) parts.push(item.category_title);
+        parts.push(`Ambiente: ${environmentLabel(item.environment)}`);
+        meta.textContent = parts.join(' · ');
+        li.appendChild(meta);
+
+        criticalList.appendChild(li);
+      });
+    }
+
+    function renderEnvironmentSummary(summary) {
+      if (!environmentCards) return;
+      clearElement(environmentCards);
+      const order = [
+        { key: 'local', label: 'Locale' },
+        { key: 'staging', label: 'Staging' },
+        { key: 'production', label: 'Produzione' },
+      ];
+      order.forEach(({ key, label }) => {
+        const data = summary[key] || {};
+        const card = document.createElement('article');
+        card.className = 'environment-card';
+        const heading = document.createElement('h4');
+        heading.textContent = label;
+        card.appendChild(heading);
+
+        const total = document.createElement('div');
+        total.textContent = `Servizi monitorati: ${data.total ?? 0}`;
+        card.appendChild(total);
+
+        const counts = document.createElement('div');
+        counts.className = 'counts';
+        counts.innerHTML = `
+          <span>Attivi: ${data.active ?? data.ok ?? 0}</span>
+          <span>Warn: ${data.degraded ?? data.warn ?? 0}</span>
+          <span>Errori: ${data.down ?? data.error ?? 0}</span>
+        `;
+        card.appendChild(counts);
+
+        environmentCards.appendChild(card);
+      });
+    }
+
+    function renderGitDirty(items) {
+      if (!gitDirtyList) return;
+      clearElement(gitDirtyList);
+      if (!items.length) {
+        const empty = document.createElement('li');
+        empty.className = 'overview-empty';
+        empty.textContent = 'Nessuna modifica locale sui repository monitorati.';
+        gitDirtyList.appendChild(empty);
+        return;
+      }
+      items.forEach((item) => {
+        const li = document.createElement('li');
+        li.className = 'git-item';
+        const title = document.createElement('strong');
+        title.textContent = item.name || item.path || 'Repository';
+        li.appendChild(title);
+
+        if (item.details) {
+          const details = document.createElement('div');
+          details.textContent = item.details;
+          li.appendChild(details);
+        }
+
+        if (item.path) {
+          const meta = document.createElement('div');
+          meta.className = 'git-meta';
+          meta.textContent = item.path;
+          li.appendChild(meta);
+        }
+
+        gitDirtyList.appendChild(li);
+      });
+    }
+
+    function renderBucketUsage(items) {
+      if (!bucketUsageList) return;
+      clearElement(bucketUsageList);
+      if (!items.length) {
+        const empty = document.createElement('li');
+        empty.className = 'overview-empty';
+        empty.textContent = 'Nessun bucket configurato.';
+        bucketUsageList.appendChild(empty);
+        return;
+      }
+      items.forEach((usage) => {
+        const li = document.createElement('li');
+        li.className = 'storage-item';
+        const title = document.createElement('strong');
+        title.textContent = usage.name || 'Bucket';
+        li.appendChild(title);
+
+        const info = document.createElement('div');
+        if (usage.status === 'ok' && typeof usage.size_bytes === 'number') {
+          const objectsText = typeof usage.object_count === 'number' ? ` · Oggetti: ${usage.object_count}` : '';
+          info.textContent = `Dimensione: ${formatBytes(usage.size_bytes)}${objectsText}`;
+        } else if (usage.status === 'partial') {
+          const objectsText = typeof usage.object_count === 'number' ? ` · Oggetti (parziale): ${usage.object_count}` : '';
+          const sizeText = typeof usage.size_bytes === 'number' ? formatBytes(usage.size_bytes) : 'n/d';
+          info.textContent = `Stima parziale: ${sizeText}${objectsText}`;
+        } else {
+          info.textContent = `Errore: ${usage.error || 'Dato non disponibile'}`;
+        }
+        li.appendChild(info);
+
+        if (usage.partial || usage.note) {
+          const note = document.createElement('div');
+          note.className = 'storage-note';
+          note.textContent = usage.note || 'Listing troncato: risultato parziale.';
+          li.appendChild(note);
+        }
+
+        bucketUsageList.appendChild(li);
+      });
+    }
+
+    function createSummaryPills(counters) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'summary-pill-row';
+      const config = [
+        { key: 'ok', label: 'OK' },
+        { key: 'warn', label: 'Warn' },
+        { key: 'error', label: 'Errori' },
+      ];
+      config.forEach(({ key, label }) => {
+        const value = counters?.[key] ?? 0;
+        const pill = document.createElement('span');
+        pill.className = 'summary-pill';
+        pill.textContent = `${label}: ${value}`;
+        wrapper.appendChild(pill);
+      });
+      return wrapper;
+    }
+
+    function renderBucketSummary(summary) {
+      if (!bucketSummaryList) return;
+      clearElement(bucketSummaryList);
+      const counters = summary || {};
+      const total = counters.total ?? 0;
+      if (!total) {
+        const empty = document.createElement('li');
+        empty.className = 'overview-empty';
+        empty.textContent = 'Nessun bucket configurato.';
+        bucketSummaryList.appendChild(empty);
+        return;
+      }
+      const li = document.createElement('li');
+      li.className = 'summary-item';
+      const heading = document.createElement('strong');
+      heading.textContent = 'Bucket monitorati';
+      li.appendChild(heading);
+      const meta = document.createElement('div');
+      meta.textContent = `Disponibili: ${counters.ok ?? 0}/${total}`;
+      li.appendChild(meta);
+      li.appendChild(createSummaryPills(counters));
+      bucketSummaryList.appendChild(li);
+    }
+
+    function renderDatabaseSummary(summary) {
+      if (!databaseSummaryList) return;
+      clearElement(databaseSummaryList);
+      const order = [
+        { key: 'local', label: 'Locale' },
+        { key: 'staging', label: 'Staging' },
+        { key: 'production', label: 'Produzione' },
+      ];
+      let hasData = false;
+      order.forEach(({ key, label }) => {
+        const counters = summary?.[key];
+        const total = counters?.total ?? 0;
+        if (!total) {
+          return;
+        }
+        hasData = true;
+        const li = document.createElement('li');
+        li.className = 'summary-item';
+        const heading = document.createElement('strong');
+        heading.textContent = label;
+        li.appendChild(heading);
+        const meta = document.createElement('div');
+        meta.textContent = `Disponibili: ${counters.ok ?? 0}/${total}`;
+        li.appendChild(meta);
+        li.appendChild(createSummaryPills(counters));
+        databaseSummaryList.appendChild(li);
+      });
+      if (!hasData) {
+        const empty = document.createElement('li');
+        empty.className = 'overview-empty';
+        empty.textContent = 'Nessun database monitorato.';
+        databaseSummaryList.appendChild(empty);
+      }
+    }
+
+    function clearChart(svg, legend) {
+      if (svg) {
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+      }
+      if (legend) {
+        clearElement(legend);
+      }
+    }
+
+    function createChartLegend(legendEl, series) {
+      if (!legendEl) return;
+      clearElement(legendEl);
+      series.forEach(({ label, color }) => {
+        const item = document.createElement('span');
+        const dot = document.createElement('span');
+        dot.className = 'chart-dot';
+        dot.style.background = color;
+        item.appendChild(dot);
+        item.appendChild(document.createTextNode(label));
+        legendEl.appendChild(item);
+      });
+    }
+
+    function valueRangeFromSeries(series, valueKey) {
+      let min = Number.POSITIVE_INFINITY;
+      let max = Number.NEGATIVE_INFINITY;
+      series.forEach(({ points }) => {
+        points.forEach((pt) => {
+          const value = pt[valueKey];
+          if (typeof value === 'number' && !Number.isNaN(value)) {
+            if (value < min) min = value;
+            if (value > max) max = value;
+          }
+        });
+      });
+      if (!Number.isFinite(min) || !Number.isFinite(max)) {
+        return { min: 0, max: 1 };
+      }
+      if (min === max) {
+        const delta = min || 1;
+        return { min: min - delta * 0.1, max: max + delta * 0.1 };
+      }
+      return { min, max };
+    }
+
+    function timelineFromSeries(series) {
+      const labels = new Set();
+      series.forEach(({ points }) => {
+        points.forEach((pt, index) => {
+          const label = pt.key || pt.date || `t${index}`;
+          labels.add(label);
+        });
+      });
+      const sorted = Array.from(labels);
+      sorted.sort((a, b) => {
+        const da = Date.parse(a);
+        const db = Date.parse(b);
+        if (!Number.isNaN(da) && !Number.isNaN(db)) {
+          return da - db;
+        }
+        if (!Number.isNaN(da)) return -1;
+        if (!Number.isNaN(db)) return 1;
+        return a.localeCompare(b);
+      });
+      return sorted;
+    }
+
+    function buildSeries(values, valueKey) {
+      return Object.entries(values || {}).map(([env, points]) => {
+        const color = ENV_COLORS[env] || '#f472b6';
+        const cleaned = (points || []).map((pt, index) => ({
+          key: pt.date || `t${index}`,
+          date: pt.date,
+          cpu: typeof pt.cpu === 'number' ? pt.cpu : null,
+          disk_gb: typeof pt.disk_gb === 'number' ? pt.disk_gb : null,
+          bucket_gb: typeof pt.bucket_gb === 'number' ? pt.bucket_gb : null,
+        }));
+        return { label: environmentLabel(env), color, key: env, points: cleaned };
+      });
+    }
+
+    function drawLineChart(svg, legendEl, series, valueKey, valueFormatter) {
+      if (!svg) return;
+      clearChart(svg, legendEl);
+      const filteredSeries = series
+        .map((item) => ({
+          ...item,
+          points: item.points.filter((pt) => typeof pt[valueKey] === 'number' && !Number.isNaN(pt[valueKey])),
+        }))
+        .filter((item) => item.points.length);
+      if (!filteredSeries.length) {
+        const message = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        message.textContent = 'Dati non disponibili';
+        message.setAttribute('x', '12');
+        message.setAttribute('y', '80');
+        message.setAttribute('fill', '#94a3b8');
+        svg.appendChild(message);
+        return;
+      }
+
+      const width = 320;
+      const height = 160;
+      const padding = 24;
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+      const timeline = timelineFromSeries(filteredSeries);
+      const { min, max } = valueRangeFromSeries(filteredSeries, valueKey);
+      const range = max - min || 1;
+      const xStep = timeline.length > 1 ? (width - padding * 2) / (timeline.length - 1) : 0;
+      const toX = (index) => padding + index * xStep;
+      const toY = (value) => {
+        const normalised = (value - min) / range;
+        const clamped = Math.max(0, Math.min(1, normalised));
+        return height - padding - clamped * (height - padding * 2);
+      };
+
+      const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      axis.setAttribute('x1', String(padding));
+      axis.setAttribute('x2', String(width - padding));
+      axis.setAttribute('y1', String(height - padding));
+      axis.setAttribute('y2', String(height - padding));
+      axis.setAttribute('stroke', '#1f2937');
+      axis.setAttribute('stroke-width', '1');
+      svg.appendChild(axis);
+
+      filteredSeries.forEach((seriesItem) => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const pointMap = new Map();
+        seriesItem.points.forEach((pt) => pointMap.set(pt.key || pt.date, pt));
+        let drawing = false;
+        let d = '';
+        timeline.forEach((labelKey, index) => {
+          const point = pointMap.get(labelKey);
+          if (!point) {
+            drawing = false;
+            return;
+          }
+          const x = toX(index);
+          const y = toY(point[valueKey]);
+          if (!drawing) {
+            d += `M${x.toFixed(2)} ${y.toFixed(2)} `;
+            drawing = true;
+          } else {
+            d += `L${x.toFixed(2)} ${y.toFixed(2)} `;
+          }
+        });
+        path.setAttribute('d', d.trim());
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', seriesItem.color);
+        path.setAttribute('stroke-width', '2');
+        svg.appendChild(path);
+      });
+
+      timeline.forEach((labelKey, index) => {
+        const x = toX(index);
+        const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        tick.setAttribute('x1', String(x));
+        tick.setAttribute('x2', String(x));
+        tick.setAttribute('y1', String(height - padding));
+        tick.setAttribute('y2', String(height - padding + 4));
+        tick.setAttribute('stroke', '#1f2937');
+        tick.setAttribute('stroke-width', '1');
+        svg.appendChild(tick);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.textContent = labelKey;
+        label.setAttribute('x', String(x));
+        label.setAttribute('y', String(height - padding + 16));
+        label.setAttribute('fill', '#94a3b8');
+        label.setAttribute('font-size', '10');
+        label.setAttribute('text-anchor', 'middle');
+        svg.appendChild(label);
+      });
+
+      createChartLegend(legendEl, filteredSeries);
+
+      if (typeof valueFormatter === 'function') {
+        const minLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        minLabel.textContent = valueFormatter(min);
+        minLabel.setAttribute('x', String(padding - 4));
+        minLabel.setAttribute('y', String(height - padding));
+        minLabel.setAttribute('fill', '#64748b');
+        minLabel.setAttribute('font-size', '10');
+        minLabel.setAttribute('text-anchor', 'end');
+        svg.appendChild(minLabel);
+
+        const maxLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        maxLabel.textContent = valueFormatter(max);
+        maxLabel.setAttribute('x', String(padding - 4));
+        maxLabel.setAttribute('y', String(padding + 4));
+        maxLabel.setAttribute('fill', '#64748b');
+        maxLabel.setAttribute('font-size', '10');
+        maxLabel.setAttribute('text-anchor', 'end');
+        svg.appendChild(maxLabel);
+      }
+    }
+
+    function renderUsageCharts(usageHistory) {
+      const payload = usageHistory || {};
+      const values = payload.values || {};
+      const historySource = payload.source;
+      const historyError = payload.error;
+      const series = buildSeries(values, 'cpu');
+
+      if (usageHistoryNote) {
+        if (historyError) {
+          usageHistoryNote.textContent = historyError;
+        } else if (historySource) {
+          usageHistoryNote.textContent = `Fonte dati: ${historySource}`;
+        } else if (Object.keys(values).length) {
+          usageHistoryNote.textContent = 'Fonte dati: variabili STATUS_USAGE_HISTORY(_FILE).';
+        } else {
+          usageHistoryNote.textContent = 'Fornisci STATUS_USAGE_HISTORY o STATUS_USAGE_HISTORY_FILE per popolare i grafici.';
+        }
+      }
+
+      drawLineChart(cpuChart, cpuLegend, series, 'cpu', (value) => `${value.toFixed(1)}%`);
+
+      const diskSeries = buildSeries(values, 'disk_gb');
+      drawLineChart(diskChart, diskLegend, diskSeries, 'disk_gb', (value) => `${value.toFixed(1)} GB`);
+    }
+
+    function renderDatabaseUsage(items) {
+      if (!databaseUsageList) return;
+      clearElement(databaseUsageList);
+      if (!items.length) {
+        const empty = document.createElement('li');
+        empty.className = 'overview-empty';
+        empty.textContent = 'Nessun database monitorato.';
+        databaseUsageList.appendChild(empty);
+        return;
+      }
+      items.forEach((usage) => {
+        const li = document.createElement('li');
+        li.className = 'storage-item';
+        const title = document.createElement('strong');
+        title.textContent = usage.label || usage.url || 'Database';
+        li.appendChild(title);
+
+        const details = document.createElement('div');
+        if (usage.type === 'scalingo') {
+          details.textContent = usage.details || 'Dettagli non disponibili.';
+        } else if (usage.status === 'ok' && typeof usage.size_bytes === 'number') {
+          const rowsText = typeof usage.row_estimate === 'number' ? ` · Record stimati: ${usage.row_estimate}` : '';
+          details.textContent = `Dimensione: ${formatBytes(usage.size_bytes)}${rowsText}`;
+        } else if (usage.status === 'ok') {
+          details.textContent = 'Connessione OK (metriche non disponibili).';
+        } else {
+          details.textContent = `Errore: ${usage.error || 'Dato non disponibile'}`;
+        }
+        li.appendChild(details);
+
+        const meta = document.createElement('div');
+        meta.className = 'storage-note';
+        meta.textContent = `Ambiente: ${environmentLabel(usage.environment)}`;
+        li.appendChild(meta);
+
+        databaseUsageList.appendChild(li);
+      });
+    }
+
+    function renderCosts(costs) {
+      if (!costsContent) return;
+      const payload = costs || {};
+      const values = payload.values || {};
+      const entries = Object.entries(values);
+      if (payload.error) {
+        costsContent.textContent = payload.error;
+        costsContent.classList.remove('hidden');
+        return;
+      }
+      if (!entries.length) {
+        costsContent.textContent = 'Nessun dato costi configurato (usa STATUS_COSTS o STATUS_COSTS_FILE).';
+        costsContent.classList.remove('hidden');
+        return;
+      }
+      const parts = entries.map(([env, info]) => {
+        if (info && typeof info === 'object') {
+          const amount = info.value ?? info.amount ?? info.totale ?? 0;
+          const currency = info.currency || info.valuta || '€';
+          return `${environmentLabel(env)}: ${amount} ${currency}`;
+        }
+        return `${environmentLabel(env)}: ${info}`;
+      });
+      if (payload.source) {
+        parts.push(`Fonte: ${payload.source}`);
+      }
+      costsContent.textContent = parts.join(' · ');
+      costsContent.classList.remove('hidden');
+    }
+
+    async function loadOverview(force = false) {
+      if (!environmentCards || overviewLoading) {
+        return;
+      }
+      if (overviewLoaded && !force) {
+        return;
+      }
+      overviewLoading = true;
+      setOverviewFeedback('Caricamento panoramica...', 'info');
+      if (criticalList) {
+        clearElement(criticalList);
+        const loading = document.createElement('li');
+        loading.className = 'overview-empty';
+        loading.textContent = 'Caricamento in corso...';
+        criticalList.appendChild(loading);
+      }
+      if (environmentCards) {
+        clearElement(environmentCards);
+      }
+      if (databaseSummaryList) {
+        clearElement(databaseSummaryList);
+      }
+      if (bucketSummaryList) {
+        clearElement(bucketSummaryList);
+      }
+      if (gitDirtyList) {
+        clearElement(gitDirtyList);
+      }
+      if (bucketUsageList) {
+        clearElement(bucketUsageList);
+      }
+      if (databaseUsageList) {
+        clearElement(databaseUsageList);
+      }
+      if (cpuChart || cpuLegend) {
+        clearChart(cpuChart, cpuLegend);
+      }
+      if (diskChart || diskLegend) {
+        clearChart(diskChart, diskLegend);
+      }
+      if (usageHistoryNote) {
+        usageHistoryNote.textContent = '';
+      }
+      try {
+        const res = await fetch('/api/overview');
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        renderOverview(data);
+      } catch (error) {
+        setOverviewFeedback(error.message, 'error');
+      } finally {
+        overviewLoading = false;
+      }
+    }
+
+    function switchView(view) {
+      if (activeView === view) {
+        return;
+      }
+      if (activeView === 'prompts' && view !== 'prompts' && promptDirty) {
+        const proceed = window.confirm('Hai modifiche non salvate nella sezione Prompts. Vuoi continuare?');
+        if (!proceed) {
+          return;
+        }
+      }
+      views.forEach((el) => el.classList.add('hidden'));
+      navButtons.forEach((btn) => btn.classList.remove('active'));
+      document.getElementById(`view-${view}`).classList.remove('hidden');
+      document.querySelector(`.nav-button[data-view="${view}"]`).classList.add('active');
+
+      if (view === 'knowledge') {
+        loadKnowledge();
+      }
+      if (view === 'status') {
+        loadStatus();
+      }
+      if (view === 'overview') {
+        loadOverview();
+      }
+      if (view === 'prompts') {
+        if (!promptsLoaded && !promptLoading) {
+          loadPromptFiles();
+        } else {
+          renderPromptFileList();
+        }
+      }
+      activeView = view;
+    }
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener('click', () => switchView(btn.dataset.view));
+    });
+
+    async function loadKnowledge() {
+      const res = await fetch('/api/knowledge');
+      const entries = await res.json();
+      knowledgeList.innerHTML = '';
+      if (!entries.length) {
+        knowledgeList.innerHTML = '<li>Nessuna nota presente.</li>';
+        return;
+      }
+      entries.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      entries.forEach((entry) => {
+        const li = document.createElement('li');
+        const safeDescription = (entry.description || '').split('\n').join('<br>');
+        li.innerHTML = `<strong>${entry.title}</strong> <small>(${new Date(entry.created_at).toLocaleString()})</small><br>${safeDescription}`;
+        if (entry.tags && entry.tags.length) {
+          const tagSpan = document.createElement('small');
+          tagSpan.textContent = `Tag: ${entry.tags.join(', ')}`;
+          li.appendChild(document.createElement('br'));
+          li.appendChild(tagSpan);
+        }
+        knowledgeList.appendChild(li);
+      });
+    }
+
+    knowledgeForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      knowledgeFeedback.classList.add('hidden');
+      const payload = {
+        title: document.getElementById('kb-title').value.trim(),
+        description: document.getElementById('kb-description').value.trim(),
+        tags: document.getElementById('kb-tags').value
+          .split(',')
+          .map((t) => t.trim())
+          .filter((t) => t.length > 0),
+      };
+      if (!payload.title || !payload.description) {
+        return;
+      }
+      try {
+        const res = await fetch('/api/knowledge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.detail || 'Errore salvataggio');
+        }
+        document.getElementById('kb-title').value = '';
+        document.getElementById('kb-description').value = '';
+        document.getElementById('kb-tags').value = '';
+        knowledgeFeedback.textContent = 'Nota aggiunta';
+        knowledgeFeedback.classList.remove('hidden');
+        loadKnowledge();
+      } catch (error) {
+        knowledgeFeedback.textContent = error.message;
+        knowledgeFeedback.classList.remove('hidden');
+      }
+    });
+
+    if (knowledgeTemplateButton) {
+      knowledgeTemplateButton.addEventListener('click', () => {
+        const titleInput = document.getElementById('kb-title');
+        const descriptionInput = document.getElementById('kb-description');
+        const tagsInput = document.getElementById('kb-tags');
+        const template = [
+          '## Contesto',
+          '- ',
+          '',
+          '## Procedura',
+          '1. ',
+          '',
+          '## Verifica',
+          '- ',
+          '',
+          '## Contatti',
+          '- ',
+          '',
+          '## Note aggiuntive',
+          '- ',
+        ].join('\n');
+        if (descriptionInput.value.trim() && !window.confirm('Sostituire la descrizione corrente con il template runbook?')) {
+          return;
+        }
+        descriptionInput.value = template;
+        if (titleInput && !titleInput.value.trim()) {
+          titleInput.value = 'Runbook - ';
+          titleInput.focus();
+        } else {
+          descriptionInput.focus();
+        }
+        if (tagsInput && !tagsInput.value.trim()) {
+          tagsInput.value = 'runbook,procedure';
+        }
+      });
+    }
+
+    function setStatusFeedback(message, variant = 'info') {
+      if (!message) {
+        statusFeedback.textContent = '';
+        statusFeedback.className = 'status-feedback hidden';
+        return;
+      }
+      const classes = ['status-feedback'];
+      if (variant && variant !== 'info') {
+        classes.push(variant);
+      }
+      statusFeedback.textContent = message;
+      statusFeedback.className = classes.join(' ');
+    }
+
+    function clearStatusFeedback() {
+      setStatusFeedback('', 'info');
+    }
+
+    function getSortMode(categoryId) {
+      if (!categoryId) return 'manual';
+      if (!storage) return 'manual';
+      const saved = storage.getItem(`${ENTRY_SORT_MODE_PREFIX}${categoryId}`);
+      return VALID_SORT_MODES.includes(saved) ? saved : 'manual';
+    }
+
+    function setSortMode(categoryId, mode) {
+      if (!storage) return;
+      try {
+        storage.setItem(`${ENTRY_SORT_MODE_PREFIX}${categoryId}`, mode);
+      } catch (error) {
+        /* ignore quota issues */
+      }
+    }
+
+    function getSavedEntryOrder(categoryId) {
+      if (!storage) return [];
+      try {
+        const raw = storage.getItem(`${ENTRY_ORDER_PREFIX}${categoryId}`);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveEntryOrder(categoryId, order) {
+      if (!storage) return;
+      try {
+        storage.setItem(`${ENTRY_ORDER_PREFIX}${categoryId}`, JSON.stringify(order));
+      } catch (error) {
+        /* ignore quota issues */
+      }
+    }
+
+    function getEntryKey(categoryId, entry) {
+      const target = entry.target || {};
+      if (target.id) {
+        return `${target.type || 'target'}::${target.id}`;
+      }
+      return `${categoryId}::${entry.label}`;
+    }
+
+    function applyManualOrder(categoryId, entries) {
+      const savedOrder = getSavedEntryOrder(categoryId);
+      if (!savedOrder.length) {
+        return [...entries];
+      }
+      const mapping = new Map();
+      entries.forEach((entry) => {
+        mapping.set(getEntryKey(categoryId, entry), entry);
+      });
+      const ordered = [];
+      savedOrder.forEach((key) => {
+        if (mapping.has(key)) {
+          ordered.push(mapping.get(key));
+          mapping.delete(key);
+        }
+      });
+      mapping.forEach((entry) => ordered.push(entry));
+      return ordered;
+    }
+
+    function sortEntriesForCategory(categoryId, entries) {
+      const sortMode = getSortMode(categoryId);
+      const list = [...entries];
+      if (!list.length) {
+        return list;
+      }
+      if (sortMode === 'manual') {
+        return applyManualOrder(categoryId, list);
+      }
+      if (sortMode === 'status') {
+        return list.sort((a, b) => {
+          const diff = (STATUS_WEIGHT[a.status?.toLowerCase()] ?? 99) - (STATUS_WEIGHT[b.status?.toLowerCase()] ?? 99);
+          if (diff !== 0) return diff;
+          return (a.label || '').localeCompare(b.label || '', undefined, { sensitivity: 'base' });
+        });
+      }
+      if (sortMode === 'name') {
+        return list.sort((a, b) => (a.label || '').localeCompare(b.label || '', undefined, { sensitivity: 'base' }));
+      }
+      return list;
+    }
+
+    function isDragEnabled(categoryId) {
+      return getSortMode(categoryId) === 'manual' && dragState.get(categoryId) === true;
+    }
+
+    function updateDragStateForGrid(entryGrid, categoryId) {
+      const enabled = isDragEnabled(categoryId);
+      const cards = entryGrid.querySelectorAll('.entry-card');
+      cards.forEach((card) => {
+        if (enabled) {
+          card.setAttribute('draggable', 'true');
+          card.classList.add('draggable');
+        } else {
+          card.removeAttribute('draggable');
+          card.classList.remove('draggable');
+          card.classList.remove('dragging');
+        }
+      });
+      entryGrid.classList.toggle('drag-enabled', enabled);
+    }
+
+    function persistEntryOrder(entryGrid, categoryId) {
+      if (getSortMode(categoryId) !== 'manual') {
+        return;
+      }
+      const article = entryGrid.closest('.status-card');
+      if (!article) return;
+      const order = Array.from(article.querySelectorAll('.entry-card'))
+        .map((node) => node.dataset.entryKey)
+        .filter(Boolean);
+      if (order.length) {
+        saveEntryOrder(categoryId, order);
+      }
+    }
+
+    function getDragAfterEntry(entryGrid, y) {
+      const cards = [...entryGrid.querySelectorAll('.entry-card.draggable:not(.dragging)')];
+      let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+      cards.forEach((card) => {
+        const box = card.getBoundingClientRect();
+        const offset = y - (box.top + box.height / 2);
+        if (offset < 0 && offset > closest.offset) {
+          closest = { offset, element: card };
+        }
+      });
+      return closest.element;
+    }
+
+    function attachEntryDragHandlers(entryGrid, categoryId) {
+      if (entryGrid.dataset.dragHandlers === '1') {
+        return;
+      }
+
+      let draggingCard = null;
+      let originBody = null;
+
+      entryGrid.addEventListener('dragstart', (event) => {
+        const card = event.target.closest('.entry-card');
+        if (!card || !entryGrid.contains(card) || !isDragEnabled(categoryId)) {
+          event.preventDefault();
+          return;
+        }
+        draggingCard = card;
+        originBody = card.parentElement;
+        card.classList.add('dragging');
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = 'move';
+          const dragKey = card.dataset.entryKey || card.dataset.entryId || card.textContent || 'entry';
+          event.dataTransfer.setData('text/plain', dragKey);
+        }
+      });
+
+      entryGrid.addEventListener('dragover', (event) => {
+        if (!draggingCard || !isDragEnabled(categoryId)) {
+          return;
+        }
+        event.preventDefault();
+        if (event.dataTransfer) {
+          event.dataTransfer.dropEffect = 'move';
+        }
+        const afterElement = getDragAfterEntry(entryGrid, event.clientY);
+        if (!afterElement) {
+          entryGrid.appendChild(draggingCard);
+        } else if (afterElement !== draggingCard) {
+          entryGrid.insertBefore(draggingCard, afterElement);
+        }
+      });
+
+      entryGrid.addEventListener('drop', (event) => {
+        if (!draggingCard || !isDragEnabled(categoryId)) {
+          return;
+        }
+        event.preventDefault();
+        const movedCard = draggingCard;
+        const previousBody = originBody;
+        const targetBody = entryGrid;
+        movedCard.classList.remove('dragging');
+        draggingCard = null;
+        originBody = null;
+        const newGroupId = targetBody.dataset.groupId;
+        if (newGroupId) {
+          updateEntryGroupAssignment(categoryId, movedCard.dataset.entryKey, newGroupId);
+          movedCard.dataset.groupId = newGroupId;
+        }
+        updateGroupEmptyState(targetBody);
+        updateGroupCount(targetBody);
+        if (previousBody && previousBody !== targetBody) {
+          updateGroupEmptyState(previousBody);
+          updateGroupCount(previousBody);
+        }
+        persistEntryOrder(targetBody, categoryId);
+      });
+
+      entryGrid.addEventListener('dragend', () => {
+        if (draggingCard) {
+          draggingCard.classList.remove('dragging');
+          const parentBody = draggingCard.parentElement;
+          const newGroupId = parentBody?.dataset.groupId;
+          if (newGroupId) {
+            updateEntryGroupAssignment(categoryId, draggingCard.dataset.entryKey, newGroupId);
+          }
+          updateGroupEmptyState(parentBody);
+          updateGroupCount(parentBody);
+          draggingCard = null;
+        }
+        originBody = null;
+        if (isDragEnabled(categoryId)) {
+          persistEntryOrder(entryGrid, categoryId);
+        }
+      });
+
+      entryGrid.dataset.dragHandlers = '1';
+    }
+
+    function collectTargetsFromCards(cards, action, onlySelected = false) {
+      const seen = new Set();
+      const targets = [];
+      cards.forEach((card) => {
+        const type = card.dataset.entryType;
+        const id = card.dataset.entryId;
+        if (!type || !id) {
+          return;
+        }
+        const actionsAttr = card.dataset.entryActions || '';
+        const allowed = actionsAttr
+          ? actionsAttr.split(',').map((a) => a.trim()).filter((a) => a.length > 0)
+          : [];
+        if (action && (!allowed.length || !allowed.includes(action))) {
+          return;
+        }
+        if (onlySelected) {
+          const checkbox = card.querySelector('.entry-select');
+          if (!checkbox || !checkbox.checked) {
+            return;
+          }
+        }
+        const key = `${type}::${id}`;
+        if (seen.has(key)) {
+          return;
+        }
+        seen.add(key);
+        targets.push({ type, id });
+      });
+      return targets;
+    }
+
+    function indicatorClass(status) {
+      switch ((status || 'info').toLowerCase()) {
+        case 'ok':
+          return 'indicator indicator-ok';
+        case 'warn':
+          return 'indicator indicator-warn';
+        case 'error':
+          return 'indicator indicator-error';
+        default:
+          return 'indicator indicator-info';
+      }
+    }
+
+    function actionLabel(action) {
+      switch (action) {
+        case 'start':
+          return 'Avvia';
+        case 'stop':
+          return 'Ferma';
+        case 'restart':
+          return 'Riavvia';
+        case 'pull':
+          return 'Git pull';
+        case 'fetch':
+          return 'Git fetch';
+        case 'status':
+          return 'Git status';
+        default:
+          return action;
+      }
+    }
+
+    function iconForEntry(entry, categoryId) {
+      const targetType = entry.target && entry.target.type;
+      if (targetType === 'docker_container') return '🐳';
+      if (targetType === 'scalingo_app') return '🚀';
+      if (targetType === 'git_repo') return '📁';
+      if ((categoryId || '').includes('bucket')) return '🪣';
+      if ((categoryId || '').includes('database')) return '🗄️';
+      return 'ℹ️';
+    }
+
+    function entryMetaText(entry) {
+      const meta = entry.meta || entry.details || '';
+      return meta || '-';
+    }
+
+    async function performActionForType(type, action, ids) {
+      if (!ids.length) {
+        return { action, results: [] };
+      }
+      let url;
+      let body;
+      if (type === 'docker_container') {
+        if (!['start', 'stop', 'restart'].includes(action)) {
+          throw new Error(`Azione ${action} non supportata per Docker`);
+        }
+        url = '/api/docker/containers/actions';
+        body = { action, names: ids };
+      } else if (type === 'scalingo_app') {
+        if (action !== 'restart') {
+          throw new Error(`Azione ${action} non supportata per Scalingo`);
+        }
+        url = '/api/scalingo/apps/actions';
+        body = { action, names: ids };
+      } else if (type === 'git_repo') {
+        if (!['status', 'fetch', 'pull'].includes(action)) {
+          throw new Error(`Azione ${action} non supportata per Git`);
+        }
+        url = '/api/git/repos/actions';
+        body = { action, repos: ids };
+      } else {
+        throw new Error(`Tipo non supportato: ${type}`);
+      }
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        let detail = '';
+        try {
+          const error = await res.json();
+          detail = error.detail;
+        } catch (parseError) {
+          /* ignore parse error */
+        }
+        throw new Error(detail || `Errore ${res.status} nell'eseguire l'azione`);
+      }
+      return res.json();
+    }
+
+    async function runBulkAction(targets, action) {
+      const grouped = new Map();
+      targets.forEach(({ type, id }) => {
+        if (!grouped.has(type)) grouped.set(type, new Set());
+        grouped.get(type).add(id);
+      });
+      if (!grouped.size) {
+        throw new Error('Nessun elemento valido per questa azione.');
+      }
+      const responses = await Promise.all(
+        Array.from(grouped.entries()).map(([type, ids]) =>
+          performActionForType(type, action, Array.from(ids))
+        )
+      );
+      return responses;
+    }
+
+    function summarizeActionResults(responses, actionName) {
+      const allResults = responses.flatMap((res) => res.results || []);
+      const total = allResults.length;
+      const failures = allResults.filter((item) => item.exit_code !== 0);
+      if (!total) {
+        return { message: `Azione ${actionName} completata.`, variant: 'info' };
+      }
+      if (!failures.length) {
+        return {
+          message: `Azione ${actionName} completata su ${total} servizio/i.`,
+          variant: 'ok',
+        };
+      }
+      return {
+        message: `Azione ${actionName} completata con ${failures.length}/${total} errore/i.`,
+        variant: 'warn',
+      };
+    }
+
+    async function withLoadingButtons(buttons, fn) {
+      const buttonList = Array.isArray(buttons) ? buttons : [buttons];
+      buttonList.forEach((btn) => {
+        if (!btn) return;
+        btn.disabled = true;
+        btn.classList.add('loading');
+      });
+      try {
+        return await fn();
+      } finally {
+        buttonList.forEach((btn) => {
+          if (!btn) return;
+          btn.disabled = false;
+          btn.classList.remove('loading');
+        });
+      }
+    }
+
+    async function handleCategoryAction(article, actionName, entryCards) {
+      const cards = entryCards.map((item) => item.card);
+      const selectedTargets = collectTargetsFromCards(cards, actionName, true);
+      const targets = selectedTargets.length ? selectedTargets : collectTargetsFromCards(cards, actionName);
+      if (!targets.length) {
+        setStatusFeedback('Nessun servizio compatibile con questa azione.', 'warn');
+        return;
+      }
+      const buttons = Array.from(
+        article.querySelectorAll(`.status-card-toolbar button[data-action="${actionName}"]`)
+      );
+      await withLoadingButtons(buttons, async () => {
+        setStatusFeedback('Azione in esecuzione...', 'info');
+        const responses = await runBulkAction(targets, actionName);
+        const summary = summarizeActionResults(responses, actionName);
+        setStatusFeedback(summary.message, summary.variant);
+        await loadStatus();
+      });
+    }
+
+    async function handleEntryAction(entryCard, actionName, button) {
+      const targets = collectTargetsFromCards([entryCard], actionName);
+      if (!targets.length) {
+        setStatusFeedback('Azione non disponibile per questo servizio.', 'warn');
+        return;
+      }
+      await withLoadingButtons(button, async () => {
+        setStatusFeedback('Azione in esecuzione...', 'info');
+        const responses = await runBulkAction(targets, actionName);
+        const summary = summarizeActionResults(responses, actionName);
+        setStatusFeedback(summary.message, summary.variant);
+        await loadStatus();
+      });
+    }
+
+    function renderStatus(categories) {
+      latestStatusCategories = Array.isArray(categories) ? categories : [];
+      statusGrid.innerHTML = '';
+      if (!latestStatusCategories.length) {
+        statusGrid.innerHTML = '<p class="status-hint">Nessun dato disponibile.</p>';
+        renderColumnManager();
+        return;
+      }
+
+      syncCardOrder(latestStatusCategories);
+
+      const hidden = getHiddenCards();
+      const visibleCategories = latestStatusCategories.filter((card) => {
+        const cardId = resolveCardId(card);
+        if (!cardId) return true;
+        return !hidden.has(cardId);
+      });
+      const orderedCategories = applyCardOrder(visibleCategories);
+
+      if (!orderedCategories.length) {
+        statusGrid.innerHTML = '<p class="status-hint">Nessuna colonna visibile. Usa "Gestisci colonne" per aggiungerne.</p>';
+        renderColumnManager();
+        return;
+      }
+
+      orderedCategories.forEach((card, index) => {
+        const baseCardId = resolveCardId(card);
+        const cardId = baseCardId || `card-${index}`;
+        const sortMode = getSortMode(cardId);
+        if (!dragState.has(cardId)) {
+          dragState.set(cardId, false);
+        }
+        const article = document.createElement('article');
+        article.className = 'status-card';
+        article.dataset.cardId = cardId;
+        article.setAttribute('draggable', 'true');
+
+        const header = document.createElement('div');
+        header.className = 'status-card-header';
+
+        const cardHandle = document.createElement('button');
+        cardHandle.type = 'button';
+        cardHandle.className = 'card-handle';
+        cardHandle.setAttribute('aria-label', 'Trascina colonna');
+        cardHandle.textContent = '⋮⋮';
+        const enableDrag = () => {
+          article.dataset.cardDragReady = '1';
+        };
+        const disableDrag = () => {
+          delete article.dataset.cardDragReady;
+        };
+        cardHandle.addEventListener('mousedown', enableDrag);
+        cardHandle.addEventListener('mouseup', disableDrag);
+        cardHandle.addEventListener('mouseleave', disableDrag);
+        cardHandle.addEventListener('touchstart', enableDrag, { passive: true });
+        cardHandle.addEventListener('touchend', disableDrag);
+
+        const title = document.createElement('div');
+        title.className = 'card-title';
+        const indicator = document.createElement('span');
+        indicator.className = indicatorClass(card.status);
+        const heading = document.createElement('span');
+        heading.textContent = card.title || card.id;
+        title.appendChild(indicator);
+        title.appendChild(heading);
+
+        header.appendChild(cardHandle);
+        header.appendChild(title);
+        article.appendChild(header);
+
+        const toolbar = document.createElement('div');
+        toolbar.className = 'status-card-toolbar';
+
+        const leftGroup = document.createElement('div');
+        leftGroup.className = 'toolbar-group';
+
+        const sortLabel = document.createElement('label');
+        sortLabel.textContent = 'Ordina per:';
+        const sortSelect = document.createElement('select');
+        const sortOptions = [
+          { value: 'manual', label: 'Manuale' },
+          { value: 'status', label: 'Stato' },
+          { value: 'name', label: 'Nome' },
+        ];
+        sortOptions.forEach((opt) => {
+          const option = document.createElement('option');
+          option.value = opt.value;
+          option.textContent = opt.label;
+          if (opt.value === sortMode) {
+            option.selected = true;
+          }
+          sortSelect.appendChild(option);
+        });
+        sortLabel.appendChild(sortSelect);
+        leftGroup.appendChild(sortLabel);
+
+        const reorderBtn = document.createElement('button');
+        reorderBtn.type = 'button';
+        reorderBtn.textContent = isDragEnabled(cardId) ? 'Blocca ordine' : 'Riordina';
+        reorderBtn.disabled = sortMode !== 'manual';
+        leftGroup.appendChild(reorderBtn);
+
+        toolbar.appendChild(leftGroup);
+
+        const availableActions = Array.isArray(card.actions) ? card.actions : [];
+        const entryCards = [];
+
+        const groupManager = document.createElement('div');
+        groupManager.className = 'entry-group-manager hidden';
+        groupManager.dataset.cardId = cardId;
+
+        const groupsWrapper = document.createElement('div');
+        groupsWrapper.className = 'entry-groups';
+
+        const groupData = loadGroupData(cardId);
+        const groupAssignments = groupData.assignments || {};
+        const groupElements = new Map();
+
+        groupData.groups.forEach((group) => {
+          const groupContainer = document.createElement('div');
+          groupContainer.className = 'entry-group';
+          groupContainer.dataset.groupId = group.id;
+
+          const groupHeader = document.createElement('div');
+          groupHeader.className = 'entry-group-header';
+          const titleSpan = document.createElement('span');
+          titleSpan.className = 'entry-group-title';
+          titleSpan.textContent = group.label || DEFAULT_GROUP_LABEL;
+          const countSpan = document.createElement('span');
+          countSpan.className = 'entry-group-count';
+          groupHeader.appendChild(titleSpan);
+          groupHeader.appendChild(countSpan);
+          groupContainer.appendChild(groupHeader);
+
+          const groupBody = document.createElement('div');
+          groupBody.className = 'entry-group-body';
+          groupBody.dataset.groupId = group.id;
+          groupBody.dataset.categoryId = cardId;
+          groupContainer.appendChild(groupBody);
+
+          groupsWrapper.appendChild(groupContainer);
+          groupElements.set(group.id, { container: groupContainer, header: groupHeader, body: groupBody, countSpan });
+        });
+
+        if (!groupElements.size) {
+          const fallbackGroup = { id: DEFAULT_GROUP_ID, label: DEFAULT_GROUP_LABEL, locked: true };
+          groupData.groups = [fallbackGroup];
+          groupAssignmentsChanged = true;
+          const fallbackContainer = document.createElement('div');
+          fallbackContainer.className = 'entry-group';
+          fallbackContainer.dataset.groupId = fallbackGroup.id;
+          const groupHeader = document.createElement('div');
+          groupHeader.className = 'entry-group-header';
+          const titleSpan = document.createElement('span');
+          titleSpan.className = 'entry-group-title';
+          titleSpan.textContent = fallbackGroup.label;
+          const countSpan = document.createElement('span');
+          countSpan.className = 'entry-group-count';
+          groupHeader.appendChild(titleSpan);
+          groupHeader.appendChild(countSpan);
+          fallbackContainer.appendChild(groupHeader);
+          const fallbackBody = document.createElement('div');
+          fallbackBody.className = 'entry-group-body';
+          fallbackBody.dataset.groupId = fallbackGroup.id;
+          fallbackBody.dataset.categoryId = cardId;
+          fallbackContainer.appendChild(fallbackBody);
+          groupsWrapper.appendChild(fallbackContainer);
+          groupElements.set(fallbackGroup.id, { container: fallbackContainer, header: groupHeader, body: fallbackBody, countSpan });
+        }
+
+        const sortedEntries = sortEntriesForCategory(cardId, card.entries || []);
+        let groupAssignmentsChanged = false;
+
+        sortedEntries.forEach((entry) => {
+          const entryKey = getEntryKey(cardId, entry);
+          const entryCard = document.createElement('div');
+          entryCard.className = 'entry-card collapsed';
+          entryCard.dataset.entryKey = entryKey;
+
+          const entryActions = Array.isArray(entry.actions) ? entry.actions : [];
+          const entryTarget = entry.target || {};
+          if (entryTarget.type) entryCard.dataset.entryType = entryTarget.type;
+          if (entryTarget.id) entryCard.dataset.entryId = entryTarget.id;
+          if (entryActions.length) entryCard.dataset.entryActions = entryActions.join(',');
+
+          const summary = document.createElement('div');
+          summary.className = 'entry-summary';
+
+          const handle = document.createElement('span');
+          handle.className = 'entry-handle';
+          handle.textContent = '⋮⋮';
+          summary.appendChild(handle);
+
+          let entryCheckbox = null;
+          if (entryActions.length && entryTarget.type && entryTarget.id) {
+            entryCheckbox = document.createElement('input');
+            entryCheckbox.type = 'checkbox';
+            entryCheckbox.className = 'entry-select';
+            entryCheckbox.addEventListener('click', (event) => event.stopPropagation());
+            summary.appendChild(entryCheckbox);
+          }
+
+          const summaryMain = document.createElement('div');
+          summaryMain.className = 'entry-summary-main';
+
+          const summaryIndicator = document.createElement('span');
+          summaryIndicator.className = indicatorClass(entry.status);
+          summaryMain.appendChild(summaryIndicator);
+
+          const icon = document.createElement('span');
+          icon.className = 'entry-icon';
+          icon.textContent = iconForEntry(entry, cardId);
+          summaryMain.appendChild(icon);
+
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'entry-name';
+          nameSpan.textContent = entry.label;
+          summaryMain.appendChild(nameSpan);
+
+          const metaSpan = document.createElement('span');
+          metaSpan.className = 'entry-meta';
+          metaSpan.textContent = entryMetaText(entry);
+          summaryMain.appendChild(metaSpan);
+
+          summary.appendChild(summaryMain);
+
+          const toggleBtn = document.createElement('button');
+          toggleBtn.className = 'entry-toggle';
+          toggleBtn.type = 'button';
+          toggleBtn.setAttribute('aria-label', 'Espandi dettagli');
+          toggleBtn.setAttribute('aria-expanded', 'false');
+          toggleBtn.textContent = '❯';
+          summary.appendChild(toggleBtn);
+
+          entryCard.appendChild(summary);
+
+          const entryBody = document.createElement('div');
+          entryBody.className = 'entry-body';
+
+          const entryHeader = document.createElement('div');
+          entryHeader.className = 'entry-card-header';
+
+          const metaContainer = document.createElement('div');
+          metaContainer.className = 'entry-card-meta';
+
+          const bodyIndicator = document.createElement('span');
+          bodyIndicator.className = indicatorClass(entry.status);
+          metaContainer.appendChild(bodyIndicator);
+
+          const labelSpan = document.createElement('span');
+          labelSpan.className = 'label';
+          labelSpan.textContent = entry.label;
+          metaContainer.appendChild(labelSpan);
+
+          entryHeader.appendChild(metaContainer);
+
+          if (entryActions.length && entryTarget.type && entryTarget.id) {
+            const actionsWrapper = document.createElement('div');
+            actionsWrapper.className = 'entry-actions';
+            entryActions.forEach((actionName) => {
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.dataset.action = actionName;
+              btn.textContent = actionLabel(actionName);
+              btn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                handleEntryAction(entryCard, actionName, btn);
+              });
+              actionsWrapper.appendChild(btn);
+            });
+            entryHeader.appendChild(actionsWrapper);
+          }
+
+          entryBody.appendChild(entryHeader);
+
+          if (entry.details) {
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'details';
+            detailsDiv.textContent = entry.details;
+            entryBody.appendChild(detailsDiv);
+          }
+
+          if (entry.hint) {
+            const hint = document.createElement('div');
+            hint.className = 'status-hint';
+            hint.textContent = entry.hint;
+            entryBody.appendChild(hint);
+          }
+
+          entryCard.appendChild(entryBody);
+
+          let groupId = groupAssignments[entryKey];
+          if (!groupElements.has(groupId)) {
+            const firstGroup = groupData.groups[0]?.id || DEFAULT_GROUP_ID;
+            groupId = firstGroup;
+            groupAssignments[entryKey] = groupId;
+            groupAssignmentsChanged = true;
+          }
+          entryCard.dataset.groupId = groupId;
+          const targetGroup = groupElements.get(groupId);
+          targetGroup.body.appendChild(entryCard);
+          entryCards.push({ card: entryCard, checkbox: entryCheckbox });
+
+          const setExpanded = (expanded) => {
+            entryCard.classList.toggle('collapsed', !expanded);
+            entryCard.classList.toggle('expanded', expanded);
+            toggleBtn.setAttribute('aria-expanded', expanded);
+          };
+
+          const toggleExpansion = () => {
+            setExpanded(!entryCard.classList.contains('expanded'));
+          };
+
+          toggleBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleExpansion();
+          });
+
+          summaryMain.addEventListener('click', toggleExpansion);
+          handle.addEventListener('mousedown', (event) => {
+            if (!isDragEnabled(cardId)) {
+              event.preventDefault();
+            }
+            event.stopPropagation();
+          });
+          handle.addEventListener('click', (event) => event.stopPropagation());
+        });
+
+        groupElements.forEach(({ body, countSpan }) => {
+          updateGroupEmptyState(body);
+          updateGroupCount(body);
+        });
+
+        if (groupAssignmentsChanged) {
+          saveGroupData(cardId, { groups: groupData.groups, assignments: groupAssignments });
+        }
+
+        const rightGroup = document.createElement('div');
+        rightGroup.className = 'toolbar-group';
+
+        const manageGroupsBtn = document.createElement('button');
+        manageGroupsBtn.type = 'button';
+        manageGroupsBtn.textContent = 'Gestisci gruppi';
+        rightGroup.appendChild(manageGroupsBtn);
+
+        if (availableActions.length && entryCards.some((item) => item.checkbox)) {
+          const selectionLabel = document.createElement('label');
+          const masterCheckbox = document.createElement('input');
+          masterCheckbox.type = 'checkbox';
+          masterCheckbox.className = 'entry-select-master';
+          selectionLabel.appendChild(masterCheckbox);
+          selectionLabel.appendChild(document.createTextNode('Seleziona tutto'));
+          rightGroup.appendChild(selectionLabel);
+
+          const checkboxes = entryCards.map((item) => item.checkbox).filter(Boolean);
+          const updateMaster = () => {
+            if (!checkboxes.length) {
+              masterCheckbox.checked = false;
+              masterCheckbox.indeterminate = false;
+              masterCheckbox.disabled = true;
+              return;
+            }
+            masterCheckbox.disabled = false;
+            const allChecked = checkboxes.every((cb) => cb.checked);
+            const someChecked = checkboxes.some((cb) => cb.checked);
+            masterCheckbox.checked = allChecked;
+            masterCheckbox.indeterminate = !allChecked && someChecked;
+          };
+
+          masterCheckbox.addEventListener('change', () => {
+            checkboxes.forEach((cb) => {
+              cb.checked = masterCheckbox.checked;
+            });
+            updateMaster();
+          });
+
+          checkboxes.forEach((cb) => cb.addEventListener('change', updateMaster));
+          updateMaster();
+
+          availableActions.forEach((actionName) => {
+            const actionBtn = document.createElement('button');
+            actionBtn.type = 'button';
+            actionBtn.dataset.action = actionName;
+            actionBtn.textContent = actionLabel(actionName);
+            actionBtn.addEventListener('click', () => handleCategoryAction(article, actionName, entryCards));
+            rightGroup.appendChild(actionBtn);
+          });
+        }
+
+        toolbar.appendChild(rightGroup);
+
+        article.appendChild(toolbar);
+        article.appendChild(groupManager);
+        article.appendChild(groupsWrapper);
+
+        sortSelect.addEventListener('change', () => {
+          const newMode = sortSelect.value;
+          if (!VALID_SORT_MODES.includes(newMode)) {
+            return;
+          }
+          setSortMode(cardId, newMode);
+          dragState.set(cardId, false);
+          clearStatusFeedback();
+          loadStatus();
+        });
+
+        reorderBtn.addEventListener('click', () => {
+          if (getSortMode(cardId) !== 'manual') {
+            setStatusFeedback('Imposta "Ordina per" su Manuale per riordinare i servizi.', 'warn');
+            return;
+          }
+          const next = !isDragEnabled(cardId);
+          dragState.set(cardId, next);
+          groupElements.forEach(({ body }) => updateDragStateForGrid(body, cardId));
+          reorderBtn.textContent = next ? 'Blocca ordine' : 'Riordina';
+          if (next) {
+            setStatusFeedback("Modalità riordino attiva: trascina le card tramite l'handle laterale.", 'info');
+          } else {
+            const firstBody = groupElements.values().next().value?.body;
+            if (firstBody) {
+              persistEntryOrder(firstBody, cardId);
+            }
+            setStatusFeedback('Ordine aggiornato.', 'ok');
+          }
+        });
+        const manageGroupsHandler = () => {
+          const hidden = groupManager.classList.toggle('hidden');
+          if (hidden) {
+            openGroupManagers.delete(cardId);
+          } else {
+            openGroupManagers.add(cardId);
+            renderGroupManagerUI(cardId, groupManager);
+          }
+        };
+        manageGroupsBtn.addEventListener('click', manageGroupsHandler);
+
+        const groupBodies = Array.from(groupElements.values()).map((item) => item.body);
+        groupBodies.forEach((body) => {
+          attachEntryDragHandlers(body, cardId);
+          updateDragStateForGrid(body, cardId);
+        });
+        if (sortMode !== 'manual') {
+          dragState.set(cardId, false);
+          reorderBtn.disabled = true;
+          reorderBtn.textContent = 'Riordina';
+        }
+
+        if (openGroupManagers.has(cardId)) {
+          groupManager.classList.remove('hidden');
+          renderGroupManagerUI(cardId, groupManager);
+        }
+
+        statusGrid.appendChild(article);
+      });
+
+      ensureCardDragHandlers();
+      renderColumnManager();
+      persistCardOrderFromDom();
+    }
+
+    async function loadStatus() {
+      const loadingMsg = '<p class="status-hint">Caricamento in corso...</p>';
+      statusGrid.innerHTML = loadingMsg;
+      try {
+        const res = await fetch('/api/status');
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        statusGrid.innerHTML = '';
+        renderStatus(data.categories || []);
+      } catch (error) {
+        statusGrid.innerHTML = `<p class="status-hint">Errore: ${error.message}</p>`;
+        setStatusFeedback(error.message, 'error');
+      }
+    }
+
+    scriptsRoot.textContent = rootEl.dataset.scriptsRoot;
+    loadScripts();
+    switchView('overview');
+
+    if (scriptDetailRun) {
+      scriptDetailRun.addEventListener('click', () => {
+        if (!currentScript) {
+          return;
+        }
+        runScript(scriptDetailRun, currentScript.name);
+      });
+    }
+
+    if (overviewRefresh) {
+      overviewRefresh.addEventListener('click', () => {
+        overviewLoaded = false;
+        loadOverview(true);
+      });
+    }
+
+    if (statusRefresh) {
+      statusRefresh.addEventListener('click', () => {
+        clearStatusFeedback();
+        loadStatus();
+      });
+    }
+
+    if (toggleColumnManagerBtn && columnManager) {
+      toggleColumnManagerBtn.addEventListener('click', () => {
+        columnManager.classList.toggle('hidden');
+        renderColumnManager();
+      });
+    }
+
+    if (promptEditorContent) {
+      promptEditorContent.addEventListener('input', () => {
+        if (!currentPrompt) {
+          return;
+        }
+        promptDirty = true;
+        if (promptSaveBtn) {
+          promptSaveBtn.disabled = false;
+        }
+        if (promptStatus) {
+          promptStatus.textContent = 'Modifiche non salvate';
+        }
+      });
+    }
+
+    if (promptSaveBtn) {
+      promptSaveBtn.addEventListener('click', savePromptContent);
+    }
+
+    window.addEventListener('beforeunload', (event) => {
+      if (promptDirty) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    });
+  </script>
+</body>
+</html>

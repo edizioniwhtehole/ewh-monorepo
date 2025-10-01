@@ -1,0 +1,4 @@
+# Inserisci una URL Postgres per riga
+# Formato: postgres://user:password@host:port/database
+# Esempio:
+# postgres://ewh:changeme@localhost:5432/ewh_staging

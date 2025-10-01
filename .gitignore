@@ -1,0 +1,42 @@
+# === EWH Monorepo Root .gitignore ===
+
+# Local Scalingo secret overrides
+infra/scalingo-secrets.*.json
+!infra/scalingo-secrets.template.json
+
+# Local infra credential files
+infra/cloudflare.env
+infra/wasabi.env
+
+# Log files
+*.log
+svc-*.log
+svc-auth-dev.log
+svc-auth.dev.log
+
+# Temporary files
+_tmp*
+tmp/
+*.tmp
+
+# Node.js (root level only - submodules have their own)
+/node_modules/
+.pnpm-store/
+pages/
+public/
+src/
+styles/
+
+# macOS artifacts
+.DS_Store
+**/.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local environment overrides
+.env.local
+.env.*.local

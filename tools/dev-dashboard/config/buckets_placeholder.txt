@@ -1,0 +1,4 @@
+ewh-staging-static
+ewh-staging-ugc
+ewh-prod-static
+ewh-prod-ugc

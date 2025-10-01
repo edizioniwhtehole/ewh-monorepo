@@ -1,0 +1,5 @@
+{
+  "auth_token": "INSERISCI_TOKEN",
+  "region": "osc-fr1",
+  "api_url": "https://api.osc-fr1.scalingo.com"
+}

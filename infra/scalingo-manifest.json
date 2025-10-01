@@ -1,0 +1,3875 @@
+{
+  "version": "1.0",
+  "globals": {
+    "organisation": "edizioniwhitehole",
+    "repo_base": "https://github.com/edizioniwhitehole",
+    "domains": {
+      "staging": "ewhsaas.it",
+      "production": "polosaas.it"
+    },
+    "buckets": {
+      "staging": "ewh-staging",
+      "production": "ewh-prod"
+    },
+    "projects": {
+      "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+      "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+    },
+    "deploy": {
+      "staging_branch": "develop",
+      "production_branch": "main"
+    }
+  },
+  "services": [
+    {
+      "name": "app-web-frontend",
+      "repo": {
+        "name": "app-web-frontend",
+        "url": "https://github.com/edizioniwhitehole/app-web-frontend.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [],
+          "env": {
+            "required": [
+              "NEXT_PUBLIC_API_BASE_URL",
+              "NEXT_PUBLIC_CDN_BASE_URL",
+              "NEXT_PUBLIC_APP_ENV"
+            ],
+            "staging": {
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.staging.ewhsaas.it",
+              "NEXT_PUBLIC_CDN_BASE_URL": "https://cdn.staging.ewhsaas.it",
+              "NEXT_PUBLIC_APP_ENV": "staging"
+            },
+            "production": {
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.polosaas.it",
+              "NEXT_PUBLIC_CDN_BASE_URL": "https://cdn.polosaas.it",
+              "NEXT_PUBLIC_APP_ENV": "production"
+            }
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "2:M"
+          }
+        }
+      },
+      "subdomains": {
+        "staging": "app.ewhsaas.it",
+        "production": "app.polosaas.it"
+      },
+      "enabled": true,
+      "applications": {
+        "staging": "ewh-stg-app-web-frontend",
+        "production": "ewh-prod-app-web-frontend"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "app-admin-console",
+      "repo": {
+        "name": "app-admin-console",
+        "url": "https://github.com/edizioniwhitehole/app-admin-console.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [],
+          "env": {
+            "required": [
+              "NEXT_PUBLIC_API_BASE_URL",
+              "NEXT_PUBLIC_CDN_BASE_URL",
+              "NEXT_PUBLIC_APP_ENV"
+            ],
+            "staging": {
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.staging.ewhsaas.it",
+              "NEXT_PUBLIC_CDN_BASE_URL": "https://cdn.staging.ewhsaas.it",
+              "NEXT_PUBLIC_APP_ENV": "staging"
+            },
+            "production": {
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.polosaas.it",
+              "NEXT_PUBLIC_CDN_BASE_URL": "https://cdn.polosaas.it",
+              "NEXT_PUBLIC_APP_ENV": "production"
+            }
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "subdomains": {
+        "staging": "admin.ewhsaas.it",
+        "production": "admin.polosaas.it"
+      },
+      "enabled": true,
+      "applications": {
+        "staging": "ewh-stg-app-admin-console",
+        "production": "ewh-prod-app-admin-console"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "app-layout-editor",
+      "category": "client",
+      "repo": {
+        "name": "app-layout-editor",
+        "url": "https://github.com/edizioniwhitehole/app-layout-editor.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "LOG_LEVEL",
+              "NEXT_PUBLIC_API_BASE_URL",
+              "NEXT_PUBLIC_APP_ENV",
+              "NEXT_PUBLIC_CDN_BASE_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.staging.ewhsaas.it",
+              "NEXT_PUBLIC_CDN_BASE_URL": "https://cdn.staging.ewhsaas.it",
+              "NEXT_PUBLIC_APP_ENV": "staging",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.polosaas.it",
+              "NEXT_PUBLIC_CDN_BASE_URL": "https://cdn.polosaas.it",
+              "NEXT_PUBLIC_APP_ENV": "production",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-app-layout-editor",
+        "production": "ewh-prod-app-layout-editor"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "app-raster-editor",
+      "category": "client",
+      "repo": {
+        "name": "app-raster-editor",
+        "url": "https://github.com/edizioniwhitehole/app-raster-editor.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "LOG_LEVEL",
+              "NEXT_PUBLIC_API_BASE_URL",
+              "NEXT_PUBLIC_APP_ENV"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.staging.ewhsaas.it",
+              "NEXT_PUBLIC_APP_ENV": "staging",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.polosaas.it",
+              "NEXT_PUBLIC_APP_ENV": "production",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-app-raster-editor",
+        "production": "ewh-prod-app-raster-editor"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "app-video-editor",
+      "category": "client",
+      "repo": {
+        "name": "app-video-editor",
+        "url": "https://github.com/edizioniwhitehole/app-video-editor.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "LOG_LEVEL",
+              "NEXT_PUBLIC_API_BASE_URL",
+              "NEXT_PUBLIC_APP_ENV"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.staging.ewhsaas.it",
+              "NEXT_PUBLIC_APP_ENV": "staging",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "NEXT_PUBLIC_API_BASE_URL": "https://api.polosaas.it",
+              "NEXT_PUBLIC_APP_ENV": "production",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-app-video-editor",
+        "production": "ewh-prod-app-video-editor"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-api-gateway",
+      "category": "edge",
+      "repo": {
+        "name": "svc-api-gateway",
+        "url": "https://github.com/edizioniwhitehole/svc-api-gateway.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "ALLOWED_ORIGINS",
+              "APP_ENV",
+              "AUTH_ISSUER",
+              "JWT_AUDIENCE",
+              "LOG_LEVEL",
+              "PORT",
+              "RATE_LIMIT_PER_TENANT",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "AUTH_ISSUER": "https://api.ewhsaas.it/auth",
+              "JWT_AUDIENCE": "https://api.ewhsaas.it",
+              "RATE_LIMIT_PER_TENANT": "600",
+              "ALLOWED_ORIGINS": "https://app.ewhsaas.it,https://admin.ewhsaas.it",
+              "PORT": "4000",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "AUTH_ISSUER": "https://api.polosaas.it/auth",
+              "JWT_AUDIENCE": "https://api.polosaas.it",
+              "RATE_LIMIT_PER_TENANT": "2000",
+              "ALLOWED_ORIGINS": "https://app.polosaas.it,https://admin.polosaas.it",
+              "PORT": "4000",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [
+                "rate"
+              ],
+              "rate_limit": true
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": "api.ewhsaas.it",
+        "production": "api.polosaas.it"
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-api-gateway",
+        "production": "ewh-prod-svc-api-gateway"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-auth",
+      "category": "edge",
+      "repo": {
+        "name": "svc-auth",
+        "url": "https://github.com/edizioniwhitehole/svc-auth.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "JWT_PRIVATE_KEY",
+              "JWT_PUBLIC_KEY",
+              "LOG_LEVEL",
+              "PORT",
+              "REFRESH_TTL",
+              "TOKEN_TTL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "auth",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "JWT_PRIVATE_KEY": "<jwt-private-key>",
+              "JWT_PUBLIC_KEY": "<jwt-public-key>",
+              "TOKEN_TTL": "900",
+              "REFRESH_TTL": "2592000",
+              "PORT": "4001",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "auth",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "JWT_PRIVATE_KEY": "<jwt-private-key>",
+              "JWT_PUBLIC_KEY": "<jwt-public-key>",
+              "TOKEN_TTL": "900",
+              "REFRESH_TTL": "2592000",
+              "PORT": "4001",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "auth",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-auth",
+        "production": "ewh-prod-svc-auth"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-media",
+      "category": "creative",
+      "repo": {
+        "name": "svc-media",
+        "url": "https://github.com/edizioniwhitehole/svc-media.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "MEDIA_MAX_SIZE_MB",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "SIGNED_URL_TTL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "media",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "SIGNED_URL_TTL": "900",
+              "MEDIA_MAX_SIZE_MB": "512",
+              "PORT": "4003",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "media",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "SIGNED_URL_TTL": "900",
+              "MEDIA_MAX_SIZE_MB": "2048",
+              "PORT": "4003",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "media",
+            "redis": {
+              "queues": [
+                "q:thumbs"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "assets"
+            ],
+            "s3_paths": [
+              "/assets",
+              "/public"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-media",
+        "production": "ewh-prod-svc-media"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-image-orchestrator",
+      "category": "creative",
+      "repo": {
+        "name": "svc-image-orchestrator",
+        "url": "https://github.com/edizioniwhitehole/svc-image-orchestrator.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "WORKER_CONCURRENCY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "image_orchestrator",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "WORKER_CONCURRENCY": "2",
+              "PORT": "4100",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "image_orchestrator",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "WORKER_CONCURRENCY": "4",
+              "PORT": "4100",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "image_orchestrator",
+            "redis": {
+              "queues": [
+                "q:img"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/assets"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-image-orchestrator",
+        "production": "ewh-prod-svc-image-orchestrator"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-job-worker",
+      "category": "creative",
+      "repo": {
+        "name": "svc-job-worker",
+        "url": "https://github.com/edizioniwhitehole/svc-job-worker.git"
+      },
+      "processes": {
+        "worker": {
+          "type": "worker",
+          "addons": [
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "LOG_LEVEL",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "WORKER_CONCURRENCY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "S3_BUCKET": "ewh-staging",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "WORKER_CONCURRENCY": "2",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "S3_BUCKET": "ewh-prod",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "WORKER_CONCURRENCY": "4",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [
+                "q:img",
+                "q:layout",
+                "q:prepress"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/public",
+              "/exports"
+            ]
+          },
+          "scale": {
+            "staging": "0",
+            "production": "1:S"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-job-worker",
+        "production": "ewh-prod-svc-job-worker"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-writer",
+      "category": "creative",
+      "repo": {
+        "name": "svc-writer",
+        "url": "https://github.com/edizioniwhitehole/svc-writer.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LLM_API_KEY",
+              "LLM_PROVIDER",
+              "LOG_LEVEL",
+              "PORT",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "writer",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "LLM_PROVIDER": "openai",
+              "LLM_API_KEY": "<llm-api-key>",
+              "PORT": "4102",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "writer",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "LLM_PROVIDER": "openai",
+              "LLM_API_KEY": "<llm-api-key>",
+              "PORT": "4102",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "writer",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "documents"
+            ],
+            "s3_paths": [
+              "/documents"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-writer",
+        "production": "ewh-prod-svc-writer"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-content",
+      "category": "creative",
+      "repo": {
+        "name": "svc-content",
+        "url": "https://github.com/edizioniwhitehole/svc-content.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "SEARCH_KEY",
+              "SEARCH_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "content",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "SEARCH_URL": "https://api.ewhsaas.it/search",
+              "SEARCH_KEY": "<meili-search-key>",
+              "PORT": "4103",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "content",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "SEARCH_URL": "https://api.polosaas.it/search",
+              "SEARCH_KEY": "<meili-search-key>",
+              "PORT": "4103",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "content",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "pages"
+            ],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-content",
+        "production": "ewh-prod-svc-content"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-raster-runtime",
+      "category": "creative",
+      "repo": {
+        "name": "svc-raster-runtime",
+        "url": "https://github.com/edizioniwhitehole/svc-raster-runtime.git"
+      },
+      "processes": {
+        "worker": {
+          "type": "worker",
+          "addons": [
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "LOG_LEVEL",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "WORKER_CONCURRENCY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "S3_BUCKET": "ewh-staging",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "WORKER_CONCURRENCY": "2",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "S3_BUCKET": "ewh-prod",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "WORKER_CONCURRENCY": "4",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [
+                "q:raster"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/public",
+              "/exports"
+            ]
+          },
+          "scale": {
+            "staging": "0",
+            "production": "1:S"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-raster-runtime",
+        "production": "ewh-prod-svc-raster-runtime"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-layout",
+      "category": "creative",
+      "repo": {
+        "name": "svc-layout",
+        "url": "https://github.com/edizioniwhitehole/svc-layout.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LAYOUT_ENGINE",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "layout",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "LAYOUT_ENGINE": "layout-engine-v1",
+              "PORT": "4104",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "layout",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "LAYOUT_ENGINE": "layout-engine-v1",
+              "PORT": "4104",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "layout",
+            "redis": {
+              "queues": [
+                "q:layout"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/exports/layout"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-layout",
+        "production": "ewh-prod-svc-layout"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-prepress",
+      "category": "creative",
+      "repo": {
+        "name": "svc-prepress",
+        "url": "https://github.com/edizioniwhitehole/svc-prepress.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "PREPRESS_MODE",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "prepress",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "PREPRESS_MODE": "preflight",
+              "PORT": "4105",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "prepress",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "PREPRESS_MODE": "preflight",
+              "PORT": "4105",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "prepress",
+            "redis": {
+              "queues": [
+                "q:prepress"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/print"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-prepress",
+        "production": "ewh-prod-svc-prepress"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-vector-lab",
+      "category": "creative",
+      "repo": {
+        "name": "svc-vector-lab",
+        "url": "https://github.com/edizioniwhitehole/svc-vector-lab.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "VECTOR_PROVIDER"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "vector_lab",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "VECTOR_PROVIDER": "vector-lab-internal",
+              "PORT": "4106",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "vector_lab",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "VECTOR_PROVIDER": "vector-lab-internal",
+              "PORT": "4106",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "vector_lab",
+            "redis": {
+              "queues": [
+                "q:vector"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/exports/vector"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-vector-lab",
+        "production": "ewh-prod-svc-vector-lab"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-mockup",
+      "category": "creative",
+      "repo": {
+        "name": "svc-mockup",
+        "url": "https://github.com/edizioniwhitehole/svc-mockup.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "MOCKUP_PROVIDER",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "mockup",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "MOCKUP_PROVIDER": "mockup-lab",
+              "PORT": "4107",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "mockup",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "MOCKUP_PROVIDER": "mockup-lab",
+              "PORT": "4107",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "mockup",
+            "redis": {
+              "queues": [
+                "q:mockup"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/mockups"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-mockup",
+        "production": "ewh-prod-svc-mockup"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-video-orchestrator",
+      "category": "creative",
+      "repo": {
+        "name": "svc-video-orchestrator",
+        "url": "https://github.com/edizioniwhitehole/svc-video-orchestrator.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "VIDEO_PROVIDER"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "video_orchestrator",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "VIDEO_PROVIDER": "ffmpeg",
+              "PORT": "4108",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "video_orchestrator",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "VIDEO_PROVIDER": "ffmpeg",
+              "PORT": "4108",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "video_orchestrator",
+            "redis": {
+              "queues": [
+                "q:video"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/video"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-video-orchestrator",
+        "production": "ewh-prod-svc-video-orchestrator"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-video-runtime",
+      "category": "creative",
+      "repo": {
+        "name": "svc-video-runtime",
+        "url": "https://github.com/edizioniwhitehole/svc-video-runtime.git"
+      },
+      "processes": {
+        "worker": {
+          "type": "worker",
+          "addons": [
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "FFMPEG_ARGS",
+              "LOG_LEVEL",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "S3_BUCKET": "ewh-staging",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "FFMPEG_ARGS": "-preset fast -crf 20",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "S3_BUCKET": "ewh-prod",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "FFMPEG_ARGS": "-preset fast -crf 20",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [
+                "q:video"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/video"
+            ]
+          },
+          "scale": {
+            "staging": "0",
+            "production": "1:S"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-video-runtime",
+        "production": "ewh-prod-svc-video-runtime"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-projects",
+      "category": "publishing",
+      "repo": {
+        "name": "svc-projects",
+        "url": "https://github.com/edizioniwhitehole/svc-projects.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "PROJECTS_FEATURE_FLAGS"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "projects",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PROJECTS_FEATURE_FLAGS": "[]",
+              "PORT": "4200",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "projects",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PROJECTS_FEATURE_FLAGS": "[]",
+              "PORT": "4200",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "projects",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "projects"
+            ],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-projects",
+        "production": "ewh-prod-svc-projects"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-search",
+      "category": "publishing",
+      "repo": {
+        "name": "svc-search",
+        "url": "https://github.com/edizioniwhitehole/svc-search.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "LOG_LEVEL",
+              "MEILI_HOST",
+              "MEILI_MASTER_KEY",
+              "PORT"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "MEILI_MASTER_KEY": "<meili-master-key>",
+              "MEILI_HOST": "https://meili.ewhsaas.it",
+              "PORT": "4201",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "MEILI_MASTER_KEY": "<meili-master-key>",
+              "MEILI_HOST": "https://meili.polosaas.it",
+              "PORT": "4201",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "assets",
+              "projects",
+              "products",
+              "forum",
+              "kb"
+            ],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-search",
+        "production": "ewh-prod-svc-search"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-site-builder",
+      "category": "publishing",
+      "repo": {
+        "name": "svc-site-builder",
+        "url": "https://github.com/edizioniwhitehole/svc-site-builder.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "SITE_BUILDER_FLAGS"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "site_builder",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "SITE_BUILDER_FLAGS": "[]",
+              "PORT": "4202",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "site_builder",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "SITE_BUILDER_FLAGS": "[]",
+              "PORT": "4202",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "site_builder",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "pages"
+            ],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-site-builder",
+        "production": "ewh-prod-svc-site-builder"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-site-renderer",
+      "category": "publishing",
+      "repo": {
+        "name": "svc-site-renderer",
+        "url": "https://github.com/edizioniwhitehole/svc-site-renderer.git"
+      },
+      "processes": {
+        "worker": {
+          "type": "worker",
+          "addons": [
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "LOG_LEVEL",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "S3_BUCKET": "ewh-staging",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "S3_BUCKET": "ewh-prod",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [
+                "q:site-render"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/static-builds"
+            ]
+          },
+          "scale": {
+            "staging": "0",
+            "production": "1:S"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-site-renderer",
+        "production": "ewh-prod-svc-site-renderer"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-site-publisher",
+      "category": "publishing",
+      "repo": {
+        "name": "svc-site-publisher",
+        "url": "https://github.com/edizioniwhitehole/svc-site-publisher.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "PUBLISHER_WEBHOOK_URL",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "site_publisher",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "PUBLISHER_WEBHOOK_URL": "https://hooks.svc-site-publisher.ewhsaas.it",
+              "PORT": "4204",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "site_publisher",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "PUBLISHER_WEBHOOK_URL": "https://hooks.svc-site-publisher.polosaas.it",
+              "PORT": "4204",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "site_publisher",
+            "redis": {
+              "queues": [
+                "q:publish"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-site-publisher",
+        "production": "ewh-prod-svc-site-publisher"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-connectors-web",
+      "category": "publishing",
+      "repo": {
+        "name": "svc-connectors-web",
+        "url": "https://github.com/edizioniwhitehole/svc-connectors-web.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "SHOPIFY_API_KEY",
+              "SHOPIFY_API_SECRET"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "connectors_web",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "SHOPIFY_API_KEY": "<shopify-api-key>",
+              "SHOPIFY_API_SECRET": "<shopify-api-secret>",
+              "PORT": "4205",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "connectors_web",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "SHOPIFY_API_KEY": "<shopify-api-key>",
+              "SHOPIFY_API_SECRET": "<shopify-api-secret>",
+              "PORT": "4205",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "connectors_web",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-connectors-web",
+        "production": "ewh-prod-svc-connectors-web"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-products",
+      "category": "erp",
+      "repo": {
+        "name": "svc-products",
+        "url": "https://github.com/edizioniwhitehole/svc-products.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "PRODUCTS_DEFAULT_CURRENCY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "products",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PRODUCTS_DEFAULT_CURRENCY": "EUR",
+              "PORT": "4300",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "products",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PRODUCTS_DEFAULT_CURRENCY": "EUR",
+              "PORT": "4300",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "products",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "products"
+            ],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-products",
+        "production": "ewh-prod-svc-products"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-orders",
+      "category": "erp",
+      "repo": {
+        "name": "svc-orders",
+        "url": "https://github.com/edizioniwhitehole/svc-orders.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PAYMENTS_API_KEY",
+              "PAYMENTS_PROVIDER",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "orders",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "PAYMENTS_PROVIDER": "stripe",
+              "PAYMENTS_API_KEY": "<stripe-payments-api-key>",
+              "PORT": "4301",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "orders",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "PAYMENTS_PROVIDER": "stripe",
+              "PAYMENTS_API_KEY": "<stripe-payments-api-key>",
+              "PORT": "4301",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "orders",
+            "redis": {
+              "queues": [
+                "q:orders"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "orders"
+            ],
+            "s3_paths": [
+              "/orders"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-orders",
+        "production": "ewh-prod-svc-orders"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-inventory",
+      "category": "erp",
+      "repo": {
+        "name": "svc-inventory",
+        "url": "https://github.com/edizioniwhitehole/svc-inventory.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "inventory",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4302",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "inventory",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4302",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "inventory",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-inventory",
+        "production": "ewh-prod-svc-inventory"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-channels",
+      "category": "erp",
+      "repo": {
+        "name": "svc-channels",
+        "url": "https://github.com/edizioniwhitehole/svc-channels.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "CHANNEL_SYNC_INTERVAL",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "channels",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "CHANNEL_SYNC_INTERVAL": "300",
+              "PORT": "4303",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "channels",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "CHANNEL_SYNC_INTERVAL": "300",
+              "PORT": "4303",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "channels",
+            "redis": {
+              "queues": [
+                "q:channel-sync"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-channels",
+        "production": "ewh-prod-svc-channels"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-quotation",
+      "category": "erp",
+      "repo": {
+        "name": "svc-quotation",
+        "url": "https://github.com/edizioniwhitehole/svc-quotation.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "QUOTE_PDF_TEMPLATE",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "quotation",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "QUOTE_PDF_TEMPLATE": "default",
+              "PORT": "4304",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "quotation",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "QUOTE_PDF_TEMPLATE": "default",
+              "PORT": "4304",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "quotation",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/quotes"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-quotation",
+        "production": "ewh-prod-svc-quotation"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-procurement",
+      "category": "erp",
+      "repo": {
+        "name": "svc-procurement",
+        "url": "https://github.com/edizioniwhitehole/svc-procurement.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "procurement",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4305",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "procurement",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4305",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "procurement",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-procurement",
+        "production": "ewh-prod-svc-procurement"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-mrp",
+      "category": "erp",
+      "repo": {
+        "name": "svc-mrp",
+        "url": "https://github.com/edizioniwhitehole/svc-mrp.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "MRP_PLANNING_HORIZON_DAYS",
+              "PORT",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "mrp",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "MRP_PLANNING_HORIZON_DAYS": "30",
+              "PORT": "4306",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "mrp",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "MRP_PLANNING_HORIZON_DAYS": "30",
+              "PORT": "4306",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "mrp",
+            "redis": {
+              "queues": [
+                "q:mrp"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-mrp",
+        "production": "ewh-prod-svc-mrp"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-shipping",
+      "category": "erp",
+      "repo": {
+        "name": "svc-shipping",
+        "url": "https://github.com/edizioniwhitehole/svc-shipping.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "CARRIERS_API_KEY",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "shipping",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "CARRIERS_API_KEY": "<carriers-api-key>",
+              "PORT": "4307",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "shipping",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "CARRIERS_API_KEY": "<carriers-api-key>",
+              "PORT": "4307",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "shipping",
+            "redis": {
+              "queues": [
+                "q:shipping"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/labels"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-shipping",
+        "production": "ewh-prod-svc-shipping"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-crm",
+      "category": "erp",
+      "repo": {
+        "name": "svc-crm",
+        "url": "https://github.com/edizioniwhitehole/svc-crm.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "CRM_ENRICHMENT_PROVIDER",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "crm",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "CRM_ENRICHMENT_PROVIDER": "enrichment-service",
+              "PORT": "4308",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "crm",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "CRM_ENRICHMENT_PROVIDER": "enrichment-service",
+              "PORT": "4308",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "crm",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "crm"
+            ],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-crm",
+        "production": "ewh-prod-svc-crm"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-pm",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-pm",
+        "url": "https://github.com/edizioniwhitehole/svc-pm.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "pm",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4400",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "pm",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4400",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "pm",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-pm",
+        "production": "ewh-prod-svc-pm"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-support",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-support",
+        "url": "https://github.com/edizioniwhitehole/svc-support.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "SUPPORT_INBOUND_EMAIL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "support",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "SUPPORT_INBOUND_EMAIL": "support-staging@ewhsaas.it",
+              "PORT": "4401",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "support",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "SUPPORT_INBOUND_EMAIL": "support@polosaas.it",
+              "PORT": "4401",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "support",
+            "redis": {
+              "queues": [
+                "q:support"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "tickets"
+            ],
+            "s3_paths": [
+              "/support"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-support",
+        "production": "ewh-prod-svc-support"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-kb",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-kb",
+        "url": "https://github.com/edizioniwhitehole/svc-kb.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "kb",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4404",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "kb",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4404",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "kb",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "kb"
+            ],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-kb",
+        "production": "ewh-prod-svc-kb"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-collab",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-collab",
+        "url": "https://github.com/edizioniwhitehole/svc-collab.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "collab",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "PORT": "4405",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "collab",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "PORT": "4405",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "collab",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/shares"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-collab",
+        "production": "ewh-prod-svc-collab"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-dms",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-dms",
+        "url": "https://github.com/edizioniwhitehole/svc-dms.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "SIGN_PROVIDER_API_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "dms",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "SIGN_PROVIDER_API_KEY": "<esign-api-key>",
+              "PORT": "4406",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "dms",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "SIGN_PROVIDER_API_KEY": "<esign-api-key>",
+              "PORT": "4406",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "dms",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/dms"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-dms",
+        "production": "ewh-prod-svc-dms"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-timesheet",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-timesheet",
+        "url": "https://github.com/edizioniwhitehole/svc-timesheet.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "timesheet",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4407",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "timesheet",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4407",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "timesheet",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-timesheet",
+        "production": "ewh-prod-svc-timesheet"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-boards",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-boards",
+        "url": "https://github.com/edizioniwhitehole/svc-boards.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "boards",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4403",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "boards",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4403",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "boards",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-boards",
+        "production": "ewh-prod-svc-boards"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-chat",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-chat",
+        "url": "https://github.com/edizioniwhitehole/svc-chat.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "CHAT_WS_ORIGIN",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "chat",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "CHAT_WS_ORIGIN": "https://chat.ewhsaas.it",
+              "PORT": "4402",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "chat",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "CHAT_WS_ORIGIN": "https://chat.polosaas.it",
+              "PORT": "4402",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "chat",
+            "redis": {
+              "queues": [
+                "ws:rooms"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-chat",
+        "production": "ewh-prod-svc-chat"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-forms",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-forms",
+        "url": "https://github.com/edizioniwhitehole/svc-forms.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "FORMS_SPAM_THRESHOLD",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "forms",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "FORMS_SPAM_THRESHOLD": "0.7",
+              "PORT": "4408",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "forms",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "FORMS_SPAM_THRESHOLD": "0.7",
+              "PORT": "4408",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "forms",
+            "redis": {
+              "queues": [
+                "q:forms"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-forms",
+        "production": "ewh-prod-svc-forms"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-forum",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-forum",
+        "url": "https://github.com/edizioniwhitehole/svc-forum.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "forum",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4409",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "forum",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "PORT": "4409",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "forum",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [
+              "forum"
+            ],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-forum",
+        "production": "ewh-prod-svc-forum"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-assistant",
+      "category": "collaboration",
+      "repo": {
+        "name": "svc-assistant",
+        "url": "https://github.com/edizioniwhitehole/svc-assistant.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "ASSISTANT_API_KEY",
+              "ASSISTANT_PROVIDER",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "assistant",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "ASSISTANT_PROVIDER": "assistant-service",
+              "ASSISTANT_API_KEY": "<assistant-api-key>",
+              "PORT": "4410",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "assistant",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "ASSISTANT_PROVIDER": "assistant-service",
+              "ASSISTANT_API_KEY": "<assistant-api-key>",
+              "PORT": "4410",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "assistant",
+            "redis": {
+              "queues": [
+                "q:assistant"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-assistant",
+        "production": "ewh-prod-svc-assistant"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-comm",
+      "category": "platform",
+      "repo": {
+        "name": "svc-comm",
+        "url": "https://github.com/edizioniwhitehole/svc-comm.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "SMTP_HOST",
+              "SMTP_PASSWORD",
+              "SMTP_USER"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "comm",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "SMTP_HOST": "smtp.mailgun.org",
+              "SMTP_USER": "<smtp-user>",
+              "SMTP_PASSWORD": "<smtp-password>",
+              "PORT": "4500",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "comm",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "SMTP_HOST": "smtp.mailgun.org",
+              "SMTP_USER": "<smtp-user>",
+              "SMTP_PASSWORD": "<smtp-password>",
+              "PORT": "4500",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "comm",
+            "redis": {
+              "queues": [
+                "q:comm"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/templates"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-comm",
+        "production": "ewh-prod-svc-comm"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-enrichment",
+      "category": "platform",
+      "repo": {
+        "name": "svc-enrichment",
+        "url": "https://github.com/edizioniwhitehole/svc-enrichment.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "ENRICHMENT_SOURCES",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "enrichment",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "ENRICHMENT_SOURCES": "[]",
+              "PORT": "4501",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "enrichment",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "ENRICHMENT_SOURCES": "[]",
+              "PORT": "4501",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "enrichment",
+            "redis": {
+              "queues": [
+                "q:enrichment"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-enrichment",
+        "production": "ewh-prod-svc-enrichment"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-billing",
+      "category": "platform",
+      "repo": {
+        "name": "svc-billing",
+        "url": "https://github.com/edizioniwhitehole/svc-billing.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY",
+              "STRIPE_API_KEY",
+              "STRIPE_WEBHOOK_SECRET"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "billing",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "STRIPE_API_KEY": "<stripe-secret-key>",
+              "STRIPE_WEBHOOK_SECRET": "<stripe-webhook-secret>",
+              "PORT": "4004",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "billing",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "STRIPE_API_KEY": "<stripe-secret-key>",
+              "STRIPE_WEBHOOK_SECRET": "<stripe-webhook-secret>",
+              "PORT": "4004",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "billing",
+            "redis": {
+              "queues": [
+                "q:billing"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/invoices"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-billing",
+        "production": "ewh-prod-svc-billing"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-bi",
+      "category": "platform",
+      "repo": {
+        "name": "svc-bi",
+        "url": "https://github.com/edizioniwhitehole/svc-bi.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres",
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "BI_DSN",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PORT",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "bi",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "BI_DSN": "postgresql://<bi-user>:<password>@host:5432/bi",
+              "PORT": "4502",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "bi",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "BI_DSN": "postgresql://<bi-user>:<password>@host:5432/bi",
+              "PORT": "4502",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "bi",
+            "redis": {
+              "queues": [
+                "q:etl"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-bi",
+        "production": "ewh-prod-svc-bi"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-plugins",
+      "category": "platform",
+      "repo": {
+        "name": "svc-plugins",
+        "url": "https://github.com/edizioniwhitehole/svc-plugins.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "postgres"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "DATABASE_URL",
+              "DB_SCHEMA",
+              "LOG_LEVEL",
+              "PLUGINS_REGISTRY_URL",
+              "PORT",
+              "S3_ACCESS_KEY",
+              "S3_BUCKET",
+              "S3_ENDPOINT",
+              "S3_SECRET_KEY"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "DB_SCHEMA": "plugins",
+              "S3_BUCKET": "ewh-staging",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "PLUGINS_REGISTRY_URL": "https://plugins.ewhsaas.it",
+              "PORT": "4002",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "DB_SCHEMA": "plugins",
+              "S3_BUCKET": "ewh-prod",
+              "DATABASE_URL": "$SCALINGO_POSTGRESQL_URL",
+              "S3_ENDPOINT": "https://s3.wasabisys.com",
+              "S3_ACCESS_KEY": "<s3-access-key>",
+              "S3_SECRET_KEY": "<s3-secret-key>",
+              "PLUGINS_REGISTRY_URL": "https://plugins.polosaas.it",
+              "PORT": "4002",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": "plugins",
+            "redis": {
+              "queues": [],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": [
+              "/plugins"
+            ]
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:M"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-plugins",
+        "production": "ewh-prod-svc-plugins"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    },
+    {
+      "name": "svc-n8n",
+      "category": "platform",
+      "repo": {
+        "name": "svc-n8n",
+        "url": "https://github.com/edizioniwhitehole/svc-n8n.git"
+      },
+      "processes": {
+        "web": {
+          "type": "web",
+          "addons": [
+            "redis"
+          ],
+          "env": {
+            "required": [
+              "APP_ENV",
+              "LOG_LEVEL",
+              "N8N_BASIC_AUTH_PASSWORD",
+              "N8N_BASIC_AUTH_USER",
+              "PORT",
+              "REDIS_URL"
+            ],
+            "staging": {
+              "APP_ENV": "staging",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "N8N_BASIC_AUTH_USER": "admin",
+              "N8N_BASIC_AUTH_PASSWORD": "<strong-password>",
+              "PORT": "5678",
+              "LOG_LEVEL": "info"
+            },
+            "production": {
+              "APP_ENV": "production",
+              "REDIS_URL": "$SCALINGO_REDIS_URL",
+              "N8N_BASIC_AUTH_USER": "admin",
+              "N8N_BASIC_AUTH_PASSWORD": "<strong-password>",
+              "PORT": "5678",
+              "LOG_LEVEL": "info"
+            }
+          },
+          "metadata": {
+            "db_schema": null,
+            "redis": {
+              "queues": [
+                "q:n8n"
+              ],
+              "rate_limit": false
+            },
+            "search_indexes": [],
+            "s3_paths": []
+          },
+          "scale": {
+            "staging": "1:S",
+            "production": "1:S"
+          }
+        }
+      },
+      "enabled": true,
+      "subdomains": {
+        "staging": null,
+        "production": null
+      },
+      "applications": {
+        "staging": "ewh-stg-svc-n8n",
+        "production": "ewh-prod-svc-n8n"
+      },
+      "projects": {
+        "staging": "prj-de643f68-d927-4229-9cc2-5e2a83f29957",
+        "production": "prj-389a593b-f5c4-4ae1-aeef-a12ea5180516"
+      }
+    }
+  ]
+}

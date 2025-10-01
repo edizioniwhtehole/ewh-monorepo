@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  dashboard:
+    build:
+      context: .
+    container_name: ewh-dev-dashboard
+    ports:
+      - "8000:8000"
+    environment:
+      - SCRIPTS_ROOT=/workspace/scripts
+      - SCALINGO_API_TOKEN=${SCALINGO_API_TOKEN-}
+      - SCALINGO_REGION=${SCALINGO_REGION-}
+      - SCALINGO_API_URL=${SCALINGO_API_URL-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY-}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION-}
+      - STATUS_BUCKETS=${STATUS_BUCKETS-}
+      - STATUS_BUCKETS_FILE=${STATUS_BUCKETS_FILE-}
+      - STATUS_BUCKETS_ENDPOINT=${STATUS_BUCKETS_ENDPOINT-}
+      - STATUS_DB_URLS=${STATUS_DB_URLS-}
+      - STATUS_DB_URLS_FILE=${STATUS_DB_URLS_FILE-}
+      - WASABI_ENDPOINT=${WASABI_ENDPOINT-}
+    volumes:
+      - ../../:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+      - $HOME/.config/scalingo:/root/.config/scalingo:ro
+    restart: unless-stopped

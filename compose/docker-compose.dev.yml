@@ -1,0 +1,240 @@
+# EWH – docker-compose.dev.yml (clean, single root mount, anti-flap)
+
+x-node-common: &node_common
+  image: node:20-alpine
+  restart: unless-stopped
+  environment:
+    NODE_ENV: "development"
+    LOG_LEVEL: "debug"
+    DATABASE_URL: "postgres://ewh:ewhpass@postgres:5432/ewh_master"
+    REDIS_URL: "redis://redis:6379/0"
+    S3_ENDPOINT: "http://minio:9000"
+    S3_ACCESS_KEY: "ewh"
+    S3_SECRET_KEY: "ewhminio"
+    S3_BUCKET: "ewh-dev"
+    PNPM_STORE_DIR: "/pnpm-store"
+    CI: "false"
+  volumes:
+    - "${EWH_ROOT:-..}:/workspace:cached"
+    - ewh_pnpm:/pnpm-store
+  command:
+    - /bin/sh
+    - -lc
+    - |
+        set -e
+        corepack enable
+        pnpm config set store-dir /pnpm-store
+        if [ ! -f package.json ]; then echo "no package.json -> idle"; sleep 3600; fi
+        pnpm install --no-frozen-lockfile --prefer-offline || pnpm install --no-frozen-lockfile --force
+        pnpm run dev || sleep 3600
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    minio:
+      condition: service_healthy
+  networks: [ ewh_net ]
+
+x-react-app: &react_app
+  <<: *node_common
+  environment:
+    PORT: "3100"
+    WATCHPACK_POLLING: "true"
+    CHOKIDAR_USEPOLLING: "true"
+    CHOKIDAR_INTERVAL: "1000"
+
+services:
+  # === Datastores ===
+  postgres:
+    image: postgres:16-alpine
+    container_name: ewh_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "ewh"
+      POSTGRES_PASSWORD: "ewhpass"
+      POSTGRES_DB: "ewh_master"
+    ports: [ "5432:5432" ]
+    volumes: [ ewh_pg:/var/lib/postgresql/data ]
+    networks: [ ewh_net ]
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ewh -d ewh_master"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    container_name: ewh_redis
+    restart: unless-stopped
+    ports: [ "6379:6379" ]
+    volumes: [ ewh_redis:/data ]
+    networks: [ ewh_net ]
+    healthcheck:
+      test: ["CMD","redis-cli","ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  minio:
+    image: minio/minio:latest
+    container_name: ewh_minio
+    command: ["server","/data","--console-address",":9001"]
+    environment:
+      MINIO_ROOT_USER: "ewh"
+      MINIO_ROOT_PASSWORD: "ewhminio"
+    ports: [ "9000:9000", "9001:9001" ]
+    volumes: [ ewh_minio:/data ]
+    networks: [ ewh_net ]
+    healthcheck:
+      test: ["CMD","curl","-f","http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # === Apps ===
+  app-web-frontend:
+    <<: *react_app
+    container_name: app_web_frontend
+    working_dir: /workspace/app-web-frontend
+    environment:
+      NODE_ENV: "development"
+      LOG_LEVEL: "debug"
+      DATABASE_URL: "postgres://ewh:ewhpass@postgres:5432/ewh_master"
+      REDIS_URL: "redis://redis:6379/0"
+      S3_ENDPOINT: "http://minio:9000"
+      S3_ACCESS_KEY: "ewh"
+      S3_SECRET_KEY: "ewhminio"
+      S3_BUCKET: "ewh-dev"
+      PNPM_STORE_DIR: "/pnpm-store"
+      CI: "false"
+      PORT: "3100"
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "1000"
+      NEXT_PUBLIC_API_BASE_URL: "http://localhost:4000"
+      NEXT_PUBLIC_APP_ENV: "development"
+    ports: [ "3100:3100" ]
+    profiles: [ "default","apps","core" ]
+
+  # === Core ===
+  svc-api-gateway:
+    <<: *node_common
+    container_name: svc_api_gateway
+    working_dir: /workspace/svc-api-gateway
+    environment:
+      NODE_ENV: "development"
+      LOG_LEVEL: "debug"
+      DATABASE_URL: "postgres://ewh:ewhpass@postgres:5432/ewh_master"
+      REDIS_URL: "redis://redis:6379/0"
+      S3_ENDPOINT: "http://minio:9000"
+      S3_ACCESS_KEY: "ewh"
+      S3_SECRET_KEY: "ewhminio"
+      S3_BUCKET: "ewh-dev"
+      PNPM_STORE_DIR: "/pnpm-store"
+      CI: "false"
+      PORT: "4000"
+      AUTH_SERVICE_URL: "http://svc-auth:4001"
+      AUTH_JWKS_URL: "http://svc-auth:4001/.well-known/jwks.json"
+      JWT_ISSUER: "http://svc-auth:4001"
+      JWT_AUDIENCE: "ewh-saas"
+      ALLOWED_ORIGINS: "http://localhost:3100,http://127.0.0.1:3100"
+    ports: [ "4000:4000" ]
+    profiles: [ "default","core" ]
+  svc-auth:
+    <<: *node_common
+    container_name: svc_auth
+    working_dir: /workspace/svc-auth
+    environment:
+      NODE_ENV: "development"
+      LOG_LEVEL: "debug"
+      DATABASE_URL: "postgres://ewh:ewhpass@postgres:5432/ewh_master"
+      REDIS_URL: "redis://redis:6379/0"
+      S3_ENDPOINT: "http://minio:9000"
+      S3_ACCESS_KEY: "ewh"
+      S3_SECRET_KEY: "ewhminio"
+      S3_BUCKET: "ewh-dev"
+      PNPM_STORE_DIR: "/pnpm-store"
+      CI: "false"
+      PORT: "4001"
+      DB_SCHEMA: "auth"
+      JWT_ISSUER: "http://svc-auth:4001"
+      JWT_AUDIENCE: "ewh-saas"
+      JWT_KID: "dev-docker"
+      JWT_PRIVATE_KEY_FILE: "/workspace/svc-auth/jwk_private.pem"
+      JWT_PUBLIC_KEY_FILE: "/workspace/svc-auth/jwk_public.pem"
+    ports: [ "4001:4001" ]
+    profiles: [ "default","core" ]
+  svc-plugins:      { <<: *node_common, container_name: svc_plugins,      working_dir: /workspace/svc-plugins,      environment: { PORT: "4002" }, ports: [ "4002:4002" ], profiles: [ "default","core" ] }
+  svc-media:        { <<: *node_common, container_name: svc_media,        working_dir: /workspace/svc-media,        environment: { PORT: "4003" }, ports: [ "4003:4003" ], profiles: [ "default","core" ] }
+  svc-billing:      { <<: *node_common, container_name: svc_billing,      working_dir: /workspace/svc-billing,      environment: { PORT: "4004" }, ports: [ "4004:4004" ], profiles: [ "default","core" ] }
+
+  # === Creative ===
+  svc-image-orchestrator: { <<: *node_common, container_name: svc_image_orchestrator, working_dir: /workspace/svc-image-orchestrator, environment: { PORT: "4100" }, ports: [ "4100:4100" ], profiles: [ "default","creative" ] }
+  svc-job-worker:         { <<: *node_common, container_name: svc_job_worker,         working_dir: /workspace/svc-job-worker,         environment: { PORT: "4101" }, ports: [ "4101:4101" ], profiles: [ "default","creative" ] }
+  svc-writer:             { <<: *node_common, container_name: svc_writer,             working_dir: /workspace/svc-writer,             environment: { PORT: "4102" }, ports: [ "4102:4102" ], profiles: [ "default","creative" ] }
+  svc-content:            { <<: *node_common, container_name: svc_content,            working_dir: /workspace/svc-content,            environment: { PORT: "4103" }, ports: [ "4103:4103" ], profiles: [ "default","creative" ] }
+  svc-layout:             { <<: *node_common, container_name: svc_layout,             working_dir: /workspace/svc-layout,             environment: { PORT: "4104" }, ports: [ "4104:4104" ], profiles: [ "default","creative" ] }
+  svc-prepress:           { <<: *node_common, container_name: svc_prepress,           working_dir: /workspace/svc-prepress,           environment: { PORT: "4105" }, ports: [ "4105:4105" ], profiles: [ "default","creative" ] }
+  svc-vector-lab:         { <<: *node_common, container_name: svc_vector_lab,         working_dir: /workspace/svc-vector-lab,         environment: { PORT: "4106" }, ports: [ "4106:4106" ], profiles: [ "default","creative" ] }
+  svc-mockup:             { <<: *node_common, container_name: svc_mockup,             working_dir: /workspace/svc-mockup,             environment: { PORT: "4107" }, ports: [ "4107:4107" ], profiles: [ "default","creative" ] }
+  svc-video-orchestrator: { <<: *node_common, container_name: svc_video_orchestrator, working_dir: /workspace/svc-video-orchestrator, environment: { PORT: "4108" }, ports: [ "4108:4108" ], profiles: [ "default","creative" ] }
+  svc-video-runtime:      { <<: *node_common, container_name: svc_video_runtime,      working_dir: /workspace/svc-video-runtime,      environment: { PORT: "4109" }, ports: [ "4109:4109" ], profiles: [ "default","creative" ] }
+  svc-raster-runtime:     { <<: *node_common, container_name: svc_raster_runtime,     working_dir: /workspace/svc-raster-runtime,     environment: { PORT: "4110" }, ports: [ "4110:4110" ], profiles: [ "default","creative" ] }
+
+  # === Publishing ===
+  svc-projects:       { <<: *node_common, container_name: svc_projects,       working_dir: /workspace/svc-projects,       environment: { PORT: "4200" }, ports: [ "4200:4200" ], profiles: [ "default","publishing" ] }
+  svc-search:         { <<: *node_common, container_name: svc_search,         working_dir: /workspace/svc-search,         environment: { PORT: "4201" }, ports: [ "4201:4201" ], profiles: [ "default","publishing" ] }
+  svc-site-builder:   { <<: *node_common, container_name: svc_site_builder,   working_dir: /workspace/svc-site-builder,   environment: { PORT: "4202" }, ports: [ "4202:4202" ], profiles: [ "default","publishing" ] }
+  svc-site-renderer:  { <<: *node_common, container_name: svc_site_renderer,  working_dir: /workspace/svc-site-renderer,  environment: { PORT: "4203" }, ports: [ "4203:4203" ], profiles: [ "default","publishing" ] }
+  svc-site-publisher: { <<: *node_common, container_name: svc_site_publisher, working_dir: /workspace/svc-site-publisher, environment: { PORT: "4204" }, ports: [ "4204:4204" ], profiles: [ "default","publishing" ] }
+  svc-connectors-web: { <<: *node_common, container_name: svc_connectors_web, working_dir: /workspace/svc-connectors-web, environment: { PORT: "4205" }, ports: [ "4205:4205" ], profiles: [ "default","publishing" ] }
+
+  # === ERP ===
+  svc-products:     { <<: *node_common, container_name: svc_products,     working_dir: /workspace/svc-products,     environment: { PORT: "4300" }, ports: [ "4300:4300" ], profiles: [ "default","erp" ] }
+  svc-orders:       { <<: *node_common, container_name: svc_orders,       working_dir: /workspace/svc-orders,       environment: { PORT: "4301" }, ports: [ "4301:4301" ], profiles: [ "default","erp" ] }
+  svc-inventory:    { <<: *node_common, container_name: svc_inventory,    working_dir: /workspace/svc-inventory,    environment: { PORT: "4302" }, ports: [ "4302:4302" ], profiles: [ "default","erp" ] }
+  svc-channels:     { <<: *node_common, container_name: svc_channels,     working_dir: /workspace/svc-channels,     environment: { PORT: "4303" }, ports: [ "4303:4303" ], profiles: [ "default","erp" ] }
+  svc-quotation:    { <<: *node_common, container_name: svc_quotation,    working_dir: /workspace/svc-quotation,    environment: { PORT: "4304" }, ports: [ "4304:4304" ], profiles: [ "default","erp" ] }
+  svc-procurement:  { <<: *node_common, container_name: svc_procurement,  working_dir: /workspace/svc-procurement,  environment: { PORT: "4305" }, ports: [ "4305:4305" ], profiles: [ "default","erp" ] }
+  svc-mrp:          { <<: *node_common, container_name: svc_mrp,          working_dir: /workspace/svc-mrp,          environment: { PORT: "4306" }, ports: [ "4306:4306" ], profiles: [ "default","erp" ] }
+  svc-shipping:     { <<: *node_common, container_name: svc_shipping,     working_dir: /workspace/svc-shipping,     environment: { PORT: "4307" }, ports: [ "4307:4307" ], profiles: [ "default","erp" ] }
+  svc-crm:          { <<: *node_common, container_name: svc_crm,          working_dir: /workspace/svc-crm,          environment: { PORT: "4308" }, ports: [ "4308:4308" ], profiles: [ "default","erp" ] }
+
+  # === Collaboration ===
+  svc-pm:           { <<: *node_common, container_name: svc_pm,           working_dir: /workspace/svc-pm,           environment: { PORT: "4400" }, ports: [ "4400:4400" ], profiles: [ "default","collab" ] }
+  svc-support:      { <<: *node_common, container_name: svc_support,      working_dir: /workspace/svc-support,      environment: { PORT: "4401" }, ports: [ "4401:4401" ], profiles: [ "default","collab" ] }
+  svc-chat:         { <<: *node_common, container_name: svc_chat,         working_dir: /workspace/svc-chat,         environment: { PORT: "4402" }, ports: [ "4402:4402" ], profiles: [ "default","collab" ] }
+  svc-boards:       { <<: *node_common, container_name: svc_boards,       working_dir: /workspace/svc-boards,       environment: { PORT: "4403" }, ports: [ "4403:4403" ], profiles: [ "default","collab" ] }
+  svc-kb:           { <<: *node_common, container_name: svc_kb,           working_dir: /workspace/svc-kb,           environment: { PORT: "4404" }, ports: [ "4404:4404" ], profiles: [ "default","collab" ] }
+  svc-collab:       { <<: *node_common, container_name: svc_collab,       working_dir: /workspace/svc-collab,       environment: { PORT: "4405" }, ports: [ "4405:4405" ], profiles: [ "default","collab" ] }
+  svc-dms:          { <<: *node_common, container_name: svc_dms,          working_dir: /workspace/svc-dms,          environment: { PORT: "4406" }, ports: [ "4406:4406" ], profiles: [ "default","collab" ] }
+  svc-timesheet:    { <<: *node_common, container_name: svc_timesheet,    working_dir: /workspace/svc-timesheet,    environment: { PORT: "4407" }, ports: [ "4407:4407" ], profiles: [ "default","collab" ] }
+  svc-forms:        { <<: *node_common, container_name: svc_forms,        working_dir: /workspace/svc-forms,        environment: { PORT: "4408" }, ports: [ "4408:4408" ], profiles: [ "default","collab" ] }
+  svc-forum:        { <<: *node_common, container_name: svc_forum,        working_dir: /workspace/svc-forum,        environment: { PORT: "4409" }, ports: [ "4409:4409" ], profiles: [ "default","collab" ] }
+  svc-assistant:    { <<: *node_common, container_name: svc_assistant,    working_dir: /workspace/svc-assistant,    environment: { PORT: "4410" }, ports: [ "4410:4410" ], profiles: [ "default","collab" ] }
+
+  # === Platform ===
+  svc-comm:         { <<: *node_common, container_name: svc_comm,         working_dir: /workspace/svc-comm,         environment: { PORT: "4500" }, ports: [ "4500:4500" ], profiles: [ "default","platform" ] }
+  svc-enrichment:   { <<: *node_common, container_name: svc_enrichment,   working_dir: /workspace/svc-enrichment,   environment: { PORT: "4501" }, ports: [ "4501:4501" ], profiles: [ "default","platform" ] }
+  svc-bi:           { <<: *node_common, container_name: svc_bi,           working_dir: /workspace/svc-bi,           environment: { PORT: "4502" }, ports: [ "4502:4502" ], profiles: [ "default","platform" ] }
+  svc-n8n:
+    image: n8nio/n8n:latest
+    container_name: svc_n8n
+    restart: unless-stopped
+    environment:
+      - GENERIC_TIMEZONE=Europe/Rome
+      - N8N_DIAGNOSTICS_ENABLED=false
+    ports: [ "5678:5678" ]
+    volumes: [ ewh_n8n:/home/node/.n8n ]
+    networks: [ ewh_net ]
+
+networks:
+  ewh_net: {}
+
+volumes:
+  ewh_pg: {}
+  ewh_redis: {}
+  ewh_minio: {}
+  ewh_pnpm: {}
+  ewh_n8n: {}

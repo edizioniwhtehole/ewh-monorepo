@@ -1,0 +1,275 @@
+# EWH Monorepo - Git Submodules Configuration
+# Each service is a separate git repository
+
+# === Master & Infrastructure ===
+[submodule "ewh-master"]
+	path = ewh-master
+	url = https://github.com/edizioniwhtehole/ewh-master.git
+	branch = main
+
+[submodule "ops-infra"]
+	path = ops-infra
+	url = https://github.com/edizioniwhtehole/ops-infra.git
+	branch = main
+
+# === Core Services ===
+[submodule "svc-api-gateway"]
+	path = svc-api-gateway
+	url = https://github.com/edizioniwhtehole/svc-api-gateway.git
+	branch = main
+
+[submodule "svc-auth"]
+	path = svc-auth
+	url = https://github.com/edizioniwhtehole/svc-auth.git
+	branch = main
+
+[submodule "svc-plugins"]
+	path = svc-plugins
+	url = https://github.com/edizioniwhtehole/svc-plugins.git
+	branch = main
+
+[submodule "svc-media"]
+	path = svc-media
+	url = https://github.com/edizioniwhtehole/svc-media.git
+	branch = main
+
+[submodule "svc-billing"]
+	path = svc-billing
+	url = https://github.com/edizioniwhtehole/svc-billing.git
+	branch = main
+
+# === Creative Services ===
+[submodule "svc-image-orchestrator"]
+	path = svc-image-orchestrator
+	url = https://github.com/edizioniwhtehole/svc-image-orchestrator.git
+	branch = main
+
+[submodule "svc-job-worker"]
+	path = svc-job-worker
+	url = https://github.com/edizioniwhtehole/svc-job-worker.git
+	branch = main
+
+[submodule "svc-writer"]
+	path = svc-writer
+	url = https://github.com/edizioniwhtehole/svc-writer.git
+	branch = main
+
+[submodule "svc-content"]
+	path = svc-content
+	url = https://github.com/edizioniwhtehole/svc-content.git
+	branch = main
+
+[submodule "svc-layout"]
+	path = svc-layout
+	url = https://github.com/edizioniwhtehole/svc-layout.git
+	branch = main
+
+[submodule "svc-prepress"]
+	path = svc-prepress
+	url = https://github.com/edizioniwhtehole/svc-prepress.git
+	branch = main
+
+[submodule "svc-vector-lab"]
+	path = svc-vector-lab
+	url = https://github.com/edizioniwhtehole/svc-vector-lab.git
+	branch = main
+
+[submodule "svc-mockup"]
+	path = svc-mockup
+	url = https://github.com/edizioniwhtehole/svc-mockup.git
+	branch = main
+
+[submodule "svc-video-orchestrator"]
+	path = svc-video-orchestrator
+	url = https://github.com/edizioniwhtehole/svc-video-orchestrator.git
+	branch = main
+
+[submodule "svc-video-runtime"]
+	path = svc-video-runtime
+	url = https://github.com/edizioniwhtehole/svc-video-runtime.git
+	branch = main
+
+[submodule "svc-raster-runtime"]
+	path = svc-raster-runtime
+	url = https://github.com/edizioniwhtehole/svc-raster-runtime.git
+	branch = main
+
+# === Publishing Services ===
+[submodule "svc-projects"]
+	path = svc-projects
+	url = https://github.com/edizioniwhtehole/svc-projects.git
+	branch = main
+
+[submodule "svc-search"]
+	path = svc-search
+	url = https://github.com/edizioniwhtehole/svc-search.git
+	branch = main
+
+[submodule "svc-site-builder"]
+	path = svc-site-builder
+	url = https://github.com/edizioniwhtehole/svc-site-builder.git
+	branch = main
+
+[submodule "svc-site-renderer"]
+	path = svc-site-renderer
+	url = https://github.com/edizioniwhtehole/svc-site-renderer.git
+	branch = main
+
+[submodule "svc-site-publisher"]
+	path = svc-site-publisher
+	url = https://github.com/edizioniwhtehole/svc-site-publisher.git
+	branch = main
+
+[submodule "svc-connectors-web"]
+	path = svc-connectors-web
+	url = https://github.com/edizioniwhtehole/svc-connectors-web.git
+	branch = main
+
+# === ERP Services ===
+[submodule "svc-products"]
+	path = svc-products
+	url = https://github.com/edizioniwhtehole/svc-products.git
+	branch = main
+
+[submodule "svc-orders"]
+	path = svc-orders
+	url = https://github.com/edizioniwhtehole/svc-orders.git
+	branch = main
+
+[submodule "svc-inventory"]
+	path = svc-inventory
+	url = https://github.com/edizioniwhtehole/svc-inventory.git
+	branch = main
+
+[submodule "svc-channels"]
+	path = svc-channels
+	url = https://github.com/edizioniwhtehole/svc-channels.git
+	branch = main
+
+[submodule "svc-quotation"]
+	path = svc-quotation
+	url = https://github.com/edizioniwhtehole/svc-quotation.git
+	branch = main
+
+[submodule "svc-procurement"]
+	path = svc-procurement
+	url = https://github.com/edizioniwhtehole/svc-procurement.git
+	branch = main
+
+[submodule "svc-mrp"]
+	path = svc-mrp
+	url = https://github.com/edizioniwhtehole/svc-mrp.git
+	branch = main
+
+[submodule "svc-shipping"]
+	path = svc-shipping
+	url = https://github.com/edizioniwhtehole/svc-shipping.git
+	branch = main
+
+[submodule "svc-crm"]
+	path = svc-crm
+	url = https://github.com/edizioniwhtehole/svc-crm.git
+	branch = main
+
+# === Collaboration Services ===
+[submodule "svc-pm"]
+	path = svc-pm
+	url = https://github.com/edizioniwhtehole/svc-pm.git
+	branch = main
+
+[submodule "svc-support"]
+	path = svc-support
+	url = https://github.com/edizioniwhtehole/svc-support.git
+	branch = main
+
+[submodule "svc-chat"]
+	path = svc-chat
+	url = https://github.com/edizioniwhtehole/svc-chat.git
+	branch = main
+
+[submodule "svc-boards"]
+	path = svc-boards
+	url = https://github.com/edizioniwhtehole/svc-boards.git
+	branch = main
+
+[submodule "svc-kb"]
+	path = svc-kb
+	url = https://github.com/edizioniwhtehole/svc-kb.git
+	branch = main
+
+[submodule "svc-collab"]
+	path = svc-collab
+	url = https://github.com/edizioniwhtehole/svc-collab.git
+	branch = main
+
+[submodule "svc-dms"]
+	path = svc-dms
+	url = https://github.com/edizioniwhtehole/svc-dms.git
+	branch = main
+
+[submodule "svc-timesheet"]
+	path = svc-timesheet
+	url = https://github.com/edizioniwhtehole/svc-timesheet.git
+	branch = main
+
+[submodule "svc-forms"]
+	path = svc-forms
+	url = https://github.com/edizioniwhtehole/svc-forms.git
+	branch = main
+
+[submodule "svc-forum"]
+	path = svc-forum
+	url = https://github.com/edizioniwhtehole/svc-forum.git
+	branch = main
+
+[submodule "svc-assistant"]
+	path = svc-assistant
+	url = https://github.com/edizioniwhtehole/svc-assistant.git
+	branch = main
+
+# === Platform Services ===
+[submodule "svc-comm"]
+	path = svc-comm
+	url = https://github.com/edizioniwhtehole/svc-comm.git
+	branch = main
+
+[submodule "svc-enrichment"]
+	path = svc-enrichment
+	url = https://github.com/edizioniwhtehole/svc-enrichment.git
+	branch = main
+
+[submodule "svc-bi"]
+	path = svc-bi
+	url = https://github.com/edizioniwhtehole/svc-bi.git
+	branch = main
+
+[submodule "svc-n8n"]
+	path = svc-n8n
+	url = https://github.com/edizioniwhtehole/svc-n8n.git
+	branch = main
+
+# === Frontend Applications ===
+[submodule "app-web-frontend"]
+	path = app-web-frontend
+	url = https://github.com/edizioniwhtehole/app-web-frontend.git
+	branch = main
+
+[submodule "app-admin-console"]
+	path = app-admin-console
+	url = https://github.com/edizioniwhtehole/app-admin-console.git
+	branch = main
+
+[submodule "app-raster-editor"]
+	path = app-raster-editor
+	url = https://github.com/edizioniwhtehole/app-raster-editor.git
+	branch = main
+
+[submodule "app-layout-editor"]
+	path = app-layout-editor
+	url = https://github.com/edizioniwhtehole/app-layout-editor.git
+	branch = main
+
+[submodule "app-video-editor"]
+	path = app-video-editor
+	url = https://github.com/edizioniwhtehole/app-video-editor.git
+	branch = main
