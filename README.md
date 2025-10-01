@@ -1,10 +1,22 @@
 # EWH Monorepo
 
-> Monorepo per il sistema EWH (Edizioni White Hole) SaaS platform
+> Monorepo per il sistema EWH (Edizioni White Hole) SaaS platform - 50+ microservizi, architettura a eventi, multi-tenant B2B.
+
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Scalingo-blue.svg)](https://scalingo.com)
+[![Node](https://img.shields.io/badge/node-20.x-green.svg)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/typescript-5.6+-blue.svg)](https://typescriptlang.org)
+
+## 📚 Documentazione
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Architettura completa del sistema, stack tecnologico, flussi principali
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Setup ambiente, workflow sviluppo, testing, debugging
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Deploy su Scalingo, gestione secrets, monitoring, rollback
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Linee guida per contribuire al progetto
 
 ## 🏗️ Architettura
 
-Questo è un **monorepo gestito con git submodules** contenente 48+ microservizi indipendenti, ciascuno deployabile separatamente su Scalingo.
+Questo è un **monorepo gestito con git submodules** contenente 52 microservizi indipendenti, ciascuno deployabile separatamente su Scalingo.
 
 ### Organizzazione Servizi
 
