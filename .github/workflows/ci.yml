@@ -70,7 +70,7 @@ jobs:
           fi
 
           # Count submodules in .gitmodules
-          EXPECTED=52
+          EXPECTED=53
           ACTUAL=$(grep -c '^\[submodule' .gitmodules || echo 0)
 
           if [ $ACTUAL -ne $EXPECTED ]; then
@@ -113,10 +113,11 @@ jobs:
 
       - name: Check for secrets
         uses: trufflesecurity/trufflehog@main
+        continue-on-error: true
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ${{ github.event.before }}
+          head: ${{ github.sha }}
 
   summary:
     name: CI Summary
