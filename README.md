@@ -2,7 +2,7 @@
 
 > Monorepo per il sistema EWH (Edizioni White Hole) SaaS platform - 50+ microservizi, architettura a eventi, multi-tenant B2B.
 
-[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+![License](https://img.shields.io/badge/license-Proprietary-red.svg)
 [![Platform](https://img.shields.io/badge/platform-Scalingo-blue.svg)](https://scalingo.com)
 [![Node](https://img.shields.io/badge/node-20.x-green.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/typescript-5.6+-blue.svg)](https://typescriptlang.org)
@@ -285,8 +285,8 @@ git submodule update --init <submodule>
 ## 📞 Supporto
 
 - **Issues**: GitHub Issues su repository specifico
-- **Architecture**: Vedi [ewh-master](ewh-master/README.md)
-- **Infrastructure**: Vedi [ops-infra](ops-infra/README.md)
+- **Architecture**: Vedi documentazione in `ewh-master/`
+- **Infrastructure**: Vedi documentazione in `ops-infra/`
 
 ## 📄 License
 

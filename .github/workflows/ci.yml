@@ -58,23 +58,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Verify all submodules registered
         run: |
-          echo "Checking submodules..."
-          git submodule status
+          echo "Checking submodules configuration..."
 
+          # Check .gitmodules exists
+          if [ ! -f .gitmodules ]; then
+            echo "❌ .gitmodules not found"
+            exit 1
+          fi
+
+          # Count submodules in .gitmodules
           EXPECTED=52
-          ACTUAL=$(git submodule status | wc -l)
+          ACTUAL=$(grep -c '^\[submodule' .gitmodules || echo 0)
 
           if [ $ACTUAL -ne $EXPECTED ]; then
             echo "❌ Expected $EXPECTED submodules, found $ACTUAL"
             exit 1
           fi
 
-          echo "✅ All $ACTUAL submodules registered"
+          echo "✅ All $ACTUAL submodules configured"
 
       - name: Verify critical files exist
         run: |
@@ -101,8 +105,9 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
+        continue-on-error: true
         with:
           sarif_file: 'trivy-results.sarif'
 

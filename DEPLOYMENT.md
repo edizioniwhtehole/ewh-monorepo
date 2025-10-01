@@ -571,7 +571,7 @@ git push origin develop
 - [DEVELOPMENT.md](DEVELOPMENT.md) - Workflow sviluppo
 - [README.md](README.md) - Setup monorepo
 - [Scalingo Docs](https://doc.scalingo.com/)
-- [Scalingo CLI Reference](https://doc.scalingo.com/platform/cli/features)
+- [Scalingo CLI Reference](https://doc.scalingo.com/cli)
 
 ---
 
