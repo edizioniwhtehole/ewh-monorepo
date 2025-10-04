@@ -43,17 +43,50 @@
       {
         "file": "DAM_APPROVAL_CHANGELOG.md",
         "topic": "DAM",
+        "description": "DAM approval workflow changelog",
         "when_to_read": "Working on DAM/approval features"
+      },
+      {
+        "file": "app-web-frontend/DAM_PERMISSIONS_SPECS.md",
+        "topic": "DAM",
+        "description": "DAM permissions system specifications",
+        "when_to_read": "Working on DAM permissions/access control"
+      },
+      {
+        "file": "app-web-frontend/DAM_ENTERPRISE_SPECS.md",
+        "topic": "DAM",
+        "description": "DAM enterprise features specifications",
+        "when_to_read": "Working on DAM enterprise features"
       },
       {
         "file": "HR_SYSTEM_COMPLETE.md",
         "topic": "HR",
+        "description": "Complete HR system documentation",
         "when_to_read": "Working on HR/timesheet features"
       },
       {
         "file": "ACTIVITY_TRACKING_INTEGRATION.md",
         "topic": "Activity Tracking",
+        "description": "Activity tracking and screenshot capture",
         "when_to_read": "Working on activity tracking/monitoring"
+      },
+      {
+        "file": "app-web-frontend/APP_CONTEXT.md",
+        "topic": "Frontend",
+        "description": "Frontend application context and structure",
+        "when_to_read": "Working on app-web-frontend"
+      },
+      {
+        "file": "app-web-frontend/CODEBASE_REFERENCE.md",
+        "topic": "Frontend",
+        "description": "Frontend codebase reference guide",
+        "when_to_read": "Working on app-web-frontend"
+      },
+      {
+        "file": "app-web-frontend/ADMIN_PANEL_QUICKSTART.md",
+        "topic": "Frontend",
+        "description": "Admin panel quick start guide",
+        "when_to_read": "Working on admin panel features"
       }
     ]
   },

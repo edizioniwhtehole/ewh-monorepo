@@ -18,6 +18,7 @@
 | Com'è l'architettura? | [ARCHITECTURE.md](ARCHITECTURE.md) | 15 min |
 | Come è strutturato X servizio? | `{service}/PROMPT.md` | 3-5 min |
 | Dove trovo esempi di codice? | [Esempi](#esempi-di-codice) ⬇️ | 2 min |
+| Specifiche DAM/HR/Frontend? | [Feature-Specific Docs](#-feature-specific-documentation) ⬇️ | 5-10 min |
 
 ---
 
@@ -404,6 +405,31 @@ Miglior esempio di:
 10. **svc-chat** (3 settimane) - Real-time messaging
 
 **Per dettagli:** [PROJECT_STATUS.md → Roadmap](PROJECT_STATUS.md#-roadmap--priorità)
+
+---
+
+## 📋 Feature-Specific Documentation
+
+**Quando lavori su feature specifiche, leggi ANCHE questi file:**
+
+### DAM (Digital Asset Management)
+- [DAM_APPROVAL_CHANGELOG.md](DAM_APPROVAL_CHANGELOG.md) - Changelog approval workflow
+- [app-web-frontend/DAM_PERMISSIONS_SPECS.md](app-web-frontend/DAM_PERMISSIONS_SPECS.md) - Sistema permessi
+- [app-web-frontend/DAM_ENTERPRISE_SPECS.md](app-web-frontend/DAM_ENTERPRISE_SPECS.md) - Specifiche enterprise
+
+### HR & Timesheet
+- [HR_SYSTEM_COMPLETE.md](HR_SYSTEM_COMPLETE.md) - Sistema HR completo (attendance, leave, etc.)
+- [ACTIVITY_TRACKING_INTEGRATION.md](ACTIVITY_TRACKING_INTEGRATION.md) - Activity tracking + screenshots
+
+### Frontend
+- [app-web-frontend/APP_CONTEXT.md](app-web-frontend/APP_CONTEXT.md) - Context generale frontend
+- [app-web-frontend/CODEBASE_REFERENCE.md](app-web-frontend/CODEBASE_REFERENCE.md) - Reference codebase
+- [app-web-frontend/ADMIN_PANEL_QUICKSTART.md](app-web-frontend/ADMIN_PANEL_QUICKSTART.md) - Admin panel guide
+
+**Quando leggere:**
+- DAM docs → se task menziona "asset", "media", "upload", "approval"
+- HR docs → se task menziona "employee", "attendance", "leave", "timesheet"
+- Frontend docs → se task su app-web-frontend
 
 ---
 

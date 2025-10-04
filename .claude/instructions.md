@@ -78,6 +78,14 @@ STEP 2 (2 minutes):
 
 STEP 3 (3 minutes):
 → Read PROJECT_STATUS.md → Search for your service
+→ Check if service has feature-specific specs (see below)
+
+STEP 3.5 (CONDITIONAL - if working on specific features):
+→ If DAM-related: Read DAM_APPROVAL_CHANGELOG.md, app-web-frontend/DAM_PERMISSIONS_SPECS.md, app-web-frontend/DAM_ENTERPRISE_SPECS.md
+→ If HR-related: Read HR_SYSTEM_COMPLETE.md
+→ If Activity Tracking: Read ACTIVITY_TRACKING_INTEGRATION.md
+→ If Admin Panel: Read app-web-frontend/ADMIN_PANEL_QUICKSTART.md
+→ If Frontend: Read app-web-frontend/APP_CONTEXT.md, app-web-frontend/CODEBASE_REFERENCE.md
 → Purpose: Detailed status and features
 → Find: What's implemented, what's missing, blockers
 
