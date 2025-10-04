@@ -160,7 +160,7 @@ EWH è una piattaforma SaaS B2B multi-tenant per la gestione end-to-end di conte
 | `svc-kb` | 4404 | Knowledge base, wiki |
 | `svc-collab` | 4405 | Collaborazione real-time |
 | `svc-dms` | 4406 | Document management system |
-| `svc-timesheet` | 4407 | Timesheet, ore lavoro |
+| `svc-timesheet` | 4407 | **Activity tracking, timesheet, zero-trust monitoring** |
 | `svc-forms` | 4408 | Form builder dinamici |
 | `svc-forum` | 4409 | Forum community |
 | `svc-assistant` | 4410 | AI Assistant (GPT-4) |
@@ -168,6 +168,25 @@ EWH è una piattaforma SaaS B2B multi-tenant per la gestione end-to-end di conte
 **Real-time:**
 - WebSocket per chat e collab
 - Operational Transform per editing collaborativo
+
+**Activity Tracking (svc-timesheet v2.0):**
+- 🖥️ **Desktop Agent** ([ewh-work-agent](ewh-work-agent/)) - Electron cross-platform
+  - Heartbeat ogni 30s con app attiva, window title, input activity
+  - Screenshot capture (opzionale, S3)
+  - Browser embedded Chromium con content filtering
+  - Policy enforcer (kill processi non autorizzati)
+- 🤖 **AI Classification** - 3-level strategy (Heuristics → GPT-4 Vision → GPT-4 Text)
+  - Distingue uso lavorativo da personale (es: YouTube tutorial vs entertainment)
+  - Confidence score 85-95%
+- 🔐 **Contextual Access Control** - Justified sessions con approval workflow
+  - Whitelist/blacklist app + domini
+  - Budget temporali (es: 60 min YouTube/giorno)
+  - Richiesta accesso con giustificazione → auto-approval o manager
+- 📊 **Reports & Analytics** - Dashboard manager in [app-admin-console](app-admin-console/)
+  - Report individuali e team
+  - Productivity score, time budgets, violations
+  - GDPR compliant: consent, audit log, data export
+- 🛡️ **Zero-Trust Model** - Monitoraggio continuo con trasparenza obbligatoria
 
 ### ⚙️ Platform Services (Porta 4500-4502 + n8n)
 
@@ -482,23 +501,57 @@ Ogni request ha `x-correlation-id` per tracciare flusso cross-service
 
 ---
 
+## 📚 Documentazione per AI Agents
+
+Questa piattaforma è progettata per essere sviluppata da team umani + AI agents coordinati.
+
+**Documentazione Coordinamento AI:**
+- **[CONTEXT_INDEX.md](CONTEXT_INDEX.md)** - ⚡ Indice rapido (LEGGI PER PRIMO)
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - 📊 Stato attuale di tutti i servizi
+- **[MASTER_PROMPT.md](MASTER_PROMPT.md)** - 🎯 Istruzioni universali per agenti
+- **[GUARDRAILS.md](GUARDRAILS.md)** - 🚦 Regole coordinamento e workflow
+- **[.ai/context.json](.ai/context.json)** - 💾 Cache compatta stato progetto
+
+**Ogni servizio ha:**
+- `{service}/PROMPT.md` - Istruzioni specifiche per agenti
+- `{service}/README.md` - Documentazione utente
+- `{service}/docs/ENV.md` - Variabili ambiente
+
 ## Contribuire
 
 Per contribuire all'architettura:
 
-1. Leggi [CONTRIBUTING.md](CONTRIBUTING.md)
-2. Proponi modifiche via Architecture Decision Record (ADR)
-3. Discuti in team review prima di implementare breaking changes
+1. **Se sei un AI Agent:**
+   - Leggi [MASTER_PROMPT.md](MASTER_PROMPT.md) per istruzioni complete
+   - Segui workflow in [GUARDRAILS.md](GUARDRAILS.md)
+   - Aggiorna [PROJECT_STATUS.md](PROJECT_STATUS.md) dopo ogni modifica
+
+2. **Se sei uno sviluppatore umano:**
+   - Leggi [CONTRIBUTING.md](CONTRIBUTING.md)
+   - Proponi modifiche via Architecture Decision Record (ADR)
+   - Discuti in team review prima di implementare breaking changes
 
 ## Riferimenti
 
+**Documentazione Progetto:**
+- [PROJECT_STATUS.md](PROJECT_STATUS.md) - Stato implementazione servizi
+- [CONTEXT_INDEX.md](CONTEXT_INDEX.md) - Indice rapido per trovare info
 - [README.md](README.md) - Setup monorepo
 - [DEVELOPMENT.md](DEVELOPMENT.md) - Workflow sviluppo
 - [DEPLOYMENT.md](DEPLOYMENT.md) - Processo deploy
+
+**Feature-Specific Docs:**
+- [DAM_APPROVAL_CHANGELOG.md](DAM_APPROVAL_CHANGELOG.md) - DAM development log
+- [HR_SYSTEM_COMPLETE.md](HR_SYSTEM_COMPLETE.md) - HR system guide
+- [ACTIVITY_TRACKING_INTEGRATION.md](ACTIVITY_TRACKING_INTEGRATION.md) - Activity tracking
+
+**External Resources:**
 - [Scalingo Docs](https://doc.scalingo.com/)
 - [Fastify Best Practices](https://fastify.dev/docs/latest/Guides/Getting-Started/)
 
 ---
 
-**Ultimo aggiornamento:** 2025-10-01
+**Ultimo aggiornamento:** 2025-10-04
 **Maintainer:** Team EWH Platform
+
+> 💡 **Nota per AI Agents:** Questo documento descrive l'architettura *pianificata*. Per lo stato *attuale* di implementazione, consultare [PROJECT_STATUS.md](PROJECT_STATUS.md).

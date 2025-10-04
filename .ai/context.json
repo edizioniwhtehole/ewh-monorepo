@@ -1,0 +1,345 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-10-04T15:30:00Z",
+  "documentation": {
+    "primary": [
+      {
+        "file": "CONTEXT_INDEX.md",
+        "priority": 1,
+        "description": "Quick reference index - READ FIRST",
+        "estimated_read_time_minutes": 2,
+        "when_to_read": "Always, before any task"
+      },
+      {
+        "file": "PROJECT_STATUS.md",
+        "priority": 2,
+        "description": "Current implementation status of all services",
+        "estimated_read_time_minutes": 5,
+        "when_to_read": "To check service implementation status"
+      },
+      {
+        "file": "MASTER_PROMPT.md",
+        "priority": 3,
+        "description": "Universal agent instructions",
+        "estimated_read_time_minutes": 10,
+        "when_to_read": "Before starting implementation"
+      },
+      {
+        "file": "GUARDRAILS.md",
+        "priority": 4,
+        "description": "Agent coordination rules and workflows",
+        "estimated_read_time_minutes": 10,
+        "when_to_read": "Before implementing, to understand rules"
+      },
+      {
+        "file": "ARCHITECTURE.md",
+        "priority": 5,
+        "description": "System architecture overview (planned, not actual)",
+        "estimated_read_time_minutes": 15,
+        "when_to_read": "For understanding overall system design"
+      }
+    ],
+    "feature_specific": [
+      {
+        "file": "DAM_APPROVAL_CHANGELOG.md",
+        "topic": "DAM",
+        "when_to_read": "Working on DAM/approval features"
+      },
+      {
+        "file": "HR_SYSTEM_COMPLETE.md",
+        "topic": "HR",
+        "when_to_read": "Working on HR/timesheet features"
+      },
+      {
+        "file": "ACTIVITY_TRACKING_INTEGRATION.md",
+        "topic": "Activity Tracking",
+        "when_to_read": "Working on activity tracking/monitoring"
+      }
+    ]
+  },
+  "services": {
+    "complete": [
+      {
+        "name": "svc-auth",
+        "port": 4001,
+        "status": "complete",
+        "completion": 95,
+        "endpoints": 12,
+        "last_change": "2025-09-24",
+        "description": "Multi-tenant JWT authentication",
+        "has_migrations": true,
+        "has_tests": false,
+        "production_ready": true
+      },
+      {
+        "name": "svc-api-gateway",
+        "port": 4000,
+        "status": "complete",
+        "completion": 85,
+        "endpoints": 1,
+        "last_change": "2025-09-24",
+        "description": "HTTP proxy and routing",
+        "has_migrations": false,
+        "has_tests": false,
+        "production_ready": true,
+        "missing_features": ["rate_limiting", "circuit_breaker"]
+      }
+    ],
+    "in_progress": [
+      {
+        "name": "svc-timesheet",
+        "port": 4407,
+        "status": "in_progress",
+        "completion": 60,
+        "endpoints": 15,
+        "last_change": "2025-10-04",
+        "description": "Activity tracking + HR system",
+        "has_migrations": true,
+        "has_tests": false,
+        "production_ready": false,
+        "modules": {
+          "activity_tracking": {
+            "completion": 50,
+            "missing": ["ai_classification", "s3_screenshots", "websocket_events"]
+          },
+          "hr_system": {
+            "completion": 80,
+            "missing": ["frontend_pages", "approval_workflow"]
+          }
+        }
+      },
+      {
+        "name": "app-web-frontend",
+        "port": 3100,
+        "status": "in_progress",
+        "completion": 30,
+        "last_change": "2025-10-04",
+        "description": "Main frontend application",
+        "has_tests": false,
+        "production_ready": false,
+        "modules": {
+          "dam": {
+            "completion": 90,
+            "ui_complete": true,
+            "backend_integrated": false,
+            "missing": ["svc-media_integration", "real_upload"]
+          },
+          "hr": {
+            "completion": 40,
+            "pages": ["employees", "attendance"],
+            "missing": ["contracts", "payslips", "trips", "expenses"]
+          }
+        }
+      },
+      {
+        "name": "ewh-work-agent",
+        "type": "desktop",
+        "status": "documented",
+        "completion": 0,
+        "last_change": "2025-10-02",
+        "description": "Desktop activity tracking agent",
+        "documented": true,
+        "implemented": "unknown"
+      }
+    ],
+    "scaffolding": {
+      "core": ["svc-plugins", "svc-media", "svc-billing"],
+      "creative": [
+        "svc-image-orchestrator",
+        "svc-job-worker",
+        "svc-writer",
+        "svc-content",
+        "svc-layout",
+        "svc-prepress",
+        "svc-vector-lab",
+        "svc-mockup",
+        "svc-video-orchestrator",
+        "svc-video-runtime",
+        "svc-raster-runtime"
+      ],
+      "publishing": [
+        "svc-projects",
+        "svc-search",
+        "svc-site-builder",
+        "svc-site-renderer",
+        "svc-site-publisher",
+        "svc-connectors-web"
+      ],
+      "erp": [
+        "svc-products",
+        "svc-orders",
+        "svc-inventory",
+        "svc-channels",
+        "svc-quotation",
+        "svc-procurement",
+        "svc-mrp",
+        "svc-shipping",
+        "svc-crm"
+      ],
+      "collaboration": [
+        "svc-pm",
+        "svc-support",
+        "svc-chat",
+        "svc-boards",
+        "svc-kb",
+        "svc-collab",
+        "svc-dms",
+        "svc-forms",
+        "svc-forum",
+        "svc-assistant"
+      ],
+      "platform": ["svc-comm", "svc-enrichment", "svc-bi"],
+      "frontend": [
+        "app-admin-console",
+        "app-raster-editor",
+        "app-video-editor",
+        "app-layout-editor"
+      ]
+    }
+  },
+  "dependencies": {
+    "implemented": {
+      "app-web-frontend": ["svc-api-gateway"],
+      "svc-api-gateway": ["svc-auth"],
+      "svc-timesheet": ["svc-auth"]
+    },
+    "missing_blockers": {
+      "dam_workflow": {
+        "blocked": "app-web-frontend DAM UI",
+        "missing": ["svc-media", "svc-image-orchestrator", "svc-job-worker"],
+        "priority": "critical"
+      },
+      "order_flow": {
+        "blocked": "svc-orders",
+        "missing": ["svc-products", "svc-inventory", "svc-billing", "svc-shipping"],
+        "priority": "high"
+      },
+      "password_recovery": {
+        "blocked": "svc-auth password recovery",
+        "missing": ["svc-comm"],
+        "priority": "critical"
+      },
+      "activity_ai": {
+        "blocked": "svc-timesheet AI classification",
+        "missing": ["OpenAI API key configuration"],
+        "priority": "high"
+      }
+    }
+  },
+  "priority_queue": {
+    "q4_2025": [
+      {
+        "service": "svc-media",
+        "priority": "critical",
+        "estimated_weeks": 3,
+        "blocks": ["app-web-frontend DAM"]
+      },
+      {
+        "service": "svc-comm",
+        "priority": "critical",
+        "estimated_weeks": 2,
+        "blocks": ["svc-auth password recovery"]
+      },
+      {
+        "service": "svc-api-gateway rate limiting",
+        "priority": "critical",
+        "estimated_weeks": 1,
+        "blocks": ["production security"]
+      },
+      {
+        "service": "svc-timesheet AI + S3",
+        "priority": "high",
+        "estimated_weeks": 3,
+        "blocks": ["activity tracking complete"]
+      },
+      {
+        "service": "app-web-frontend backend integration",
+        "priority": "high",
+        "estimated_weeks": 4,
+        "blocks": ["DAM demo"]
+      }
+    ],
+    "q1_2026": [
+      "svc-image-orchestrator",
+      "svc-job-worker",
+      "svc-products",
+      "svc-orders",
+      "svc-inventory",
+      "svc-chat"
+    ]
+  },
+  "tech_stack": {
+    "backend": {
+      "runtime": "Node.js 20 LTS",
+      "language": "TypeScript 5.6+",
+      "framework": "Fastify 4.28+",
+      "database": "PostgreSQL 15+",
+      "cache": "Redis 7",
+      "validation": "Zod 3.23+",
+      "testing": "Vitest 2.1+",
+      "logging": "Pino"
+    },
+    "frontend": {
+      "framework": "Next.js 14.2 (App Router)",
+      "language": "TypeScript 5.6+",
+      "ui": "React 18",
+      "styling": "TailwindCSS 3.4",
+      "state": "Zustand 5",
+      "data_fetching": "TanStack Query 5",
+      "testing": "Vitest"
+    },
+    "infrastructure": {
+      "paas": "Scalingo (EU-West)",
+      "storage": "Wasabi S3 (EU)",
+      "cdn": "Cloudflare",
+      "ci_cd": "GitHub Actions (planned)"
+    }
+  },
+  "conventions": {
+    "multi_tenancy": {
+      "required": true,
+      "tenant_id_in_every_table": true,
+      "tenant_id_in_every_query": true,
+      "rls_policies": "defined_not_enabled"
+    },
+    "api_versioning": {
+      "prefix": "/api/v1",
+      "breaking_changes": "create_v2_maintain_v1"
+    },
+    "error_handling": {
+      "format": "uniform_json",
+      "correlation_id": "required",
+      "structured_logging": "required"
+    },
+    "testing": {
+      "coverage_minimum": 60,
+      "coverage_ideal": 80,
+      "tests_required_before_merge": true
+    }
+  },
+  "examples": {
+    "best_implementations": {
+      "complete_service": "svc-auth",
+      "migrations": "svc-timesheet/migrations/002_hr_system.sql",
+      "frontend_component": "app-web-frontend/src/modules/dam/approval/ApprovalSlideshow.tsx",
+      "service_integration": "svc-api-gateway/src/index.ts"
+    }
+  },
+  "cache_strategy": {
+    "version": "1.0.0",
+    "description": "Use this file to avoid re-reading large documentation",
+    "usage": "Agents should read this file first to understand project state",
+    "update_frequency": "After every significant change to services",
+    "last_full_analysis": "2025-10-04",
+    "next_full_analysis_recommended": "2025-10-18"
+  },
+  "metrics": {
+    "total_services": 51,
+    "complete_services": 2,
+    "in_progress_services": 3,
+    "scaffolding_services": 46,
+    "implementation_percentage": 8,
+    "estimated_monthly_cost_staging": 500,
+    "estimated_monthly_cost_production": 5400
+  }
+}

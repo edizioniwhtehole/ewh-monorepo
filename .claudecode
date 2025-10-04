@@ -1,0 +1,65 @@
+# Claude Code Configuration for EWH Platform
+
+## MANDATORY: Read Before Every Task
+
+You MUST read these files in this exact order before starting ANY task:
+
+1. .ai/context.json (30 seconds) - Quick project state cache
+2. CONTEXT_INDEX.md (2 minutes) - Find relevant information
+3. PROJECT_STATUS.md - Section for the specific service you're working on (3 minutes)
+
+## Context Files (Always Loaded)
+
+These files should be loaded into context at the start of EVERY conversation:
+
+- CONTEXT_INDEX.md
+- .ai/context.json
+- GUARDRAILS.md (Rules section)
+
+## Service-Specific Files
+
+When working on a specific service, ALSO load:
+
+- {service}/PROMPT.md
+- {service}/README.md
+
+## Mandatory Checklist Before Code
+
+Before writing ANY code, you MUST:
+
+- [ ] Verify service status in PROJECT_STATUS.md (Complete/In Progress/Scaffolding)
+- [ ] Check dependencies in CONTEXT_INDEX.md "Dependency Graph"
+- [ ] Read service PROMPT.md if it exists
+- [ ] Verify no other agent is working on same service (.LOCK_* files)
+- [ ] Understand tech stack from MASTER_PROMPT.md
+
+## Mandatory Checklist After Code
+
+After completing ANY task, you MUST:
+
+- [ ] Update PROJECT_STATUS.md (move features from "Missing" to "Implemented")
+- [ ] Update {service}/PROMPT.md with current state
+- [ ] Update .ai/context.json if service status changed
+- [ ] Run tests (npm test) - must pass
+- [ ] Document any blockers or TODOs
+
+## Tech Stack (Never Deviate)
+
+Backend: Fastify 4.28+ + TypeScript 5.6+ + PostgreSQL 15+ + Zod
+Frontend: Next.js 14.2 (App Router) + React 18 + TailwindCSS 3.4
+
+## Security Rules (Always Enforce)
+
+- EVERY table MUST have tenant_id
+- EVERY query MUST filter on tenant_id
+- EVERY endpoint MUST validate JWT
+- EVERY input MUST be validated with Zod
+- NO console.log (use structured logging)
+
+## Quick Links
+
+- Full instructions: MASTER_PROMPT.md
+- Coordination rules: GUARDRAILS.md
+- Architecture: ARCHITECTURE.md
+- Status: PROJECT_STATUS.md
+- Index: CONTEXT_INDEX.md
