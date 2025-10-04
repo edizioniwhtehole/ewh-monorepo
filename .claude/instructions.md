@@ -84,6 +84,7 @@ STEP 3.5 (CONDITIONAL - if working on specific features):
 → If DAM-related: Read DAM_APPROVAL_CHANGELOG.md, DAM_PERMISSIONS_SPECS.md, DAM_ENTERPRISE_SPECS.md
 → If HR-related: Read HR_SYSTEM_COMPLETE.md, ACTIVITY_TRACKING_INTEGRATION.md
 → If Email-related: Read EMAIL_CLIENT_SYSTEM.md, EMAIL_QUICK_REPLY_UI.md
+→ If Image Editor/Raster: Read IMAGE_EDITOR_SYSTEM.md
 → If Multilingual/i18n: Read I18N_SYSTEM.md
 → If AI/Credits/Provider: Read AI_PROVIDER_SYSTEM.md
 → If Admin/Infrastructure/Tenant: Read INFRASTRUCTURE_MAP.md, TENANT_MIGRATION.md, ENTERPRISE_READINESS.md

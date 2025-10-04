@@ -425,6 +425,9 @@ Miglior esempio di:
 - [EMAIL_CLIENT_SYSTEM.md](EMAIL_CLIENT_SYSTEM.md) - Sistema email client completo (99 KB)
 - [EMAIL_QUICK_REPLY_UI.md](EMAIL_QUICK_REPLY_UI.md) - UI quick reply email
 
+### Image Editor
+- [IMAGE_EDITOR_SYSTEM.md](IMAGE_EDITOR_SYSTEM.md) - Editor immagini professionale con AI (84 KB)
+
 ### Multilingual & i18n
 - [I18N_SYSTEM.md](I18N_SYSTEM.md) - Sistema internazionalizzazione completo
 
@@ -448,6 +451,7 @@ Miglior esempio di:
 - DAM → "asset", "media", "upload", "approval"
 - HR → "employee", "attendance", "leave", "timesheet"
 - Email → "email", "inbox", "message", "smtp", "imap"
+- Image Editor → "image", "editor", "raster", "canvas", "filter", "layer"
 - i18n → "translation", "locale", "multilingual", "language"
 - AI/Credits → "ai", "credits", "provider", "openai", "anthropic", "byok"
 - Admin/Infra → "tenant", "infrastructure", "migration", "enterprise"
