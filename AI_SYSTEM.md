@@ -18,8 +18,12 @@
 1. .ai/context.json (30 sec) → Stato servizi
 2. CONTEXT_INDEX.md (2 min) → Dove trovare cosa
 3. PROJECT_STATUS.md (5 min) → Dettagli implementazione
-4. MASTER_PROMPT.md (10 min, prima volta) → Coding standards
-5. GUARDRAILS.md (10 min, prima volta) → Regole coordinamento
+4. Feature-specific docs (5-10 min, se applicabile):
+   - DAM: DAM_APPROVAL_CHANGELOG.md, DAM_PERMISSIONS_SPECS.md
+   - HR: HR_SYSTEM_COMPLETE.md, ACTIVITY_TRACKING_INTEGRATION.md
+   - Frontend: APP_CONTEXT.md, CODEBASE_REFERENCE.md
+5. MASTER_PROMPT.md (10 min, prima volta) → Coding standards
+6. GUARDRAILS.md (10 min, prima volta) → Regole coordinamento
 ```
 
 ### Per Sviluppatori Umani
