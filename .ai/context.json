@@ -101,6 +101,12 @@
         "when_to_read": "Working on email UI/UX features"
       },
       {
+        "file": "IMAGE_EDITOR_SYSTEM.md",
+        "topic": "Image Editor",
+        "description": "Professional image editor with AI-powered tools",
+        "when_to_read": "Working on image editing/raster/canvas/filters"
+      },
+      {
         "file": "I18N_SYSTEM.md",
         "topic": "Multilingual",
         "description": "Complete internationalization system",
