@@ -421,15 +421,38 @@ Miglior esempio di:
 - [HR_SYSTEM_COMPLETE.md](HR_SYSTEM_COMPLETE.md) - Sistema HR completo (attendance, leave, etc.)
 - [ACTIVITY_TRACKING_INTEGRATION.md](ACTIVITY_TRACKING_INTEGRATION.md) - Activity tracking + screenshots
 
+### Email System
+- [EMAIL_CLIENT_SYSTEM.md](EMAIL_CLIENT_SYSTEM.md) - Sistema email client completo (99 KB)
+- [EMAIL_QUICK_REPLY_UI.md](EMAIL_QUICK_REPLY_UI.md) - UI quick reply email
+
+### Multilingual & i18n
+- [I18N_SYSTEM.md](I18N_SYSTEM.md) - Sistema internazionalizzazione completo
+
+### AI & Credits
+- [AI_PROVIDER_SYSTEM.md](AI_PROVIDER_SYSTEM.md) - Multi-provider AI + BYOK + credit system
+
+### Admin & Infrastructure
+- [INFRASTRUCTURE_MAP.md](INFRASTRUCTURE_MAP.md) - Mappa infrastruttura completa (98 KB)
+- [TENANT_MIGRATION.md](TENANT_MIGRATION.md) - Sistema migrazione tenant
+- [ENTERPRISE_READINESS.md](ENTERPRISE_READINESS.md) - Enterprise features readiness
+
+### Help & UX
+- [CONTEXTUAL_HELP_SYSTEM.md](CONTEXTUAL_HELP_SYSTEM.md) - Sistema help contestuale
+
 ### Frontend
 - [app-web-frontend/APP_CONTEXT.md](app-web-frontend/APP_CONTEXT.md) - Context generale frontend
 - [app-web-frontend/CODEBASE_REFERENCE.md](app-web-frontend/CODEBASE_REFERENCE.md) - Reference codebase
 - [app-web-frontend/ADMIN_PANEL_QUICKSTART.md](app-web-frontend/ADMIN_PANEL_QUICKSTART.md) - Admin panel guide
 
 **Quando leggere:**
-- DAM docs → se task menziona "asset", "media", "upload", "approval"
-- HR docs → se task menziona "employee", "attendance", "leave", "timesheet"
-- Frontend docs → se task su app-web-frontend
+- DAM → "asset", "media", "upload", "approval"
+- HR → "employee", "attendance", "leave", "timesheet"
+- Email → "email", "inbox", "message", "smtp", "imap"
+- i18n → "translation", "locale", "multilingual", "language"
+- AI/Credits → "ai", "credits", "provider", "openai", "anthropic", "byok"
+- Admin/Infra → "tenant", "infrastructure", "migration", "enterprise"
+- Help → "help", "tooltip", "guide", "onboarding"
+- Frontend → task su app-web-frontend
 
 ---
 

@@ -87,6 +87,54 @@
         "topic": "Frontend",
         "description": "Admin panel quick start guide",
         "when_to_read": "Working on admin panel features"
+      },
+      {
+        "file": "EMAIL_CLIENT_SYSTEM.md",
+        "topic": "Email",
+        "description": "Complete email client system (SMTP, IMAP, UI)",
+        "when_to_read": "Working on email/inbox/messaging features"
+      },
+      {
+        "file": "EMAIL_QUICK_REPLY_UI.md",
+        "topic": "Email",
+        "description": "Quick reply UI for email system",
+        "when_to_read": "Working on email UI/UX features"
+      },
+      {
+        "file": "I18N_SYSTEM.md",
+        "topic": "Multilingual",
+        "description": "Complete internationalization system",
+        "when_to_read": "Working on translations/localization/i18n"
+      },
+      {
+        "file": "AI_PROVIDER_SYSTEM.md",
+        "topic": "AI & Credits",
+        "description": "Multi-provider AI with BYOK and credit system",
+        "when_to_read": "Working on AI integration/credits/providers"
+      },
+      {
+        "file": "INFRASTRUCTURE_MAP.md",
+        "topic": "Infrastructure",
+        "description": "Complete infrastructure and architecture map",
+        "when_to_read": "Working on infrastructure/deployment/scalability"
+      },
+      {
+        "file": "TENANT_MIGRATION.md",
+        "topic": "Admin",
+        "description": "Tenant migration and data portability system",
+        "when_to_read": "Working on tenant management/migration"
+      },
+      {
+        "file": "ENTERPRISE_READINESS.md",
+        "topic": "Enterprise",
+        "description": "Enterprise features and readiness checklist",
+        "when_to_read": "Working on enterprise features/compliance"
+      },
+      {
+        "file": "CONTEXTUAL_HELP_SYSTEM.md",
+        "topic": "Help & UX",
+        "description": "Contextual help and onboarding system",
+        "when_to_read": "Working on help/tooltips/onboarding"
       }
     ]
   },

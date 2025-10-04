@@ -81,11 +81,15 @@ STEP 3 (3 minutes):
 → Check if service has feature-specific specs (see below)
 
 STEP 3.5 (CONDITIONAL - if working on specific features):
-→ If DAM-related: Read DAM_APPROVAL_CHANGELOG.md, app-web-frontend/DAM_PERMISSIONS_SPECS.md, app-web-frontend/DAM_ENTERPRISE_SPECS.md
-→ If HR-related: Read HR_SYSTEM_COMPLETE.md
-→ If Activity Tracking: Read ACTIVITY_TRACKING_INTEGRATION.md
+→ If DAM-related: Read DAM_APPROVAL_CHANGELOG.md, DAM_PERMISSIONS_SPECS.md, DAM_ENTERPRISE_SPECS.md
+→ If HR-related: Read HR_SYSTEM_COMPLETE.md, ACTIVITY_TRACKING_INTEGRATION.md
+→ If Email-related: Read EMAIL_CLIENT_SYSTEM.md, EMAIL_QUICK_REPLY_UI.md
+→ If Multilingual/i18n: Read I18N_SYSTEM.md
+→ If AI/Credits/Provider: Read AI_PROVIDER_SYSTEM.md
+→ If Admin/Infrastructure/Tenant: Read INFRASTRUCTURE_MAP.md, TENANT_MIGRATION.md, ENTERPRISE_READINESS.md
+→ If Help System: Read CONTEXTUAL_HELP_SYSTEM.md
 → If Admin Panel: Read app-web-frontend/ADMIN_PANEL_QUICKSTART.md
-→ If Frontend: Read app-web-frontend/APP_CONTEXT.md, app-web-frontend/CODEBASE_REFERENCE.md
+→ If Frontend: Read app-web-frontend/APP_CONTEXT.md, CODEBASE_REFERENCE.md
 → Purpose: Detailed status and features
 → Find: What's implemented, what's missing, blockers
 
