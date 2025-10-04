@@ -428,6 +428,9 @@ Miglior esempio di:
 ### Image Editor
 - [IMAGE_EDITOR_SYSTEM.md](IMAGE_EDITOR_SYSTEM.md) - Editor immagini professionale con AI (84 KB)
 
+### Desktop Publishing
+- [desktop_publishing_system.md](desktop_publishing_system.md) - Sistema impaginazione InDesign-like (98 KB)
+
 ### Multilingual & i18n
 - [I18N_SYSTEM.md](I18N_SYSTEM.md) - Sistema internazionalizzazione completo
 
@@ -452,6 +455,7 @@ Miglior esempio di:
 - HR → "employee", "attendance", "leave", "timesheet"
 - Email → "email", "inbox", "message", "smtp", "imap"
 - Image Editor → "image", "editor", "raster", "canvas", "filter", "layer"
+- Desktop Publishing → "publishing", "layout", "indesign", "page", "master", "spread", "frame", "typography"
 - i18n → "translation", "locale", "multilingual", "language"
 - AI/Credits → "ai", "credits", "provider", "openai", "anthropic", "byok"
 - Admin/Infra → "tenant", "infrastructure", "migration", "enterprise"

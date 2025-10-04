@@ -107,6 +107,12 @@
         "when_to_read": "Working on image editing/raster/canvas/filters"
       },
       {
+        "file": "desktop_publishing_system.md",
+        "topic": "Desktop Publishing",
+        "description": "InDesign-like page layout system for professional publishing",
+        "when_to_read": "Working on page layout/publishing/InDesign-like features/master pages/text threading"
+      },
+      {
         "file": "I18N_SYSTEM.md",
         "topic": "Multilingual",
         "description": "Complete internationalization system",

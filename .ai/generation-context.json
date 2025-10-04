@@ -21,9 +21,10 @@
     "creative_tools": {
       "description": "Image/video/raster editing, creative workflows",
       "reference_specs": [
-        "IMAGE_EDITOR_SYSTEM.md"
+        "IMAGE_EDITOR_SYSTEM.md",
+        "desktop_publishing_system.md"
       ],
-      "keywords": ["editor", "canvas", "layer", "filter", "creative", "raster", "vector", "design"]
+      "keywords": ["editor", "canvas", "layer", "filter", "creative", "raster", "vector", "design", "publishing", "layout", "indesign", "page", "master", "spread", "frame", "typography"]
     },
     "communication": {
       "description": "Email, chat, messaging, notifications",
