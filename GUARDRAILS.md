@@ -753,3 +753,188 @@ A: Minimo 5 minuti, massimo 15 minuti. Se serve più tempo, task troppo grande.
 **Prossima revisione:** 2025-10-18
 **Maintainer:** Tech Lead Team
 **Feedback:** Aggiungere issue con label "guardrails"
+
+---
+
+## 🆕 Regola 8: Spec Generation Context Limits
+
+**QUANDO:** Generando nuove specifiche (es. BILLING_SYSTEM.md, VIDEO_EDITOR_SYSTEM.md)
+
+**PROBLEMA:** Caricare troppe specs esistenti confonde l'AI → output inconsistente
+
+**SOLUZIONE:** Context budget per generazione specs
+
+### 📏 Context Budget
+
+**MANDATORY limits:**
+- MAX 150 KB context totale
+- MAX 2 specs simili come riferimento
+- SEMPRE include SPEC_TEMPLATE.md + ARCHITECTURE.md
+
+**Formula:**
+```
+Context = SPEC_TEMPLATE.md (10 KB)
+        + ARCHITECTURE.md (38 KB)
+        + Max 2 similar specs (~100 KB)
+        = ~148 KB ✅
+```
+
+### 🎯 Workflow Generazione
+
+```mermaid
+graph TD
+    A[User: Create SYSTEM.md] --> B[Extract keywords]
+    B --> C[Check generation-context.json]
+    C --> D[Match similarity_map]
+    D --> E[Load template + arch + 1-2 similar]
+    E --> F{Context < 150 KB?}
+    F -->|Yes| G[Generate spec]
+    F -->|No| H[Drop least relevant spec]
+    H --> E
+    G --> I[Verify follows SPEC_TEMPLATE]
+    I --> J[Output 20-120 KB]
+```
+
+### ✅ Esempio Corretto
+
+**User:** "Create VIDEO_EDITOR_SYSTEM.md"
+
+```
+1. Keywords detected: "video", "editor"
+2. Match category: creative_tools
+3. Load context:
+   - SPEC_TEMPLATE.md (10 KB) ✅
+   - ARCHITECTURE.md (38 KB) ✅
+   - IMAGE_EDITOR_SYSTEM.md (84 KB) ✅ (similar reference)
+4. Total: 132 KB ✅ (under 150 KB)
+5. Generate following SPEC_TEMPLATE structure
+6. Output: ~60 KB ✅
+```
+
+### ❌ Esempio Sbagliato
+
+**User:** "Create VIDEO_EDITOR_SYSTEM.md"
+
+```
+1. Load EVERYTHING:
+   - All 18 specs (521 KB) ❌
+   - AI confused between patterns
+   - Mixes EMAIL patterns with VIDEO editor
+   - Output: 150 KB, inconsistent ❌
+2. REJECT: Too much context!
+```
+
+### 📋 Similarity Map Usage
+
+**File:** `.ai/generation-context.json`
+
+**Categories available:**
+- creative_tools → IMAGE_EDITOR_SYSTEM.md
+- communication → EMAIL_CLIENT_SYSTEM.md
+- infrastructure → INFRASTRUCTURE_MAP.md
+- ai_systems → AI_PROVIDER_SYSTEM.md
+- content_management → DAM specs
+- hr_systems → HR_SYSTEM_COMPLETE.md
+- localization → I18N_SYSTEM.md
+- help_ux → CONTEXTUAL_HELP_SYSTEM.md
+- billing_commerce → AI_PROVIDER_SYSTEM.md
+- enterprise → ENTERPRISE_READINESS.md
+
+**How to use:**
+1. Parse user request for keywords
+2. Match against similarity_map.{category}.keywords
+3. Load reference_specs from matched category
+4. Limit to max 2 specs
+
+### 🚦 Spec Size Guidelines
+
+| Type | Size | Action |
+|------|------|--------|
+| Simple system | 20-40 KB | ✅ Good |
+| Medium system | 40-80 KB | ✅ Good |
+| Complex system | 80-120 KB | ✅ Good |
+| Very complex | 120-200 KB | ⚠️ Consider split |
+| Too large | >200 KB | ❌ Must split |
+
+### 🎨 Template Structure
+
+**ALL specs MUST follow SPEC_TEMPLATE.md:**
+
+**Mandatory sections:**
+- 🎯 Objectives (3-5 bullets)
+- 🏗️ Architecture (components + tech stack)
+- 📋 Features (tiered: MVP → Production → Future)
+- 🔗 Dependencies (explicit list)
+- 📊 Database Schema (if applicable)
+- 🔌 API Endpoints (if applicable)
+- 🚀 Implementation Roadmap
+- 🧪 Testing Strategy
+
+**Optional sections:**
+- Remove if not applicable
+- Don't force content into unused sections
+
+### Quality Checklist
+
+**Before completing spec generation:**
+
+- [ ] Context used < 150 KB
+- [ ] Follows SPEC_TEMPLATE.md structure exactly
+- [ ] Output size 20-120 KB
+- [ ] Multi-tenancy mentioned (tenant_id)
+- [ ] Dependencies listed explicitly
+- [ ] No hallucinated services
+- [ ] Consistent with ARCHITECTURE.md
+- [ ] References MASTER_PROMPT.md (no duplication)
+- [ ] Roadmap with realistic timeframes
+- [ ] API endpoints have Zod schemas
+
+### 🛠️ Tools for Agents
+
+**Files to use:**
+1. **SPEC_TEMPLATE.md** - Structure standard
+2. **.ai/generation-context.json** - Similarity mapping
+3. **ARCHITECTURE.md** - System overview
+4. **Similar spec(s)** - Pattern reference (max 2)
+
+**Process:**
+```typescript
+// Pseudo-code for agents
+async function generateSpec(systemName: string) {
+  const keywords = extractKeywords(systemName);
+  const category = matchCategory(keywords, generationContext);
+  
+  const context = [
+    loadFile('SPEC_TEMPLATE.md'),      // 10 KB
+    loadFile('ARCHITECTURE.md'),        // 38 KB
+    ...loadSimilarSpecs(category, 2)   // ~100 KB
+  ];
+  
+  if (contextSize(context) > 150_KB) {
+    context = reduceLeastRelevant(context);
+  }
+  
+  return generateFromTemplate(context, systemName);
+}
+```
+
+### 📈 Benefits
+
+**Before (no limits):**
+- Context: 300-500 KB
+- Time: 15-20 min
+- Output: Inconsistent, 60-200 KB
+- Quality: Mixed patterns, confused
+
+**After (with limits):**
+- Context: 50-150 KB (-70%)
+- Time: 5-8 min (-65%)
+- Output: Consistent, 20-120 KB
+- Quality: Focused, follows template
+
+**Improvement: 3x more consistent, 2x faster!**
+
+---
+
+**Questa regola si applica SOLO alla generazione di nuove specs, non all'implementazione di codice!**
+

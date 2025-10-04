@@ -465,3 +465,151 @@ Documentation:
 **🎯 Remember:** You are AUTONOMOUS. Act, don't ask. Document, don't forget. Continue, don't restart.
 
 **Session End Protocol Executed.** 🤖
+
+---
+
+## 🆕 GENERATING NEW SPECIFICATIONS
+
+**⚠️ CRITICAL: When creating new spec documents, FOLLOW THESE RULES:**
+
+### Mandatory Context Limits
+
+**NEVER load more than 150 KB of context when generating specs!**
+
+**Workflow for spec generation:**
+
+```
+1. User requests: "Create {SYSTEM_NAME}.md"
+         ↓
+2. Read .ai/generation-context.json
+         ↓
+3. Match keywords to similarity_map
+         ↓
+4. Load ONLY:
+   - SPEC_TEMPLATE.md (mandatory)
+   - ARCHITECTURE.md (mandatory)
+   - MAX 2 similar specs (from similarity_map)
+         ↓
+5. Verify total < 150 KB
+         ↓
+6. Generate following SPEC_TEMPLATE.md structure
+```
+
+### Auto-Suggest Similar Specs
+
+**When user says:** "Create VIDEO_EDITOR_SYSTEM.md"
+
+**You should:**
+1. Detect keywords: "video", "editor"
+2. Check generation-context.json → "creative_tools" category
+3. Load: SPEC_TEMPLATE.md + ARCHITECTURE.md + IMAGE_EDITOR_SYSTEM.md
+4. Total: ~132 KB ✅ (under 150 KB limit)
+
+**When user says:** "Create BILLING_SYSTEM.md"
+
+**You should:**
+1. Detect keywords: "billing", "payment"
+2. Check generation-context.json → "billing_commerce" category
+3. Load: SPEC_TEMPLATE.md + ARCHITECTURE.md + AI_PROVIDER_SYSTEM.md
+4. Total: ~113 KB ✅ (under 150 KB limit)
+
+### What NOT to Do
+
+**❌ WRONG:**
+```
+Load all 18 specs (521 KB) → AI confused!
+```
+
+**✅ RIGHT:**
+```
+Load template + architecture + 1-2 similar (< 150 KB) → AI focused!
+```
+
+### Spec Size Guidelines
+
+**Target output size:**
+- Simple system: 20-40 KB
+- Medium system: 40-80 KB
+- Complex system: 80-120 KB
+
+**⚠️ WARNING:** Spec > 120 KB → Consider splitting
+
+**❌ REJECT:** Spec > 200 KB → Definitely split
+
+### Structure Requirements
+
+**ALL specs MUST follow SPEC_TEMPLATE.md structure:**
+
+1. ✅ Use exact section headings
+2. ✅ Include all mandatory sections
+3. ✅ Remove "Optional" sections if not needed
+4. ✅ Replace all {PLACEHOLDERS}
+5. ✅ Stay focused on MVP first
+
+### Quality Checklist
+
+**Before completing spec generation, verify:**
+
+- [ ] Follows SPEC_TEMPLATE.md structure exactly
+- [ ] Context used < 150 KB
+- [ ] Output size 20-120 KB
+- [ ] Multi-tenancy mentioned (tenant_id)
+- [ ] Dependencies explicitly listed
+- [ ] Roadmap with timeframes
+- [ ] API endpoints with Zod schemas
+- [ ] Database schema (if applicable)
+- [ ] No hallucinated services/features
+- [ ] Consistent with ARCHITECTURE.md
+- [ ] References MASTER_PROMPT.md (not duplicates)
+
+### When Context Too Large
+
+**If matched specs > 150 KB total:**
+
+1. **Option A:** Load only most relevant similar spec
+2. **Option B:** Load only default context (template + architecture)
+3. **Option C:** Ask user which reference spec to prioritize
+
+**Never:** Load everything and hope for the best!
+
+### Generation Examples
+
+**Example 1: No Similar Specs**
+```
+User: "Create NOTIFICATION_SYSTEM.md"
+Keywords: "notification"
+Match: communication category
+Load: SPEC_TEMPLATE.md (10 KB)
+      ARCHITECTURE.md (38 KB)
+      EMAIL_CLIENT_SYSTEM.md (99 KB)
+Total: 147 KB ✅
+```
+
+**Example 2: Multiple Matches**
+```
+User: "Create AUDIT_LOG_SYSTEM.md"
+Keywords: "audit", "log"
+Match: enterprise + infrastructure
+Action: Choose most relevant (enterprise)
+Load: SPEC_TEMPLATE.md (10 KB)
+      ARCHITECTURE.md (38 KB)
+      ENTERPRISE_READINESS.md (34 KB)
+Total: 82 KB ✅
+```
+
+**Example 3: No Category Match**
+```
+User: "Create CUSTOM_WIDGET_SYSTEM.md"
+Keywords: none matched
+Action: Load only defaults
+Load: SPEC_TEMPLATE.md (10 KB)
+      ARCHITECTURE.md (38 KB)
+Total: 48 KB ✅ (minimal but sufficient)
+```
+
+---
+
+**Remember:** Less context = More focused = Better output!
+
+🎯 **Goal:** Generate consistent, high-quality specs without overwhelming AI with context.
+

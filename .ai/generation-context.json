@@ -1,0 +1,161 @@
+{
+  "version": "1.0.0",
+  "description": "Context limits and similarity mapping for AI spec generation",
+  "last_updated": "2025-10-04",
+  "generation_rules": {
+    "max_context_size_kb": 150,
+    "max_similar_specs": 2,
+    "default_context": [
+      "SPEC_TEMPLATE.md",
+      "ARCHITECTURE.md"
+    ],
+    "recommended_size_kb": {
+      "simple_system": { "min": 20, "max": 40 },
+      "medium_system": { "min": 40, "max": 80 },
+      "complex_system": { "min": 80, "max": 120 }
+    },
+    "warning_threshold_kb": 120,
+    "critical_threshold_kb": 200
+  },
+  "similarity_map": {
+    "creative_tools": {
+      "description": "Image/video/raster editing, creative workflows",
+      "reference_specs": [
+        "IMAGE_EDITOR_SYSTEM.md"
+      ],
+      "keywords": ["editor", "canvas", "layer", "filter", "creative", "raster", "vector", "design"]
+    },
+    "communication": {
+      "description": "Email, chat, messaging, notifications",
+      "reference_specs": [
+        "EMAIL_CLIENT_SYSTEM.md",
+        "EMAIL_QUICK_REPLY_UI.md"
+      ],
+      "keywords": ["email", "chat", "message", "notification", "inbox", "smtp", "imap", "communication"]
+    },
+    "infrastructure": {
+      "description": "Infrastructure, deployment, scaling, monitoring",
+      "reference_specs": [
+        "INFRASTRUCTURE_MAP.md",
+        "TENANT_MIGRATION.md"
+      ],
+      "keywords": ["infrastructure", "deployment", "scaling", "monitoring", "devops", "migration"]
+    },
+    "enterprise": {
+      "description": "Enterprise features, compliance, security",
+      "reference_specs": [
+        "ENTERPRISE_READINESS.md"
+      ],
+      "keywords": ["enterprise", "compliance", "security", "audit", "sla", "governance"]
+    },
+    "ai_systems": {
+      "description": "AI integration, credits, providers, ML",
+      "reference_specs": [
+        "AI_PROVIDER_SYSTEM.md"
+      ],
+      "keywords": ["ai", "ml", "credits", "provider", "openai", "anthropic", "model", "inference"]
+    },
+    "content_management": {
+      "description": "DAM, content, assets, media management",
+      "reference_specs": [
+        "DAM_APPROVAL_CHANGELOG.md",
+        "app-web-frontend/DAM_PERMISSIONS_SPECS.md"
+      ],
+      "keywords": ["dam", "asset", "media", "content", "upload", "approval", "workflow"]
+    },
+    "hr_systems": {
+      "description": "HR, timesheet, attendance, employee management",
+      "reference_specs": [
+        "HR_SYSTEM_COMPLETE.md",
+        "ACTIVITY_TRACKING_INTEGRATION.md"
+      ],
+      "keywords": ["hr", "employee", "timesheet", "attendance", "leave", "tracking", "payroll"]
+    },
+    "localization": {
+      "description": "i18n, translations, multilingual support",
+      "reference_specs": [
+        "I18N_SYSTEM.md"
+      ],
+      "keywords": ["i18n", "translation", "locale", "multilingual", "language", "rtl"]
+    },
+    "help_ux": {
+      "description": "Help systems, onboarding, tooltips, guides",
+      "reference_specs": [
+        "CONTEXTUAL_HELP_SYSTEM.md"
+      ],
+      "keywords": ["help", "tooltip", "guide", "onboarding", "tutorial", "documentation"]
+    },
+    "billing_commerce": {
+      "description": "Billing, payments, subscriptions, e-commerce",
+      "reference_specs": [
+        "AI_PROVIDER_SYSTEM.md"
+      ],
+      "keywords": ["billing", "payment", "subscription", "invoice", "commerce", "checkout", "pricing"],
+      "note": "Use AI_PROVIDER_SYSTEM.md as reference for credit/payment patterns"
+    }
+  },
+  "auto_suggest": {
+    "enabled": true,
+    "instructions": "When user requests new spec, analyze keywords to suggest relevant reference specs from similarity_map. Load ONLY suggested specs + default context. Never load all specs."
+  },
+  "generation_workflow": {
+    "step_1": "Parse user request for system name and keywords",
+    "step_2": "Match keywords against similarity_map to find category",
+    "step_3": "Load default_context (SPEC_TEMPLATE.md + ARCHITECTURE.md)",
+    "step_4": "Load max 2 reference_specs from matched category",
+    "step_5": "Verify total context < max_context_size_kb (150 KB)",
+    "step_6": "Generate spec following SPEC_TEMPLATE.md structure",
+    "step_7": "Target size based on recommended_size_kb",
+    "step_8": "Review for consistency and completeness"
+  },
+  "examples": {
+    "VIDEO_EDITOR_SYSTEM": {
+      "user_request": "Create VIDEO_EDITOR_SYSTEM.md spec",
+      "detected_keywords": ["video", "editor"],
+      "matched_category": "creative_tools",
+      "context_to_load": [
+        "SPEC_TEMPLATE.md",
+        "ARCHITECTURE.md",
+        "IMAGE_EDITOR_SYSTEM.md"
+      ],
+      "estimated_context_kb": 132,
+      "status": "within_limits"
+    },
+    "BILLING_SYSTEM": {
+      "user_request": "Create BILLING_SYSTEM.md for subscriptions",
+      "detected_keywords": ["billing", "subscription"],
+      "matched_category": "billing_commerce",
+      "context_to_load": [
+        "SPEC_TEMPLATE.md",
+        "ARCHITECTURE.md",
+        "AI_PROVIDER_SYSTEM.md"
+      ],
+      "estimated_context_kb": 113,
+      "status": "within_limits"
+    },
+    "NOTIFICATION_SYSTEM": {
+      "user_request": "Create NOTIFICATION_SYSTEM.md",
+      "detected_keywords": ["notification", "message"],
+      "matched_category": "communication",
+      "context_to_load": [
+        "SPEC_TEMPLATE.md",
+        "ARCHITECTURE.md",
+        "EMAIL_CLIENT_SYSTEM.md"
+      ],
+      "estimated_context_kb": 147,
+      "status": "within_limits"
+    }
+  },
+  "error_handling": {
+    "context_too_large": {
+      "threshold_kb": 150,
+      "action": "Remove least relevant reference_spec or ask user which to prioritize"
+    },
+    "no_category_match": {
+      "action": "Load only default_context (SPEC_TEMPLATE.md + ARCHITECTURE.md)"
+    },
+    "multiple_category_match": {
+      "action": "Load reference_specs from most relevant category only"
+    }
+  }
+}
