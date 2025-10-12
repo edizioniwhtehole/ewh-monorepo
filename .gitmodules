@@ -273,3 +273,6 @@
 	path = app-video-editor
 	url = https://github.com/edizioniwhtehole/app-video-editor.git
 	branch = main
+[submodule "docs"]
+	path = docs
+	url = https://github.com/edizioniwhtehole/ewh-docs.git
