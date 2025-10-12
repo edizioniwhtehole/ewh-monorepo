@@ -1,0 +1,21 @@
+{
+  "name": "@ewh/visual-editing-components",
+  "version": "1.0.0",
+  "description": "Shared visual editing component library for EWH platform",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": ["visual-editing", "components", "ui"],
+  "author": "EWH Team",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "react": "^18.2.0",
+    "lucide-react": "^0.263.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+}

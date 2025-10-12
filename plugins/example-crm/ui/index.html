@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRM Dashboard</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>🎯 CRM Dashboard</h1>
+      <p>Auto-mounted at <code>/app/crm</code></p>
+    </header>
+
+    <main>
+      <section class="stats">
+        <div class="stat-card">
+          <h3>Total Leads</h3>
+          <p id="total-leads">Loading...</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Deals</h3>
+          <p id="active-deals">Loading...</p>
+        </div>
+        <div class="stat-card">
+          <h3>Conversion Rate</h3>
+          <p id="conversion-rate">Loading...</p>
+        </div>
+      </section>
+
+      <section class="leads">
+        <h2>Recent Leads</h2>
+        <table id="leads-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Company</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody">
+            <tr>
+              <td colspan="6">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="actions">
+        <button onclick="window.createLead()">➕ Create Lead</button>
+        <button onclick="window.refreshData()">🔄 Refresh</button>
+      </section>
+    </main>
+
+    <footer>
+      <p>✨ This UI is auto-served from <code>plugins/example-crm/ui/</code></p>
+      <p>No build step required! Just HTML, CSS, and vanilla JS.</p>
+    </footer>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

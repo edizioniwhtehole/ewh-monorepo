@@ -1,0 +1,32 @@
+{
+  "name": "@ewh/shared-widgets",
+  "version": "1.0.0",
+  "description": "Unified widget system for EWH platform - works across Page Builder, Admin Dashboard, and Public Pages",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "widgets",
+    "dashboard",
+    "page-builder",
+    "react"
+  ],
+  "author": "EWH Platform",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "lucide-react": "^0.263.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+}

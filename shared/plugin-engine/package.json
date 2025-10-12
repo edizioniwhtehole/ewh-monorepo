@@ -1,0 +1,26 @@
+{
+  "name": "@ewh/plugin-engine",
+  "version": "1.0.0",
+  "description": "Core plugin system engine for EWH platform",
+  "main": "src/index.ts",
+  "types": "types/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest"
+  },
+  "keywords": [
+    "plugin",
+    "hooks",
+    "events",
+    "modular"
+  ],
+  "author": "EWH Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "react": "^18.3.1"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "hello-world",
+  "version": "1.0.0",
+  "displayName": "Hello World Plugin",
+  "description": "Example plugin demonstrating hooks and filters",
+  "author": {
+    "name": "EWH Team",
+    "email": "dev@ewh.com"
+  },
+  "license": "MIT",
+  "capabilities": {
+    "backend": true,
+    "frontend": false,
+    "editor": false
+  },
+  "permissions": [
+    "database.read",
+    "api.register"
+  ]
+}

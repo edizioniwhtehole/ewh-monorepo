@@ -1,0 +1,200 @@
+{
+  "id": "ewh-plugin-workers",
+  "name": "Worker Management",
+  "slug": "workers",
+  "version": "1.0.0",
+  "description": "Complete worker queue and task management system with real-time monitoring",
+  "author": {
+    "name": "EWH Team",
+    "email": "plugins@ewh.com"
+  },
+  "compatibility": {
+    "core": ">=1.0.0",
+    "requires": [],
+    "conflicts": []
+  },
+  "capabilities": {
+    "backend": true,
+    "frontend": true,
+    "widgets": true,
+    "pages": true,
+    "api": true,
+    "cron": true,
+    "webhooks": false,
+    "hooks": true
+  },
+  "entryPoints": {
+    "backend": "./backend/index.ts",
+    "frontend": "./frontend/index.tsx",
+    "widgets": "./frontend/widgets/index.ts",
+    "pages": "./frontend/pages/index.ts"
+  },
+  "permissions": [
+    {
+      "type": "database",
+      "resource": "workers",
+      "action": "read",
+      "reason": "Read worker status and task information"
+    },
+    {
+      "type": "database",
+      "resource": "workers",
+      "action": "write",
+      "reason": "Create and update worker tasks"
+    },
+    {
+      "type": "api",
+      "resource": "/api/workers/*",
+      "action": "execute",
+      "reason": "Expose worker management API endpoints"
+    }
+  ],
+  "migrations": [
+    "./migrations/001_create_workers_tables.sql"
+  ],
+  "providedHooks": [
+    {
+      "name": "worker:task.created",
+      "type": "action",
+      "category": "worker",
+      "description": "Fired when a new task is created"
+    },
+    {
+      "name": "worker:task.completed",
+      "type": "action",
+      "category": "worker",
+      "description": "Fired when a task completes successfully"
+    },
+    {
+      "name": "worker:task.failed",
+      "type": "action",
+      "category": "worker",
+      "description": "Fired when a task fails"
+    }
+  ],
+  "consumedHooks": [
+    {
+      "hook": "system:startup",
+      "handler": "onSystemStartup",
+      "priority": 10
+    }
+  ],
+  "ui": {
+    "menu": [
+      {
+        "id": "workers",
+        "label": "Workers",
+        "route": "/admin/workers",
+        "icon": "Cpu",
+        "position": 20
+      },
+      {
+        "id": "workers-dashboard",
+        "label": "Dashboard",
+        "route": "/admin/workers/dashboard",
+        "parent": "workers"
+      },
+      {
+        "id": "workers-tasks",
+        "label": "Tasks",
+        "route": "/admin/workers/tasks",
+        "parent": "workers"
+      },
+      {
+        "id": "workers-queues",
+        "label": "Queues",
+        "route": "/admin/workers/queues",
+        "parent": "workers"
+      }
+    ],
+    "widgets": [
+      {
+        "id": "worker-status-widget",
+        "name": "Worker Status",
+        "description": "Real-time worker pool status and metrics",
+        "category": "monitoring",
+        "icon": "Cpu",
+        "component": "./frontend/widgets/WorkerStatusWidget.tsx",
+        "defaultSize": { "w": 6, "h": 4 },
+        "minSize": { "w": 4, "h": 3 },
+        "maxSize": { "w": 12, "h": 8 },
+        "configSchema": {
+          "type": "object",
+          "properties": {
+            "refreshInterval": {
+              "type": "number",
+              "default": 5000,
+              "description": "Refresh interval in milliseconds"
+            },
+            "showInactive": {
+              "type": "boolean",
+              "default": false,
+              "description": "Show inactive workers"
+            }
+          }
+        },
+        "defaultConfig": {
+          "refreshInterval": 5000,
+          "showInactive": false
+        },
+        "isResizable": true,
+        "supportsRealtime": true,
+        "dataSource": {
+          "type": "polling",
+          "endpoint": "/api/workers/status",
+          "pollInterval": 5000
+        }
+      },
+      {
+        "id": "worker-queue-widget",
+        "name": "Task Queue",
+        "description": "Task queue status with pending/processing/completed counts",
+        "category": "monitoring",
+        "icon": "ListTodo",
+        "component": "./frontend/widgets/WorkerQueueWidget.tsx",
+        "defaultSize": { "w": 6, "h": 4 },
+        "minSize": { "w": 4, "h": 3 },
+        "dataSource": {
+          "type": "polling",
+          "endpoint": "/api/workers/queue",
+          "pollInterval": 3000
+        }
+      },
+      {
+        "id": "worker-performance-widget",
+        "name": "Worker Performance",
+        "description": "Performance metrics and throughput charts",
+        "category": "analytics",
+        "icon": "TrendingUp",
+        "component": "./frontend/widgets/WorkerPerformanceWidget.tsx",
+        "defaultSize": { "w": 8, "h": 5 },
+        "minSize": { "w": 6, "h": 4 }
+      }
+    ],
+    "pages": [
+      {
+        "id": "workers-dashboard",
+        "name": "Workers Dashboard",
+        "slug": "/admin/workers",
+        "description": "Main worker management dashboard",
+        "icon": "Cpu",
+        "component": "./frontend/pages/WorkersDashboard.tsx",
+        "showInMenu": true,
+        "menuPosition": 20,
+        "requiredRole": ["admin"],
+        "layoutType": "dashboard"
+      },
+      {
+        "id": "workers-tasks",
+        "name": "Task Management",
+        "slug": "/admin/workers/tasks",
+        "component": "./frontend/pages/TasksPage.tsx",
+        "showInMenu": false
+      }
+    ]
+  },
+  "license": "MIT",
+  "pricing": {
+    "model": "free"
+  }
+}

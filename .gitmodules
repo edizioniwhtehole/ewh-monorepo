@@ -276,3 +276,51 @@
 [submodule "docs"]
 	path = docs
 	url = https://github.com/edizioniwhtehole/ewh-docs.git
+[submodule "svc-cms"]
+	path = svc-cms
+	url = https://github.com/edizioniwhtehole/svc-cms.git
+[submodule "svc-approvals"]
+	path = svc-approvals
+	url = https://github.com/edizioniwhtehole/svc-approvals.git
+[submodule "app-cms-frontend"]
+	path = app-cms-frontend
+	url = https://github.com/edizioniwhtehole/app-cms-frontend.git
+[submodule "app-page-builder"]
+	path = app-page-builder
+	url = https://github.com/edizioniwhtehole/app-page-builder.git
+[submodule "app-photoediting"]
+	path = app-photoediting
+	url = https://github.com/edizioniwhtehole/app-photoediting.git
+[submodule "svc-photo-editor"]
+	path = svc-photo-editor
+	url = https://github.com/edizioniwhtehole/svc-photo-editor.git
+[submodule "app-pm-frontend"]
+	path = app-pm-frontend
+	url = https://github.com/edizioniwhtehole/app-pm-frontend.git
+[submodule "app-workflow-insights"]
+	path = app-workflow-insights
+	url = https://github.com/edizioniwhtehole/app-workflow-insights.git
+[submodule "svc-plugin-manager"]
+	path = svc-plugin-manager
+	url = https://github.com/edizioniwhtehole/svc-plugin-manager.git
+[submodule "svc-print-pm"]
+	path = svc-print-pm
+	url = https://github.com/edizioniwhtehole/svc-print-pm.git
+[submodule "svc-workflow-tracker"]
+	path = svc-workflow-tracker
+	url = https://github.com/edizioniwhtehole/svc-workflow-tracker.git
+[submodule "app-admin-frontend"]
+	path = app-admin-frontend
+	url = https://github.com/edizioniwhtehole/app-admin-frontend.git
+[submodule "app-dam"]
+	path = app-dam
+	url = https://github.com/edizioniwhtehole/app-dam.git
+[submodule "app-media-frontend"]
+	path = app-media-frontend
+	url = https://github.com/edizioniwhtehole/app-media-frontend.git
+[submodule "app-approvals-frontend"]
+	path = app-approvals-frontend
+	url = https://github.com/edizioniwhtehole/app-approvals-frontend.git
+[submodule "svc-metrics-collector"]
+	path = svc-metrics-collector
+	url = https://github.com/edizioniwhtehole/svc-metrics-collector.git

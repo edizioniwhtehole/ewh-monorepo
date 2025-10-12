@@ -1,0 +1,46 @@
+{
+  "id": "com.ewh.photoshop.workflow-tracker",
+  "name": "EWH Workflow Tracker",
+  "version": "1.0.0",
+  "manifestVersion": 5,
+  "host": [
+    {
+      "app": "PS",
+      "minVersion": "24.0.0"
+    }
+  ],
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "workflowTracker",
+      "label": {
+        "default": "Workflow Tracker"
+      },
+      "minimumSize": {
+        "width": 320,
+        "height": 400
+      }
+    }
+  ],
+  "requiredPermissions": [
+    {
+      "name": "network",
+      "domains": ["http://localhost:3700", "https://api.ewh.com"]
+    },
+    {
+      "name": "webview",
+      "allow": "yes"
+    },
+    {
+      "name": "launchProcess",
+      "schemes": ["http", "https"]
+    }
+  ],
+  "icons": [
+    {
+      "width": 48,
+      "height": 48,
+      "path": "icons/icon-48.png"
+    }
+  ]
+}

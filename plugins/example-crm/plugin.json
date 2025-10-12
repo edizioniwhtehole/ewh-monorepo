@@ -1,0 +1,52 @@
+{
+  "$schema": "https://ewh.io/schemas/plugin-v1.json",
+  "name": "example-crm",
+  "version": "1.0.0",
+  "displayName": "Example CRM",
+  "description": "Full-featured CRM plugin demonstrating zero-touch development",
+  "author": {
+    "name": "EWH Platform Team",
+    "email": "dev@ewh.io"
+  },
+  "capabilities": {
+    "backend": true,
+    "frontend": true,
+    "database": true,
+    "worker": false
+  },
+  "permissions": {
+    "requires": [
+      "database.read",
+      "database.write",
+      "api.register"
+    ],
+    "provides": [
+      "crm.admin",
+      "crm.sales",
+      "crm.view"
+    ]
+  },
+  "routes": {
+    "prefix": "/crm",
+    "public": ["/health"],
+    "protected": ["/leads", "/contacts", "/deals"]
+  },
+  "ui": {
+    "mount": "/app/crm",
+    "menu": {
+      "label": "CRM",
+      "icon": "users",
+      "position": 50
+    }
+  },
+  "dependencies": {
+    "plugins": {},
+    "npm": {
+      "zod": "^3.22.0"
+    }
+  },
+  "hooks": {
+    "lead.created": "onLeadCreated",
+    "deal.closed": "onDealClosed"
+  }
+}

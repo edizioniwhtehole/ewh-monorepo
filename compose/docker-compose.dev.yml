@@ -22,6 +22,7 @@ x-node-common: &node_common
     - -lc
     - |
         set -e
+        apk add --no-cache docker-cli 2>/dev/null || true
         corepack enable
         pnpm config set store-dir /pnpm-store
         if [ ! -f package.json ]; then echo "no package.json -> idle"; sleep 3600; fi
@@ -115,7 +116,93 @@ services:
       NEXT_PUBLIC_API_BASE_URL: "http://localhost:4000"
       NEXT_PUBLIC_APP_ENV: "development"
     ports: [ "3100:3100" ]
+    volumes:
+      - "${EWH_ROOT:-..}:/workspace:cached"
+      - ewh_pnpm:/pnpm-store
+      - /var/run/docker.sock:/var/run/docker.sock
     profiles: [ "default","apps","core" ]
+
+  app-admin-frontend:
+    <<: *react_app
+    container_name: app_admin_frontend
+    working_dir: /workspace/app-admin-frontend
+    environment:
+      NODE_ENV: "development"
+      LOG_LEVEL: "debug"
+      DATABASE_URL: "postgres://ewh:ewhpass@postgres:5432/ewh_master"
+      REDIS_URL: "redis://redis:6379/0"
+      S3_ENDPOINT: "http://minio:9000"
+      S3_ACCESS_KEY: "ewh"
+      S3_SECRET_KEY: "ewhminio"
+      S3_BUCKET: "ewh-dev"
+      PNPM_STORE_DIR: "/pnpm-store"
+      CI: "false"
+      PORT: "3200"
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "1000"
+      NEXT_PUBLIC_API_BASE_URL: "http://localhost:4000"
+      NEXT_PUBLIC_APP_ENV: "development"
+    ports: [ "3200:3200" ]
+    volumes:
+      - "${EWH_ROOT:-..}:/workspace:cached"
+      - ewh_pnpm:/pnpm-store
+      - /var/run/docker.sock:/var/run/docker.sock
+    profiles: [ "default","apps","admin" ]
+
+  app-dam:
+    <<: *react_app
+    container_name: app_dam
+    working_dir: /workspace/app-dam
+    environment:
+      NODE_ENV: "development"
+      LOG_LEVEL: "debug"
+      DATABASE_URL: "postgres://ewh:ewhpass@postgres:5432/ewh_master"
+      REDIS_URL: "redis://redis:6379/0"
+      S3_ENDPOINT: "http://minio:9000"
+      S3_ACCESS_KEY: "ewh"
+      S3_SECRET_KEY: "ewhminio"
+      S3_BUCKET: "ewh-dev"
+      PNPM_STORE_DIR: "/pnpm-store"
+      CI: "false"
+      PORT: "3300"
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "1000"
+      NEXT_PUBLIC_API_BASE_URL: "http://svc-api-gateway:4000"
+      NEXT_PUBLIC_MEDIA_SERVICE_URL: "http://svc-media:4003"
+      NEXT_PUBLIC_AUTH_SERVICE_URL: "http://svc-auth:4001"
+      NEXT_PUBLIC_S3_ENDPOINT: "http://minio:9000"
+      NEXT_PUBLIC_S3_BUCKET: "ewh-dev"
+      NEXT_PUBLIC_APP_ENV: "development"
+      NEXT_PUBLIC_ENABLE_ENTERPRISE_FEATURES: "true"
+      NEXT_PUBLIC_ENABLE_AI_ANALYSIS: "true"
+      NEXT_PUBLIC_ENABLE_WORKFLOWS: "true"
+    ports: [ "3300:3300" ]
+    volumes:
+      - "${EWH_ROOT:-..}:/workspace:cached"
+      - ewh_pnpm:/pnpm-store
+      - /var/run/docker.sock:/var/run/docker.sock
+    profiles: [ "default","apps","dam" ]
+
+  svc-metrics-collector:
+    <<: *node_common
+    container_name: svc_metrics_collector
+    working_dir: /workspace/svc-metrics-collector
+    environment:
+      NODE_ENV: "development"
+      LOG_LEVEL: "info"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_NAME: "ewh_master"
+      DB_USER: "ewh"
+      DB_PASSWORD: "ewhpass"
+      PORT: "4010"
+    ports: [ "4010:4010" ]
+    volumes:
+      - "${EWH_ROOT:-..}:/workspace:cached"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    profiles: [ "default", "monitoring", "metrics" ]
 
   # === Core ===
   svc-api-gateway:
@@ -209,7 +296,7 @@ services:
   svc-kb:           { <<: *node_common, container_name: svc_kb,           working_dir: /workspace/svc-kb,           environment: { PORT: "4404" }, ports: [ "4404:4404" ], profiles: [ "default","collab" ] }
   svc-collab:       { <<: *node_common, container_name: svc_collab,       working_dir: /workspace/svc-collab,       environment: { PORT: "4405" }, ports: [ "4405:4405" ], profiles: [ "default","collab" ] }
   svc-dms:          { <<: *node_common, container_name: svc_dms,          working_dir: /workspace/svc-dms,          environment: { PORT: "4406" }, ports: [ "4406:4406" ], profiles: [ "default","collab" ] }
-  svc-timesheet:    { <<: *node_common, container_name: svc_timesheet,    working_dir: /workspace/svc-timesheet,    environment: { PORT: "4407" }, ports: [ "4407:4407" ], profiles: [ "default","collab" ] }
+  svc-timesheet:    { <<: *node_common, container_name: svc_timesheet,    working_dir: /workspace/svc-timesheet,    environment: { PORT: "4407", DB_HOST: "postgres", DB_PORT: "5432", DB_NAME: "ewh_timesheet", DB_USER: "ewh", DB_PASSWORD: "ewhpass" }, ports: [ "4407:4407" ], profiles: [ "default","collab" ] }
   svc-forms:        { <<: *node_common, container_name: svc_forms,        working_dir: /workspace/svc-forms,        environment: { PORT: "4408" }, ports: [ "4408:4408" ], profiles: [ "default","collab" ] }
   svc-forum:        { <<: *node_common, container_name: svc_forum,        working_dir: /workspace/svc-forum,        environment: { PORT: "4409" }, ports: [ "4409:4409" ], profiles: [ "default","collab" ] }
   svc-assistant:    { <<: *node_common, container_name: svc_assistant,    working_dir: /workspace/svc-assistant,    environment: { PORT: "4410" }, ports: [ "4410:4410" ], profiles: [ "default","collab" ] }
