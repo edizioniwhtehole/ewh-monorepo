@@ -324,3 +324,9 @@
 [submodule "svc-metrics-collector"]
 	path = svc-metrics-collector
 	url = https://github.com/edizioniwhtehole/svc-metrics-collector.git
+[submodule "app-shell-frontend"]
+	path = app-shell-frontend
+	url = https://github.com/edizioniwhtehole/app-shell-frontend.git
+[submodule "svc-page-builder"]
+	path = svc-page-builder
+	url = https://github.com/edizioniwhtehole/svc-page-builder.git
