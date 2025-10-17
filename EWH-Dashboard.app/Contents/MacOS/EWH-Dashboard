@@ -1,0 +1,6 @@
+#!/bin/bash
+pkill -f "python3.*ewh-manager.py" 2>/dev/null || true
+cd /Users/andromeda/dev/ewh
+python3 ewh-manager.py &
+echo $! > /tmp/ewh-dashboard.pid
+osascript -e 'display notification "Dashboard avviato su http://localhost:9999" with title "EWH Manager"'

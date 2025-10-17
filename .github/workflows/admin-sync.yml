@@ -1,0 +1,43 @@
+name: Sync Admin Tasks to GitHub Projects
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:        # Manual trigger
+  push:
+    paths:
+      - 'migrations/**'
+      - 'scripts/sync-github-projects.ts'
+
+jobs:
+  sync-tasks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install @octokit/rest @supabase/supabase-js tsx
+
+      - name: Sync tasks to GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PROJECT_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          GITHUB_ORG: ${{ secrets.GITHUB_ORG }}
+          GITHUB_PROJECT_NUMBER: ${{ secrets.GITHUB_PROJECT_NUMBER }}
+        run: |
+          npx tsx scripts/sync-github-projects.ts
+
+      - name: Summary
+        run: |
+          echo "✅ Task sync completed successfully"
+          echo "📊 Check GitHub Projects: https://github.com/orgs/${{ secrets.GITHUB_ORG }}/projects/${{ secrets.GITHUB_PROJECT_NUMBER }}"

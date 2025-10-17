@@ -1,0 +1,1 @@
+- ✅ svc-crm-unified: deps=✓, health=⚠, auth=⚠ (port 3311)

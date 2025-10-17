@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EWH Shell - Services Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin-bottom: 30px;
+      color: #60a5fa;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 8px;
+      flex: 1;
+    }
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #60a5fa;
+    }
+    .stat-label {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .service-card {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .service-card:hover {
+      border-color: #60a5fa;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(96, 165, 250, 0.2);
+    }
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .service-icon {
+      width: 40px;
+      height: 40px;
+      background: #3b82f6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .service-name {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .service-id {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .service-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .status-healthy {
+      background: #10b981;
+      color: white;
+    }
+    .status-unhealthy {
+      background: #ef4444;
+      color: white;
+    }
+    .service-details {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #334155;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .service-detail {
+      margin: 4px 0;
+    }
+    .service-type {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #475569;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 EWH Platform Services</h1>
+
+    <button onclick="loadServices()">🔄 Refresh Services</button>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="totalServices">-</div>
+        <div class="stat-label">Total Services</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="healthyServices">-</div>
+        <div class="stat-label">Healthy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="frontendApps">-</div>
+        <div class="stat-label">Frontend Apps</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="backendServices">-</div>
+        <div class="stat-label">Backend Services</div>
+      </div>
+    </div>
+
+    <div id="servicesContainer" class="loading">
+      Loading services...
+    </div>
+  </div>
+
+  <script>
+    const REGISTRY_URL = 'http://localhost:5960';
+
+    async function loadServices() {
+      const container = document.getElementById('servicesContainer');
+      container.innerHTML = '<div class="loading">Loading services...</div>';
+
+      try {
+        const response = await fetch(`${REGISTRY_URL}/api/v1/services`);
+        const data = await response.json();
+
+        if (!data.success) {
+          throw new Error('Failed to load services');
+        }
+
+        const services = data.data;
+
+        // Update stats
+        document.getElementById('totalServices').textContent = services.length;
+        document.getElementById('healthyServices').textContent =
+          services.filter(s => s.status === 'healthy').length;
+        document.getElementById('frontendApps').textContent =
+          services.filter(s => s.serviceType === 'frontend').length;
+        document.getElementById('backendServices').textContent =
+          services.filter(s => s.serviceType === 'backend').length;
+
+        // Render services
+        if (services.length === 0) {
+          container.innerHTML = '<div class="loading">No services registered yet.</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        const grid = document.createElement('div');
+        grid.className = 'services-grid';
+
+        services.forEach(service => {
+          const card = createServiceCard(service);
+          grid.appendChild(card);
+        });
+
+        container.appendChild(grid);
+      } catch (error) {
+        container.innerHTML = `<div class="loading">❌ Error: ${error.message}</div>`;
+      }
+    }
+
+    function createServiceCard(service) {
+      const card = document.createElement('div');
+      card.className = 'service-card';
+      card.onclick = () => window.open(service.urlPattern, '_blank');
+
+      const iconEmoji = service.serviceType === 'frontend' ? '🎨' : '⚙️';
+
+      card.innerHTML = `
+        <div class="service-header">
+          <div class="service-icon">${iconEmoji}</div>
+          <div>
+            <div class="service-name">
+              ${service.serviceName}
+              <span class="service-type">${service.serviceType}</span>
+            </div>
+            <div class="service-id">${service.serviceId}</div>
+          </div>
+        </div>
+        <div class="service-status status-${service.status}">
+          ${service.status === 'healthy' ? '✅' : '❌'} ${service.status.toUpperCase()}
+        </div>
+        <div class="service-details">
+          <div class="service-detail">📍 Port: ${service.port}</div>
+          <div class="service-detail">📦 Version: ${service.version}</div>
+          <div class="service-detail">🏷️ Category: ${service.category}</div>
+          <div class="service-detail">💓 Last heartbeat: ${new Date(service.lastHeartbeat).toLocaleTimeString()}</div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    // Load services on page load
+    loadServices();
+
+    // Auto-refresh every 10 seconds
+    setInterval(loadServices, 10000);
+  </script>
+</body>
+</html>

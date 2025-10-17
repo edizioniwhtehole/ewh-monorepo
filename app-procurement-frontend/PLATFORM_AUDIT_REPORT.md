@@ -1,0 +1,1 @@
+- ✅ app-procurement-frontend: deps=✓, auth=✓ (port 5800)

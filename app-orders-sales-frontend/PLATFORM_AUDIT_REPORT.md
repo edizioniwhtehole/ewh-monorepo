@@ -1,0 +1,1 @@
+- ✅ app-orders-sales-frontend: deps=✓, auth=✓ (port 6000)

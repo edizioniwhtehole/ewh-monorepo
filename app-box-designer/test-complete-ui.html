@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Box Designer CAD - Complete UI (Week 3 Day 13)</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    /* Complete layout */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .canvas-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      margin-right: 320px; /* Space for properties panel */
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Toolbar Container -->
+    <div id="toolbar-container"></div>
+
+    <!-- Canvas Container -->
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+
+      <!-- Stats Overlay -->
+      <div class="stats-overlay">
+        <div class="stat-line">
+          <span class="stat-label">Lines:</span>
+          <span class="stat-value" id="stat-lines">0</span>
+        </div>
+        <div class="stat-line">
+          <span class="stat-label">Rectangles:</span>
+          <span class="stat-value" id="stat-rects">0</span>
+        </div>
+        <div class="stat-line">
+          <span class="stat-label">Circles:</span>
+          <span class="stat-value" id="stat-circles">0</span>
+        </div>
+        <div class="stat-line">
+          <span class="stat-label">Arcs:</span>
+          <span class="stat-value" id="stat-arcs">0</span>
+        </div>
+        <div class="stat-line">
+          <span class="stat-label">Total:</span>
+          <span class="stat-value" id="stat-total">0</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-line">
+          <span class="stat-label">Selected:</span>
+          <span class="stat-value" id="stat-selected">0</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-line">
+          <span class="stat-label">Tool:</span>
+          <span class="stat-value" id="stat-tool">select</span>
+        </div>
+        <div class="stat-line">
+          <span class="stat-label">FPS:</span>
+          <span class="stat-value" id="stat-fps">0</span>
+        </div>
+        <div class="stat-line">
+          <span class="stat-label">Zoom:</span>
+          <span class="stat-value" id="stat-zoom">100%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Properties Panel Container -->
+    <div id="properties-container"></div>
+
+    <!-- Enhanced Status Bar Container -->
+    <div id="status-container"></div>
+  </div>
+
+  <script type="module">
+    import { CADEngine } from './cad-tools/CADEngine.js';
+    import { Toolbar } from './src/components/Toolbar.js';
+    import { PropertiesPanel } from './src/components/PropertiesPanel.js';
+    import { StatusBar } from './src/components/StatusBar.js';
+
+    // Initialize canvas
+    const canvas = document.getElementById('canvas');
+    const updateCanvasSize = () => {
+      const wrapper = canvas.parentElement;
+      canvas.width = wrapper.clientWidth;
+      canvas.height = wrapper.clientHeight;
+      if (window.app && window.app.engine) {
+        window.app.engine.render();
+      }
+    };
+    updateCanvasSize();
+
+    // CAD Application wrapper
+    class CADApp {
+      constructor() {
+        this.engine = new CADEngine(canvas);
+        this.toolbar = null;
+        this.propertiesPanel = null;
+        this.statusBar = null;
+
+        // Enable profiling
+        this.engine.toggleProfiling(true);
+
+        // Initialize all components
+        this.initToolbar();
+        this.initPropertiesPanel();
+        this.initStatusBar();
+
+        // Set initial tool
+        this.engine.setTool('select');
+
+        // Setup status update polling
+        this.setupStatusUpdates();
+
+        // Add some sample objects for testing
+        this.addSampleObjects();
+
+        console.log('🎨 CAD Application initialized');
+        console.log('📐 Week 3 Day 13: Complete UI Integration');
+        console.log('✨ Toolbar + Properties Panel + Enhanced Status Bar');
+      }
+
+      initToolbar() {
+        const toolbarContainer = document.getElementById('toolbar-container');
+        this.toolbar = new Toolbar(this, toolbarContainer);
+        console.log('🔧 Toolbar component created');
+      }
+
+      initPropertiesPanel() {
+        const propertiesContainer = document.getElementById('properties-container');
+        this.propertiesPanel = new PropertiesPanel(this, propertiesContainer);
+        console.log('📋 Properties panel component created');
+      }
+
+      initStatusBar() {
+        const statusContainer = document.getElementById('status-container');
+        this.statusBar = new StatusBar(this, statusContainer);
+        console.log('📊 Enhanced status bar component created');
+      }
+
+      setupStatusUpdates() {
+        // Update stats every 100ms
+        setInterval(() => {
+          this.updateStats();
+        }, 100);
+      }
+
+      updateStats() {
+        const lineCount = this.engine.objects.filter(obj => obj.type === 'line').length;
+        const rectCount = this.engine.objects.filter(obj => obj.type === 'rectangle').length;
+        const circleCount = this.engine.objects.filter(obj => obj.type === 'circle').length;
+        const arcCount = this.engine.objects.filter(obj => obj.type === 'arc').length;
+
+        document.getElementById('stat-lines').textContent = lineCount;
+        document.getElementById('stat-rects').textContent = rectCount;
+        document.getElementById('stat-circles').textContent = circleCount;
+        document.getElementById('stat-arcs').textContent = arcCount;
+        document.getElementById('stat-total').textContent = this.engine.objects.length;
+
+        document.getElementById('stat-fps').textContent = this.engine.profiling.fps.toFixed(1);
+        document.getElementById('stat-zoom').textContent = (this.engine.zoom * 100).toFixed(0) + '%';
+
+        // Update selected count
+        const selectTool = this.engine.tools.select;
+        const selectedCount = selectTool ? selectTool.selectedObjects.length : 0;
+        document.getElementById('stat-selected').textContent = selectedCount;
+
+        // Update current tool name
+        document.getElementById('stat-tool').textContent = this.engine.currentToolName || 'none';
+
+        // Update undo/redo button states
+        if (this.toolbar) {
+          this.toolbar.setUndoEnabled(this.engine.canUndo());
+          this.toolbar.setRedoEnabled(this.engine.canRedo());
+        }
+      }
+
+      addSampleObjects() {
+        // Add sample line
+        this.engine.objects.push({
+          type: 'line',
+          lineType: 'cut',
+          p1: { x: 50, y: 100 },
+          p2: { x: 200, y: 100 }
+        });
+
+        // Add sample rectangle
+        this.engine.objects.push({
+          type: 'rectangle',
+          lineType: 'cut',
+          p1: { x: 250, y: 50 },
+          p2: { x: 400, y: 150 }
+        });
+
+        // Add sample circle
+        this.engine.objects.push({
+          type: 'circle',
+          lineType: 'crease',
+          cx: 500,
+          cy: 100,
+          radius: 50
+        });
+
+        // Add sample arc
+        this.engine.objects.push({
+          type: 'arc',
+          lineType: 'perforation',
+          cx: 100,
+          cy: 250,
+          radius: 60,
+          startAngle: 0,
+          endAngle: Math.PI,
+          counterclockwise: false
+        });
+
+        // Add another line for testing
+        this.engine.objects.push({
+          type: 'line',
+          lineType: 'bleed',
+          p1: { x: 300, y: 250 },
+          p2: { x: 450, y: 300 }
+        });
+
+        this.engine.saveHistory();
+        this.engine.render();
+
+        console.log('📦 Added sample objects for testing');
+      }
+    }
+
+    // Create app instance
+    window.app = new CADApp();
+
+    // Resize handler
+    window.addEventListener('resize', updateCanvasSize);
+
+    // Global keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+      // Don't interfere with browser shortcuts
+      if (e.ctrlKey || e.metaKey) {
+        // Undo/Redo
+        if (e.key === 'z') {
+          if (e.shiftKey) {
+            window.app.engine.redo();
+            window.app.statusBar.setMessage('Redo', 'success');
+          } else {
+            window.app.engine.undo();
+            window.app.statusBar.setMessage('Undo', 'success');
+          }
+          e.preventDefault();
+          return;
+        }
+        return;
+      }
+
+      const currentTool = window.app.engine.currentTool;
+
+      switch(e.key.toLowerCase()) {
+        case 's':
+          if (!currentTool || !currentTool.isMoving) {
+            window.app.toolbar.setActiveTool('select');
+          }
+          break;
+        case 'm':
+          window.app.toolbar.setActiveTool('move');
+          break;
+        case 'l':
+          window.app.toolbar.setActiveTool('line');
+          break;
+        case 'r':
+          if (!e.shiftKey) {
+            window.app.toolbar.setActiveTool('rectangle');
+          }
+          break;
+        case 'c':
+          if (!currentTool || window.app.engine.currentToolName !== 'line') {
+            window.app.toolbar.setActiveTool('circle');
+          }
+          break;
+        case 'a':
+          if (!e.ctrlKey) {
+            window.app.toolbar.setActiveTool('arc');
+          }
+          break;
+        case 't':
+          window.app.toolbar.setActiveTool('trim');
+          break;
+        case 'o':
+          window.app.toolbar.setActiveTool('offset');
+          break;
+      }
+    });
+
+    console.log('⌨️  Keyboard Shortcuts:');
+    console.log('   S - Select   M - Move    L - Line    R - Rectangle');
+    console.log('   C - Circle   A - Arc     T - Trim    O - Offset');
+    console.log('   Ctrl+Z - Undo   Ctrl+Shift+Z - Redo');
+    console.log('');
+    console.log('🎯 Test the Complete UI:');
+    console.log('   1. Move mouse → Watch coordinates in status bar');
+    console.log('   2. Select object → Properties panel shows details');
+    console.log('   3. Edit properties → Object updates live');
+    console.log('   4. Toggle snap in properties → Status bar indicators update');
+    console.log('   5. Watch performance metrics → FPS and render time color-coded');
+    console.log('   6. Draw objects → Object count updates everywhere');
+  </script>
+</body>
+</html>

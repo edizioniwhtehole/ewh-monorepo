@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EWH Dashboard v4 - Kanban Semplice</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'SF Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #d2d2d7;
+            flex-shrink: 0;
+        }
+
+        .header h1 { font-size: 22px; font-weight: 600; }
+
+        .header-right { display: flex; gap: 16px; align-items: center; }
+
+        .telemetry {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #6e6e73;
+        }
+
+        .telemetry-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f5f5f7;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
+        .btn-primary { background: #007aff; color: white; }
+        .btn-success { background: #34c759; color: white; }
+
+        .main {
+            flex: 1;
+            padding: 16px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e5e5ea;
+            overflow: hidden;
+        }
+
+        .column-header {
+            padding: 16px;
+            border-bottom: 2px solid #f5f5f7;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .column-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .column-subtitle {
+            font-size: 11px;
+            color: #6e6e73;
+            font-weight: 400;
+        }
+
+        .column-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 200px;
+        }
+
+        .column-body.drag-over {
+            background: #f0f9ff;
+            border: 2px dashed #007aff;
+            margin: -2px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            border: 2px solid #e5e5ea;
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .service-card:hover {
+            border-color: #007aff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .service-card:active {
+            cursor: grabbing;
+        }
+
+        .service-card.dragging {
+            opacity: 0.3;
+        }
+
+        .service-card.running {
+            border-left: 4px solid #34c759;
+            background: #d1f4e0;
+        }
+        .service-card.error {
+            border-left: 4px solid #ff3b30;
+            background: #ffe5e5;
+        }
+        .service-card.stopped { border-left: 4px solid #d1d1d6; }
+
+        .service-card.selected {
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.2);
+        }
+
+        .pair-card {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 12px;
+            border: 2px solid #e5e5ea;
+            cursor: grab;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            user-select: none;
+        }
+
+        .pair-card:hover {
+            border-color: #007aff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .pair-card:active {
+            cursor: grabbing;
+        }
+
+        .pair-card.dragging {
+            opacity: 0.3;
+        }
+
+        .pair-service {
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            border: 2px solid #e5e5ea;
+        }
+
+        .pair-service.running {
+            border-left: 4px solid #34c759;
+            background: #d1f4e0;
+        }
+        .pair-service.error {
+            border-left: 4px solid #ff3b30;
+            background: #ffe5e5;
+        }
+        .pair-service.stopped { border-left: 4px solid #d1d1d6; }
+
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .service-name {
+            font-weight: 600;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-online { background: #d1f4e0; color: #248a3d; }
+        .badge-stopped { background: #e5e5ea; color: #6e6e73; }
+        .badge-error { background: #ffe5e5; color: #d70015; }
+
+        .service-info {
+            font-size: 11px;
+            color: #6e6e73;
+            margin-bottom: 8px;
+            min-height: 18px;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-sm:hover { opacity: 0.8; }
+        .btn-start { background: #34c759; color: white; }
+        .btn-stop { background: #ff3b30; color: white; }
+        .btn-restart { background: #ff9500; color: white; }
+        .btn-logs { background: #007aff; color: white; }
+        .btn-open { background: #5ac8fa; color: white; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-title { font-size: 20px; font-weight: 600; }
+
+        .modal-close {
+            background: #f5f5f7;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .log {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Menlo', monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .spinner {
+            border: 3px solid #e5e5ea;
+            border-top: 3px solid #007aff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6e6e73;
+            font-size: 13px;
+        }
+
+        .essentials-divider {
+            border-top: 2px solid #ff9500;
+            margin: 16px 0;
+            padding-top: 12px;
+            position: relative;
+        }
+
+        .essentials-divider::before {
+            content: '⭐ INDISPENSABILI';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 0 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #ff9500;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .bulk-select {
+            display: flex;
+            gap: 8px;
+            margin-right: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 EWH Dashboard v4</h1>
+        <div class="header-right">
+            <div class="telemetry">
+                <div class="telemetry-item">
+                    <span>🖥️ CPU:</span>
+                    <strong id="cpu">-</strong>
+                </div>
+                <div class="telemetry-item">
+                    <span>💾 RAM:</span>
+                    <strong id="ram">-</strong>
+                </div>
+                <div class="telemetry-item">
+                    <span>💿 Disk:</span>
+                    <strong id="disk">-</strong>
+                </div>
+            </div>
+            <div class="bulk-select">
+                <button class="btn btn-success" onclick="startSelected()">▶️ Start Selected</button>
+                <button class="btn btn-danger" onclick="stopSelected()">⏹️ Stop Selected</button>
+            </div>
+            <button class="btn btn-primary" onclick="discover()">🔄 Rileva</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <!-- Colonna 1: Coppie Frontend-Backend -->
+        <div class="column">
+            <div class="column-header">
+                <div class="column-title">
+                    🎨 Frontend + Backend
+                </div>
+                <div class="column-subtitle" id="pairs-count">0 coppie</div>
+            </div>
+            <div class="column-body" id="pairs-column" data-col="pairs"></div>
+        </div>
+
+        <!-- Colonna 2: Solo Backend -->
+        <div class="column">
+            <div class="column-header">
+                <div class="column-title">
+                    🔧 Solo Backend
+                </div>
+                <div class="column-subtitle" id="backend-count">0 servizi</div>
+            </div>
+            <div class="column-body" id="backend-column" data-col="backend"></div>
+        </div>
+
+        <!-- Colonna 3: Altro -->
+        <div class="column">
+            <div class="column-header">
+                <div class="column-title">
+                    📦 Altro
+                </div>
+                <div class="column-subtitle" id="other-count">0 servizi</div>
+            </div>
+            <div class="column-body" id="other-column" data-col="other"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">...</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div id="modal-body"><div class="spinner"></div></div>
+        </div>
+    </div>
+
+    <script>
+        const PORTS = {
+            'svc-auth': 4001,
+            'svc-api-gateway': 4000,
+            'svc-pm': 5500,
+            'app-pm-frontend': 5400,
+            'app-dam': 5100,
+            'app-cms-frontend': 5200,
+            'app-admin-frontend': 3200,
+            'svc-media': 4003,
+            'svc-boards': 4010,
+            'svc-bi': 4011,
+            'svc-projects': 4012,
+            'app-web-frontend': 3100,
+            'app-shell-frontend': 3000,
+            'svc-dms': 4013,
+            'svc-crm': 4014,
+        };
+
+        let allServices = [];
+        let pm2Services = [];
+
+        // Layout: { pairs: [[a,b]], backend: [x], other: [y,z], essentials: [e1,e2] }
+        let layout = loadLayout();
+        let selected = new Set();
+
+        function loadLayout() {
+            const saved = localStorage.getItem('ewh_kanban_layout_v4');
+            return saved ? JSON.parse(saved) : {
+                pairs: [],
+                backend: [],
+                other: [],
+                essentials: [] // Lista servizi indispensabili
+            };
+        }
+
+        function saveLayout() {
+            localStorage.setItem('ewh_kanban_layout_v4', JSON.stringify(layout));
+        }
+
+        async function api(command) {
+            const res = await fetch('/api', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command })
+            });
+            return res.json();
+        }
+
+        async function getTelemetry() {
+            const res = await fetch('/telemetry');
+            const data = await res.json();
+            if (data.success) {
+                const output = data.output;
+                const cpuMatch = output.match(/CPU usage: ([\d.]+)% user/);
+                if (cpuMatch) document.getElementById('cpu').textContent = cpuMatch[1] + '%';
+                const ramMatch = output.match(/PhysMem: ([\d.]+[GM]) used/);
+                if (ramMatch) document.getElementById('ram').textContent = ramMatch[1];
+                const diskMatch = output.match(/(\d+)%\s+\/System/);
+                if (diskMatch) document.getElementById('disk').textContent = diskMatch[1] + '%';
+            }
+        }
+
+        async function discover() {
+            openModal('🔍 Rilevamento servizi', '<div class="spinner"></div>');
+            const r = await api('ls -d app-* svc-* 2>/dev/null');
+            if (r.success) {
+                allServices = r.output.trim().split('\n').filter(Boolean);
+
+                // Aggiungi nuovi servizi solo in "other"
+                allServices.forEach(s => {
+                    const exists = layout.backend.includes(s) ||
+                                 layout.pairs.flat().includes(s) ||
+                                 layout.other.includes(s);
+                    if (!exists) {
+                        layout.other.push(s);
+                    }
+                });
+
+                saveLayout();
+                showOutput(`Trovati ${allServices.length} servizi\nNuovi servizi aggiunti in "Altro"`, true);
+                setTimeout(() => {
+                    closeModal();
+                    load();
+                }, 1500);
+            }
+        }
+
+        function openModal(title, body = '<div class="spinner"></div>') {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = body;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function showOutput(output, success) {
+            document.getElementById('modal-body').innerHTML =
+                `<div class="log">${output || 'Nessun output'}</div>`;
+        }
+
+        async function start(name) {
+            openModal(`🚀 Avvio ${name}`);
+            const r = await api(`cd ${name} && pm2 start npm --name ${name} -- run dev`);
+            showOutput(r.output, r.success);
+            setTimeout(load, 2000);
+        }
+
+        async function stop(name) {
+            openModal(`⏹️ Stop ${name}`);
+            const r = await api(`pm2 stop ${name}`);
+            showOutput(r.output, r.success);
+            setTimeout(load, 2000);
+        }
+
+        async function restart(name) {
+            openModal(`🔄 Restart ${name}`);
+            const r = await api(`pm2 restart ${name}`);
+            showOutput(r.output, r.success);
+            setTimeout(load, 2000);
+        }
+
+        async function logs(name) {
+            openModal(`📋 ${name}`, '<div class="spinner"></div>');
+            const r = await api(`pm2 logs ${name} --lines 100 --nostream`);
+            showOutput(r.output, true);
+        }
+
+        function openUrl(port) {
+            window.open(`http://192.168.1.47:${port}`, '_blank');
+        }
+
+        function toggleSelect(name) {
+            if (selected.has(name)) {
+                selected.delete(name);
+            } else {
+                selected.add(name);
+            }
+            render();
+        }
+
+        function toggleEssential(name) {
+            if (layout.essentials.includes(name)) {
+                layout.essentials = layout.essentials.filter(n => n !== name);
+            } else {
+                layout.essentials.push(name);
+            }
+            saveLayout();
+            render();
+        }
+
+        async function startSelected() {
+            if (selected.size === 0) {
+                alert('Seleziona almeno un servizio');
+                return;
+            }
+            openModal(`🚀 Avvio ${selected.size} servizi`);
+            for (const name of selected) {
+                await api(`cd ${name} && pm2 start npm --name ${name} -- run dev`);
+            }
+            showOutput('Servizi avviati!', true);
+            selected.clear();
+            setTimeout(load, 2000);
+        }
+
+        async function stopSelected() {
+            if (selected.size === 0) {
+                alert('Seleziona almeno un servizio');
+                return;
+            }
+            openModal(`⏹️ Stop ${selected.size} servizi`);
+            for (const name of selected) {
+                await api(`pm2 stop ${name}`);
+            }
+            showOutput('Servizi fermati!', true);
+            selected.clear();
+            setTimeout(load, 2000);
+        }
+
+        function renderServiceCard(name, pm2Data) {
+            const service = pm2Data;
+
+            const isSelected = selected.has(name);
+            const isEssential = layout.essentials.includes(name);
+
+            if (!service) {
+                return `
+                    <div class="service-card stopped ${isSelected ? 'selected' : ''}" draggable="true" ondragstart="dragStart(event, '${name}', 'single')">
+                        <div class="service-header">
+                            <input type="checkbox" class="checkbox"
+                                   ${isSelected ? 'checked' : ''}
+                                   onchange="toggleSelect('${name}')"
+                                   onclick="event.stopPropagation()">
+                            <div class="service-name">${name}</div>
+                            <button class="btn-sm" onclick="toggleEssential('${name}'); event.stopPropagation();" style="background:none;border:none;font-size:16px;cursor:pointer;">
+                                ${isEssential ? '⭐' : '☆'}
+                            </button>
+                            <span class="status-badge badge-stopped">OFF</span>
+                        </div>
+                        <div class="service-actions" onclick="event.stopPropagation()">
+                            <button class="btn btn-sm btn-start" onclick="start('${name}')">▶️</button>
+                            <button class="btn btn-sm btn-logs" onclick="logs('${name}')">📋</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const on = service.pm2_env.status === 'online';
+            const err = service.pm2_env.status === 'errored';
+            const cpu = service.monit.cpu;
+            const mem = Math.round(service.monit.memory / 1024 / 1024);
+            const port = PORTS[name];
+
+            return `
+                <div class="service-card ${on ? 'running' : err ? 'error' : 'stopped'} ${isSelected ? 'selected' : ''}"
+                     draggable="true"
+                     ondragstart="dragStart(event, '${name}', 'single')">
+                    <div class="service-header">
+                        <input type="checkbox" class="checkbox"
+                               ${isSelected ? 'checked' : ''}
+                               onchange="toggleSelect('${name}')"
+                               onclick="event.stopPropagation()">
+                        <div class="service-name">${name}</div>
+                        <button class="btn-sm" onclick="toggleEssential('${name}'); event.stopPropagation();" style="background:none;border:none;font-size:16px;cursor:pointer;">
+                            ${isEssential ? '⭐' : '☆'}
+                        </button>
+                        <span class="status-badge badge-${on ? 'online' : err ? 'error' : 'stopped'}">
+                            ${on ? 'ON' : err ? 'ERR' : 'OFF'}
+                        </span>
+                    </div>
+                    <div class="service-info">
+                        ${on ? `🔥 ${cpu}% | 💾 ${mem}MB` : ''}
+                        ${port && on ? `<br>🌐 :${port}` : ''}
+                    </div>
+                    <div class="service-actions" onclick="event.stopPropagation()">
+                        ${on ? `
+                            <button class="btn btn-sm btn-stop" onclick="stop('${name}')">⏹️</button>
+                            <button class="btn btn-sm btn-restart" onclick="restart('${name}')">🔄</button>
+                        ` : `
+                            <button class="btn btn-sm btn-start" onclick="start('${name}')">▶️</button>
+                        `}
+                        <button class="btn btn-sm btn-logs" onclick="logs('${name}')">📋</button>
+                        ${port && on ? `<button class="btn btn-sm btn-open" onclick="openUrl(${port})">🌐</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPairCard(pair, pm2Map) {
+            const [first, second] = pair;
+
+            return `
+                <div class="pair-card" draggable="true" ondragstart="dragStart(event, '${pair.join(',')}', 'pair')">
+                    ${renderPairService(first, pm2Map[first])}
+                    ${renderPairService(second, pm2Map[second])}
+                </div>
+            `;
+        }
+
+        function renderPairService(name, pm2Data) {
+            const service = pm2Data;
+
+            if (!service) {
+                return `
+                    <div class="pair-service stopped">
+                        <div class="service-header">
+                            <div class="service-name">${name}</div>
+                            <span class="status-badge badge-stopped">OFF</span>
+                        </div>
+                        <div class="service-actions" onclick="event.stopPropagation()">
+                            <button class="btn btn-sm btn-start" onclick="start('${name}')">▶️</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const on = service.pm2_env.status === 'online';
+            const err = service.pm2_env.status === 'errored';
+            const cpu = service.monit.cpu;
+            const mem = Math.round(service.monit.memory / 1024 / 1024);
+            const port = PORTS[name];
+
+            return `
+                <div class="pair-service ${on ? 'running' : err ? 'error' : 'stopped'}">
+                    <div class="service-header">
+                        <div class="service-name">${name}</div>
+                        <span class="status-badge badge-${on ? 'online' : err ? 'error' : 'stopped'}">
+                            ${on ? 'ON' : err ? 'ERR' : 'OFF'}
+                        </span>
+                    </div>
+                    <div class="service-info">
+                        ${on ? `🔥 ${cpu}% | 💾 ${mem}MB` : ''}
+                        ${port && on ? `<br>🌐 :${port}` : ''}
+                    </div>
+                    <div class="service-actions" onclick="event.stopPropagation()">
+                        ${on ? `
+                            <button class="btn btn-sm btn-stop" onclick="stop('${name}')">⏹️</button>
+                            <button class="btn btn-sm btn-restart" onclick="restart('${name}')">🔄</button>
+                        ` : `
+                            <button class="btn btn-sm btn-start" onclick="start('${name}')">▶️</button>
+                        `}
+                        <button class="btn btn-sm btn-logs" onclick="logs('${name}')">📋</button>
+                        ${port && on ? `<button class="btn btn-sm btn-open" onclick="openUrl(${port})">🌐</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderColumn(items, pm2Map, isPairs = false) {
+            // Separa essentials dal resto
+            const essentials = isPairs
+                ? items.filter(item => item.some(name => layout.essentials.includes(name)))
+                : items.filter(name => layout.essentials.includes(name));
+
+            const normal = isPairs
+                ? items.filter(item => !item.some(name => layout.essentials.includes(name)))
+                : items.filter(name => !layout.essentials.includes(name));
+
+            let html = '';
+
+            // Render essentials
+            if (essentials.length > 0) {
+                html += isPairs
+                    ? essentials.map(pair => renderPairCard(pair, pm2Map)).join('')
+                    : essentials.map(name => renderServiceCard(name, pm2Map[name])).join('');
+            }
+
+            // Divider
+            if (essentials.length > 0 && normal.length > 0) {
+                html += '<div class="essentials-divider"></div>';
+            }
+
+            // Render normal
+            if (normal.length > 0) {
+                html += isPairs
+                    ? normal.map(pair => renderPairCard(pair, pm2Map)).join('')
+                    : normal.map(name => renderServiceCard(name, pm2Map[name])).join('');
+            }
+
+            return html;
+        }
+
+        function render() {
+            const pm2Map = {};
+            pm2Services.forEach(s => pm2Map[s.name] = s);
+
+            // Render Pairs
+            const pairsHtml = renderColumn(layout.pairs, pm2Map, true);
+            document.getElementById('pairs-column').innerHTML = pairsHtml || '<div class="empty-state">Trascina due servizi qui per accoppiarli</div>';
+            document.getElementById('pairs-count').textContent = `${layout.pairs.length} coppie`;
+
+            // Render Backend
+            const backendHtml = renderColumn(layout.backend, pm2Map);
+            document.getElementById('backend-column').innerHTML = backendHtml || '<div class="empty-state">Trascina qui i servizi backend</div>';
+            document.getElementById('backend-count').textContent = `${layout.backend.length} servizi`;
+
+            // Render Other
+            const otherHtml = renderColumn(layout.other, pm2Map);
+            document.getElementById('other-column').innerHTML = otherHtml || '<div class="empty-state">Nessun servizio da organizzare</div>';
+            document.getElementById('other-count').textContent = `${layout.other.length} servizi`;
+        }
+
+        let dragData = null;
+
+        function dragStart(event, data, type) {
+            dragData = { data, type };
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function setupDropZones() {
+            document.querySelectorAll('.column-body').forEach(col => {
+                col.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    col.classList.add('drag-over');
+                });
+
+                col.addEventListener('dragleave', () => {
+                    col.classList.remove('drag-over');
+                });
+
+                col.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    col.classList.remove('drag-over');
+
+                    if (!dragData) return;
+
+                    const targetCol = col.dataset.col;
+
+                    // Rimuovi da tutte le colonne
+                    if (dragData.type === 'single') {
+                        const name = dragData.data;
+                        layout.backend = layout.backend.filter(n => n !== name);
+                        layout.other = layout.other.filter(n => n !== name);
+                        layout.pairs = layout.pairs.filter(p => !p.includes(name));
+
+                        // Aggiungi nella nuova colonna
+                        if (targetCol === 'pairs') {
+                            // Se drop su pairs di un singolo, non fare niente o crea coppia vuota
+                            layout.other.push(name); // Torna in other
+                        } else {
+                            layout[targetCol].push(name);
+                        }
+                    } else if (dragData.type === 'pair') {
+                        const pair = dragData.data.split(',');
+                        layout.pairs = layout.pairs.filter(p => p.join(',') !== dragData.data);
+
+                        if (targetCol === 'pairs') {
+                            // Rimetti la coppia
+                            layout.pairs.push(pair);
+                        } else {
+                            // Separa la coppia e metti entrambi nella colonna target
+                            pair.forEach(name => {
+                                layout[targetCol].push(name);
+                            });
+                        }
+                    }
+
+                    saveLayout();
+                    render();
+                    dragData = null;
+                });
+            });
+        }
+
+        async function load() {
+            try {
+                const r = await api('pm2 jlist');
+                if (!r.success) throw new Error('PM2 error');
+                pm2Services = JSON.parse(r.output);
+
+                if (allServices.length === 0) {
+                    await discover();
+                } else {
+                    render();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        document.addEventListener('dragend', () => {
+            document.querySelectorAll('.dragging').forEach(el => {
+                el.classList.remove('dragging');
+            });
+        });
+
+        setupDropZones();
+        setInterval(load, 5000);
+        setInterval(getTelemetry, 3000);
+        discover();
+        getTelemetry();
+
+        document.getElementById('modal').onclick = (e) => {
+            if (e.target.id === 'modal') closeModal();
+        };
+    </script>
+</body>
+</html>

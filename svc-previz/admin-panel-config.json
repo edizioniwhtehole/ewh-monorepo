@@ -1,0 +1,269 @@
+{
+  "service": {
+    "id": "previz",
+    "name": "Pre-visualization",
+    "description": "3D Scene Planning and Storyboarding System",
+    "icon": "Film",
+    "color": "#8B5CF6",
+    "category": "Creative Tools",
+    "order": 40
+  },
+  "settings": [
+    {
+      "section": "General",
+      "key": "previz.enabled",
+      "label": "Enable Pre-visualization",
+      "description": "Enable or disable the pre-visualization system for this tenant",
+      "type": "boolean",
+      "default": true,
+      "level": "tenant"
+    },
+    {
+      "section": "General",
+      "key": "previz.default_units",
+      "label": "Default Units",
+      "description": "Default measurement system for new scenes",
+      "type": "select",
+      "options": [
+        { "value": "metric", "label": "Metric (meters)" },
+        { "value": "imperial", "label": "Imperial (feet)" }
+      ],
+      "default": "metric",
+      "level": "tenant"
+    },
+    {
+      "section": "Scene Settings",
+      "key": "previz.max_scenes_per_project",
+      "label": "Max Scenes per Project",
+      "description": "Maximum number of scenes allowed per project",
+      "type": "number",
+      "default": 100,
+      "min": 1,
+      "max": 1000,
+      "level": "tenant"
+    },
+    {
+      "section": "Scene Settings",
+      "key": "previz.max_characters_per_scene",
+      "label": "Max Characters per Scene",
+      "description": "Maximum number of characters allowed per scene",
+      "type": "number",
+      "default": 50,
+      "min": 1,
+      "max": 200,
+      "level": "tenant"
+    },
+    {
+      "section": "Scene Settings",
+      "key": "previz.max_props_per_scene",
+      "label": "Max Props per Scene",
+      "description": "Maximum number of props allowed per scene",
+      "type": "number",
+      "default": 200,
+      "min": 1,
+      "max": 1000,
+      "level": "tenant"
+    },
+    {
+      "section": "Rendering",
+      "key": "previz.default_render_mode",
+      "label": "Default Render Mode",
+      "description": "Default rendering mode for scenes",
+      "type": "select",
+      "options": [
+        { "value": "wireframe", "label": "Wireframe" },
+        { "value": "shaded", "label": "Shaded" },
+        { "value": "textured", "label": "Textured" },
+        { "value": "realistic", "label": "Realistic" }
+      ],
+      "default": "shaded",
+      "level": "tenant"
+    },
+    {
+      "section": "Rendering",
+      "key": "previz.enable_shadows",
+      "label": "Enable Shadows",
+      "description": "Enable shadow rendering by default",
+      "type": "boolean",
+      "default": true,
+      "level": "tenant"
+    },
+    {
+      "section": "Rendering",
+      "key": "previz.enable_ambient_occlusion",
+      "label": "Enable Ambient Occlusion",
+      "description": "Enable ambient occlusion for more realistic rendering",
+      "type": "boolean",
+      "default": false,
+      "level": "tenant"
+    },
+    {
+      "section": "AI Generation",
+      "key": "previz.ai_enabled",
+      "label": "Enable AI Generation",
+      "description": "Allow users to generate props and characters using AI",
+      "type": "boolean",
+      "default": true,
+      "level": "tenant"
+    },
+    {
+      "section": "AI Generation",
+      "key": "previz.ai_monthly_quota",
+      "label": "Monthly AI Generation Quota",
+      "description": "Number of AI generations allowed per month per tenant",
+      "type": "number",
+      "default": 100,
+      "min": 0,
+      "max": 10000,
+      "level": "tenant"
+    },
+    {
+      "section": "Library",
+      "key": "previz.enable_public_library",
+      "label": "Enable Public Library",
+      "description": "Allow users to access public prop library",
+      "type": "boolean",
+      "default": true,
+      "level": "tenant"
+    },
+    {
+      "section": "Library",
+      "key": "previz.allow_custom_props",
+      "label": "Allow Custom Props",
+      "description": "Allow users to create and upload custom props",
+      "type": "boolean",
+      "default": true,
+      "level": "tenant"
+    },
+    {
+      "section": "Export",
+      "key": "previz.export_formats",
+      "label": "Allowed Export Formats",
+      "description": "File formats available for scene export",
+      "type": "multiselect",
+      "options": [
+        { "value": "json", "label": "JSON" },
+        { "value": "fbx", "label": "FBX" },
+        { "value": "usd", "label": "USD (Universal Scene Description)" },
+        { "value": "alembic", "label": "Alembic" },
+        { "value": "gltf", "label": "glTF" }
+      ],
+      "default": ["json", "fbx"],
+      "level": "tenant"
+    },
+    {
+      "section": "Webhooks",
+      "key": "previz.webhooks_enabled",
+      "label": "Enable Webhooks",
+      "description": "Allow webhook subscriptions for events",
+      "type": "boolean",
+      "default": true,
+      "level": "tenant"
+    },
+    {
+      "section": "Webhooks",
+      "key": "previz.webhook_retry_attempts",
+      "label": "Webhook Retry Attempts",
+      "description": "Number of retry attempts for failed webhooks",
+      "type": "number",
+      "default": 3,
+      "min": 0,
+      "max": 10,
+      "level": "global"
+    }
+  ],
+  "permissions": [
+    {
+      "key": "previz.scenes.view",
+      "label": "View Scenes",
+      "description": "View scenes and their contents"
+    },
+    {
+      "key": "previz.scenes.create",
+      "label": "Create Scenes",
+      "description": "Create new scenes"
+    },
+    {
+      "key": "previz.scenes.edit",
+      "label": "Edit Scenes",
+      "description": "Modify existing scenes"
+    },
+    {
+      "key": "previz.scenes.delete",
+      "label": "Delete Scenes",
+      "description": "Delete scenes"
+    },
+    {
+      "key": "previz.scenes.export",
+      "label": "Export Scenes",
+      "description": "Export scenes to various formats"
+    },
+    {
+      "key": "previz.storyboards.view",
+      "label": "View Storyboards",
+      "description": "View storyboards and shots"
+    },
+    {
+      "key": "previz.storyboards.create",
+      "label": "Create Storyboards",
+      "description": "Create new storyboards"
+    },
+    {
+      "key": "previz.storyboards.edit",
+      "label": "Edit Storyboards",
+      "description": "Modify existing storyboards"
+    },
+    {
+      "key": "previz.storyboards.delete",
+      "label": "Delete Storyboards",
+      "description": "Delete storyboards"
+    },
+    {
+      "key": "previz.library.view",
+      "label": "View Library",
+      "description": "Browse prop library"
+    },
+    {
+      "key": "previz.library.upload",
+      "label": "Upload to Library",
+      "description": "Add props to library"
+    },
+    {
+      "key": "previz.ai.generate",
+      "label": "Generate with AI",
+      "description": "Use AI to generate props and characters"
+    },
+    {
+      "key": "previz.webhooks.manage",
+      "label": "Manage Webhooks",
+      "description": "Create and manage webhook subscriptions"
+    }
+  ],
+  "metrics": [
+    {
+      "key": "scenes_total",
+      "label": "Total Scenes",
+      "query": "SELECT COUNT(*) FROM previz_scenes WHERE tenant_id = $1 AND deleted_at IS NULL"
+    },
+    {
+      "key": "storyboards_total",
+      "label": "Total Storyboards",
+      "query": "SELECT COUNT(*) FROM previz_storyboards WHERE tenant_id = $1 AND deleted_at IS NULL"
+    },
+    {
+      "key": "shots_total",
+      "label": "Total Shots",
+      "query": "SELECT COUNT(*) FROM previz_shots WHERE deleted_at IS NULL AND scene_id IN (SELECT id FROM previz_scenes WHERE tenant_id = $1)"
+    },
+    {
+      "key": "library_props_total",
+      "label": "Library Props",
+      "query": "SELECT COUNT(*) FROM previz_library_props WHERE (tenant_id = $1 OR is_public = TRUE) AND deleted_at IS NULL"
+    },
+    {
+      "key": "ai_requests_month",
+      "label": "AI Requests (This Month)",
+      "query": "SELECT COUNT(*) FROM previz_ai_requests WHERE tenant_id = $1 AND created_at >= date_trunc('month', CURRENT_DATE)"
+    }
+  ]
+}

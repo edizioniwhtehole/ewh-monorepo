@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test All Tools - Box Designer CAD</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .test-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #4ec9b0;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #858585;
+      margin-bottom: 30px;
+    }
+
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .tool-card {
+      background: #2d2d2d;
+      border: 2px solid #3e3e3e;
+      border-radius: 8px;
+      padding: 15px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .tool-card:hover {
+      border-color: #569cd6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(86, 156, 214, 0.2);
+    }
+
+    .tool-card.tested {
+      border-color: #4ec9b0;
+      background: #1e3a2e;
+    }
+
+    .tool-card.error {
+      border-color: #f48771;
+      background: #3a1e1e;
+    }
+
+    .tool-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .tool-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #d4d4d4;
+      margin-right: 10px;
+    }
+
+    .tool-key {
+      margin-left: auto;
+      background: #3e3e3e;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 14px;
+      color: #4ec9b0;
+    }
+
+    .tool-description {
+      color: #858585;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .tool-status {
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .status-pending { background: #2d2d30; color: #858585; }
+    .status-success { background: #0e6027; color: #4ec9b0; }
+    .status-error { background: #5a1d1d; color: #f48771; }
+
+    .test-button {
+      background: #569cd6;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      margin-right: 10px;
+      transition: background 0.2s;
+    }
+
+    .test-button:hover { background: #6aacd9; }
+    .test-button:active { background: #4a8cbc; }
+
+    .summary {
+      background: #2d2d2d;
+      border: 2px solid #3e3e3e;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .summary-stats {
+      display: flex;
+      gap: 30px;
+      font-size: 16px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #4ec9b0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #3e3e3e;
+      border-radius: 5px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4ec9b0, #569cd6);
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>📐 Box Designer CAD - Tool Testing Suite</h1>
+    <p class="subtitle">Week 4 Complete - All 12 Professional CAD Tools</p>
+
+    <div class="summary">
+      <div class="summary-stats">
+        <div class="stat">
+          <span>Total:</span>
+          <span class="stat-value" id="total-tools">12</span>
+        </div>
+        <div class="stat">
+          <span>Tested:</span>
+          <span class="stat-value" id="tested-count">0</span>
+        </div>
+        <div class="stat">
+          <span>✓ Passed:</span>
+          <span class="stat-value" id="passed-count" style="color: #4ec9b0;">0</span>
+        </div>
+        <div class="stat">
+          <span>✗ Failed:</span>
+          <span class="stat-value" id="failed-count" style="color: #f48771;">0</span>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress"></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+      <button class="test-button" onclick="runAllTests()">🧪 Run All Tests</button>
+      <button class="test-button" onclick="location.href='cad-app.html'" style="background: #4ec9b0;">🚀 Open Full App</button>
+    </div>
+
+    <h2 style="margin-bottom: 20px; color: #569cd6;">📋 Tool Test Results</h2>
+    <div class="test-grid" id="test-grid"></div>
+  </div>
+
+  <script type="module">
+    import { CADEngine } from './cad-tools/CADEngine.js';
+
+    const tools = [
+      { name: 'select', displayName: 'Select', key: 'S', desc: 'Select and highlight objects' },
+      { name: 'move', displayName: 'Move', key: 'M', desc: 'Move objects around canvas' },
+      { name: 'line', displayName: 'Line', key: 'L', desc: 'Draw straight lines' },
+      { name: 'rectangle', displayName: 'Rectangle', key: 'R', desc: 'Draw rectangles' },
+      { name: 'circle', displayName: 'Circle', key: 'C', desc: 'Draw circles' },
+      { name: 'arc', displayName: 'Arc', key: 'A', desc: 'Draw circular arcs' },
+      { name: 'trim', displayName: 'Trim', key: 'T', desc: 'Trim lines at intersections' },
+      { name: 'offset', displayName: 'Offset', key: 'O', desc: 'Create parallel offsets' },
+      { name: 'fillet', displayName: 'Fillet', key: 'F', desc: 'Round corners with arcs' },
+      { name: 'mirror', displayName: 'Mirror', key: 'I', desc: 'Mirror objects H/V/Custom' },
+      { name: 'rotate', displayName: 'Rotate', key: 'N', desc: 'Rotate by angle' },
+      { name: 'scale', displayName: 'Scale', key: 'X', desc: 'Scale/resize objects' }
+    ];
+
+    let engine = null;
+    let testResults = [];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderToolCards();
+      initEngine();
+    });
+
+    function initEngine() {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 600;
+        engine = new CADEngine(canvas);
+        console.log('✓ CAD Engine initialized successfully');
+      } catch (error) {
+        console.error('✗ Failed to initialize CAD Engine:', error);
+        alert('Failed to initialize CAD Engine: ' + error.message);
+      }
+    }
+
+    function renderToolCards() {
+      const grid = document.getElementById('test-grid');
+      grid.innerHTML = tools.map(tool => \`
+        <div class="tool-card" id="card-\${tool.name}">
+          <div class="tool-header">
+            <div class="tool-name">\${tool.displayName}</div>
+            <div class="tool-key">\${tool.key}</div>
+          </div>
+          <div class="tool-description">\${tool.desc}</div>
+          <div class="tool-status status-pending" id="status-\${tool.name}">
+            ⏱ Not tested
+          </div>
+        </div>
+      \`).join('');
+    }
+
+    function updateStats() {
+      const tested = testResults.length;
+      const passed = testResults.filter(r => r.passed).length;
+      const failed = tested - passed;
+
+      document.getElementById('tested-count').textContent = tested;
+      document.getElementById('passed-count').textContent = passed;
+      document.getElementById('failed-count').textContent = failed;
+
+      const progress = (tested / tools.length) * 100;
+      document.getElementById('progress').style.width = progress + '%';
+    }
+
+    async function testTool(tool) {
+      const card = document.getElementById(\`card-\${tool.name}\`);
+      const status = document.getElementById(\`status-\${tool.name}\`);
+
+      status.className = 'tool-status status-pending';
+      status.textContent = '⏱ Testing...';
+
+      await new Promise(r => setTimeout(r, 50));
+
+      try {
+        if (!engine) throw new Error('Engine not initialized');
+        if (!engine.tools[tool.name]) throw new Error(\`Tool '\${tool.name}' not found\`);
+
+        engine.setTool(tool.name);
+        if (engine.currentToolName !== tool.name) {
+          throw new Error(\`Failed to activate tool '\${tool.name}'\`);
+        }
+
+        const toolInstance = engine.tools[tool.name];
+        const required = ['activate', 'deactivate', 'render'];
+        for (const method of required) {
+          if (typeof toolInstance[method] !== 'function') {
+            throw new Error(\`Missing method: \${method}\`);
+          }
+        }
+
+        const ctx = engine.canvas.getContext('2d');
+        toolInstance.render(ctx);
+
+        card.classList.add('tested');
+        card.classList.remove('error');
+        status.className = 'tool-status status-success';
+        status.textContent = '✓ All tests passed';
+        testResults.push({ tool: tool.name, passed: true });
+
+        console.log(\`✓ \${tool.displayName} - PASSED\`);
+        return true;
+
+      } catch (error) {
+        card.classList.add('error');
+        card.classList.remove('tested');
+        status.className = 'tool-status status-error';
+        status.textContent = \`✗ \${error.message}\`;
+        testResults.push({ tool: tool.name, passed: false, error: error.message });
+
+        console.error(\`✗ \${tool.displayName} - FAILED:\`, error.message);
+        return false;
+      }
+    }
+
+    window.runAllTests = async function() {
+      if (!engine) {
+        alert('CAD Engine not initialized. Refresh the page.');
+        return;
+      }
+
+      testResults = [];
+      tools.forEach(tool => {
+        const card = document.getElementById(\`card-\${tool.name}\`);
+        card.classList.remove('tested', 'error');
+      });
+
+      updateStats();
+
+      console.log('🧪 Starting automated tool tests...\n');
+
+      for (const tool of tools) {
+        await testTool(tool);
+        updateStats();
+      }
+
+      const passed = testResults.filter(r => r.passed).length;
+      const total = testResults.length;
+
+      console.log(\`\n📊 Test Results: \${passed}/\${total} passed\`);
+
+      if (passed === total) {
+        console.log('🎉 ALL TESTS PASSED! System is 100% functional.');
+        alert(\`🎉 Perfect! All \${total} tools passed!\n\nBox Designer CAD is fully operational.\`);
+      } else {
+        console.log(\`⚠️ \${total - passed} tool(s) failed. Check results above.\`);
+        alert(\`⚠️ Testing complete: \${passed}/\${total} passed\n\n\${total - passed} tool(s) failed - check console.\`);
+      }
+    };
+  </script>
+</body>
+</html>

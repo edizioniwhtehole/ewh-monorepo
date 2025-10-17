@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>EWH-Mac-Studio-Stop</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.ewh.macstudio.stop</string>
+    <key>CFBundleName</key>
+    <string>Stop EWH</string>
+    <key>CFBundleDisplayName</key>
+    <string>Stop EWH Mac Studio</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSUIElement</key>
+    <false/>
+</dict>
+</plist>

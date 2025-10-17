@@ -40,3 +40,15 @@ styles/
 # Local environment overrides
 .env.local
 .env.*.local
+service-registry.json
+
+# Supabase credentials (NEVER commit these!)
+.env.development
+.env.staging
+.env.production
+.env
+
+# Legacy code archive
+archive/legacy/
+*.backup
+*.DELETED

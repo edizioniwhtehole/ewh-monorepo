@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Box Designer Technical CAD</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #1e1e1e;
+      --bg2: #252526;
+      --bg3: #2d2d30;
+      --border: #3e3e42;
+      --text: #cccccc;
+      --dim: #858585;
+      --blue: #0e7afe;
+      --green: #16c60c;
+      --red: #f85149;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      height: 48px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn:hover { background: #37373d; }
+    .btn.primary { background: var(--blue); border-color: var(--blue); }
+
+    .toolbar {
+      height: 40px;
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 4px;
+    }
+
+    .tool-group {
+      display: flex;
+      gap: 2px;
+      padding: 0 6px;
+      border-right: 1px solid var(--border);
+    }
+
+    .tool {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .tool:hover { background: #37373d; }
+    .tool.active { background: var(--blue); }
+
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 8px;
+      overflow-y: auto;
+    }
+
+    .panel {
+      margin-bottom: 12px;
+      background: var(--bg3);
+      border-radius: 4px;
+      padding: 8px;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 6px;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .label {
+      font-size: 11px;
+      width: 50px;
+    }
+
+    .input {
+      flex: 1;
+      padding: 4px 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-size: 11px;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    .canvas-area {
+      flex: 1;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      cursor: crosshair;
+    }
+
+    .coords {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0,0,0,0.7);
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .command-line {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.8);
+      padding: 6px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      border: 1px solid var(--border);
+    }
+
+    .command-prompt {
+      color: var(--blue);
+    }
+
+    .command-input {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: inherit;
+      outline: none;
+      width: calc(100% - 20px);
+    }
+
+    .status {
+      height: 24px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 11px;
+      gap: 12px;
+      color: var(--dim);
+    }
+
+    .dimension-line {
+      stroke: var(--blue);
+      stroke-width: 1;
+    }
+
+    .dimension-text {
+      fill: var(--blue);
+      font-size: 10px;
+      font-family: Arial;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div style="font-weight: 600; font-size: 13px; color: var(--blue);">📐 Box Designer Technical CAD</div>
+    <div style="flex: 1;"></div>
+    <button class="btn" onclick="cad.undo()">↶ Undo</button>
+    <button class="btn" onclick="cad.redo()">↷ Redo</button>
+    <button class="btn" onclick="cad.clear()">Clear</button>
+    <button class="btn primary" onclick="cad.exportDXF()">Export DXF</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="tool-group">
+      <div class="tool active" data-tool="line" onclick="cad.setTool('line')" title="Line (L)">─</div>
+      <div class="tool" data-tool="rectangle" onclick="cad.setTool('rectangle')" title="Rectangle (R)">▭</div>
+      <div class="tool" data-tool="circle" onclick="cad.setTool('circle')" title="Circle (C)">○</div>
+      <div class="tool" data-tool="arc" onclick="cad.setTool('arc')" title="Arc (A)">⌒</div>
+    </div>
+    <div class="tool-group">
+      <div class="tool" data-tool="offset" onclick="cad.setTool('offset')" title="Offset">⇉</div>
+      <div class="tool" data-tool="trim" onclick="cad.setTool('trim')" title="Trim">✂</div>
+      <div class="tool" data-tool="fillet" onclick="cad.setTool('fillet')" title="Fillet">⌜</div>
+    </div>
+    <div class="tool-group">
+      <div class="tool" data-tool="dimension" onclick="cad.setTool('dimension')" title="Dimension">↔</div>
+      <div class="tool" data-tool="angle" onclick="cad.setTool('angle')" title="Angle">∠</div>
+    </div>
+    <div class="tool-group">
+      <div class="tool" onclick="cad.toggleGrid()">⊞</div>
+      <div class="tool" onclick="cad.toggleSnap()">⊡</div>
+      <div class="tool" onclick="cad.toggleOrtho()">┼</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="sidebar">
+      <div class="panel">
+        <div class="panel-title">📏 Line Input</div>
+        <div class="input-row">
+          <span class="label">Length:</span>
+          <input type="number" class="input" id="lineLength" placeholder="100">
+          <span style="font-size: 10px;">mm</span>
+        </div>
+        <div class="input-row">
+          <span class="label">Angle:</span>
+          <input type="number" class="input" id="lineAngle" placeholder="0">
+          <span style="font-size: 10px;">°</span>
+        </div>
+        <button class="btn" style="width: 100%; margin-top: 4px;" onclick="cad.createLineByInput()">
+          Create Line
+        </button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">▭ Rectangle Input</div>
+        <div class="input-row">
+          <span class="label">Width:</span>
+          <input type="number" class="input" id="rectWidth" placeholder="100">
+        </div>
+        <div class="input-row">
+          <span class="label">Height:</span>
+          <input type="number" class="input" id="rectHeight" placeholder="80">
+        </div>
+        <button class="btn" style="width: 100%; margin-top: 4px;" onclick="cad.createRectByInput()">
+          Create Rectangle
+        </button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">○ Circle Input</div>
+        <div class="input-row">
+          <span class="label">Radius:</span>
+          <input type="number" class="input" id="circleRadius" placeholder="50">
+        </div>
+        <button class="btn" style="width: 100%; margin-top: 4px;" onclick="cad.createCircleByInput()">
+          Create Circle
+        </button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">🎯 Precision</div>
+        <div class="input-row">
+          <span class="label">Grid:</span>
+          <input type="number" class="input" id="gridSize" value="10" onchange="cad.setGridSize(this.value)">
+          <span style="font-size: 10px;">mm</span>
+        </div>
+        <div class="input-row">
+          <span class="label">Snap:</span>
+          <input type="number" class="input" id="snapTol" value="5" onchange="cad.setSnapTolerance(this.value)">
+          <span style="font-size: 10px;">px</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">📋 Line Type</div>
+        <select class="input" style="width: 100%;" onchange="cad.setLineType(this.value)">
+          <option value="cut">Cut (Red)</option>
+          <option value="crease">Crease (Blue)</option>
+          <option value="perforation">Perforation (Magenta)</option>
+          <option value="construction">Construction (Gray)</option>
+        </select>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">📊 Stats</div>
+        <div style="font-size: 11px; color: var(--dim);">
+          <div>Objects: <span id="objCount">0</span></div>
+          <div>Total Length: <span id="totalLength">0</span> mm</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas-area">
+      <canvas id="canvas"></canvas>
+
+      <div class="coords" id="coords">X: 0.0, Y: 0.0</div>
+
+      <div class="command-line">
+        <span class="command-prompt">Command:</span>
+        <input type="text" class="command-input" id="commandInput"
+               placeholder="Type command (LINE, RECT, CIRCLE, etc.)">
+      </div>
+    </div>
+  </div>
+
+  <div class="status">
+    <span>Tool: <strong id="currentTool">LINE</strong></span>
+    <span>Snap: <strong id="snapStatus">ON</strong></span>
+    <span>Ortho: <strong id="orthoStatus">OFF</strong></span>
+    <span id="statusMsg">Ready. Click to start drawing.</span>
+  </div>
+
+  <script>
+class TechnicalCAD {
+  constructor() {
+    this.canvas = document.getElementById('canvas');
+    this.ctx = this.canvas.getContext('2d');
+
+    // State
+    this.objects = [];
+    this.currentTool = 'line';
+    this.currentLineType = 'cut';
+    this.points = [];
+    this.tempLine = null;
+
+    // Settings
+    this.zoom = 2;
+    this.pan = { x: 0, y: 0 };
+    this.gridSize = 10;
+    this.gridVisible = true;
+    this.snapEnabled = true;
+    this.orthoEnabled = false;
+    this.snapTolerance = 5;
+
+    // History
+    this.history = [];
+    this.historyIndex = -1;
+
+    this.init();
+  }
+
+  init() {
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+
+    this.canvas.addEventListener('click', (e) => this.onClick(e));
+    this.canvas.addEventListener('mousemove', (e) => this.onMove(e));
+    this.canvas.addEventListener('wheel', (e) => this.onWheel(e));
+
+    document.getElementById('commandInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') this.executeCommand(e.target.value);
+    });
+
+    document.addEventListener('keydown', (e) => this.onKey(e));
+
+    this.render();
+  }
+
+  resize() {
+    const container = this.canvas.parentElement;
+    this.canvas.width = container.clientWidth;
+    this.canvas.height = container.clientHeight;
+    this.render();
+  }
+
+  // Coordinate conversion
+  toWorld(screenX, screenY) {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: (screenX - rect.left - this.canvas.width / 2 - this.pan.x) / this.zoom,
+      y: (screenY - rect.top - this.canvas.height / 2 - this.pan.y) / this.zoom
+    };
+  }
+
+  toScreen(worldX, worldY) {
+    return {
+      x: worldX * this.zoom + this.canvas.width / 2 + this.pan.x,
+      y: worldY * this.zoom + this.canvas.height / 2 + this.pan.y
+    };
+  }
+
+  snap(point) {
+    if (!this.snapEnabled) return point;
+
+    const size = this.gridSize;
+    let snapped = {
+      x: Math.round(point.x / size) * size,
+      y: Math.round(point.y / size) * size
+    };
+
+    // Snap to existing points
+    for (const obj of this.objects) {
+      if (obj.type === 'line') {
+        for (const p of [obj.p1, obj.p2]) {
+          const dist = Math.sqrt((point.x - p.x) ** 2 + (point.y - p.y) ** 2);
+          if (dist < this.snapTolerance / this.zoom) {
+            snapped = p;
+            break;
+          }
+        }
+      }
+    }
+
+    return snapped;
+  }
+
+  applyOrtho(p1, p2) {
+    if (!this.orthoEnabled) return p2;
+
+    const dx = Math.abs(p2.x - p1.x);
+    const dy = Math.abs(p2.y - p1.y);
+
+    if (dx > dy) {
+      return { x: p2.x, y: p1.y };
+    } else {
+      return { x: p1.x, y: p2.y };
+    }
+  }
+
+  // Events
+  onClick(e) {
+    const world = this.toWorld(e.clientX, e.clientY);
+    const point = this.snap(world);
+
+    if (this.currentTool === 'line') {
+      this.points.push(point);
+
+      if (this.points.length === 2) {
+        this.objects.push({
+          type: 'line',
+          lineType: this.currentLineType,
+          p1: this.points[0],
+          p2: this.points[1],
+          length: this.calcLength(this.points[0], this.points[1]),
+          angle: this.calcAngle(this.points[0], this.points[1])
+        });
+
+        this.saveHistory();
+        this.points = [];
+        this.tempLine = null;
+        this.setStatus(`Line created: ${this.objects[this.objects.length - 1].length.toFixed(2)}mm`);
+      }
+    }
+    else if (this.currentTool === 'rectangle') {
+      this.points.push(point);
+
+      if (this.points.length === 2) {
+        const w = Math.abs(this.points[1].x - this.points[0].x);
+        const h = Math.abs(this.points[1].y - this.points[0].y);
+
+        this.objects.push({
+          type: 'rectangle',
+          lineType: this.currentLineType,
+          x: Math.min(this.points[0].x, this.points[1].x),
+          y: Math.min(this.points[0].y, this.points[1].y),
+          width: w,
+          height: h
+        });
+
+        this.saveHistory();
+        this.points = [];
+        this.setStatus(`Rectangle created: ${w.toFixed(0)}×${h.toFixed(0)}mm`);
+      }
+    }
+    else if (this.currentTool === 'circle') {
+      this.points.push(point);
+
+      if (this.points.length === 2) {
+        const dx = this.points[1].x - this.points[0].x;
+        const dy = this.points[1].y - this.points[0].y;
+        const r = Math.sqrt(dx * dx + dy * dy);
+
+        this.objects.push({
+          type: 'circle',
+          lineType: this.currentLineType,
+          cx: this.points[0].x,
+          cy: this.points[0].y,
+          radius: r
+        });
+
+        this.saveHistory();
+        this.points = [];
+        this.setStatus(`Circle created: R=${r.toFixed(2)}mm`);
+      }
+    }
+
+    this.render();
+  }
+
+  onMove(e) {
+    const world = this.toWorld(e.clientX, e.clientY);
+    const point = this.snap(world);
+
+    // Update coords display
+    document.getElementById('coords').textContent =
+      `X: ${point.x.toFixed(1)}, Y: ${point.y.toFixed(1)}`;
+
+    // Show temp line
+    if (this.points.length === 1) {
+      let endPoint = point;
+
+      if (this.orthoEnabled) {
+        endPoint = this.applyOrtho(this.points[0], point);
+      }
+
+      this.tempLine = {
+        p1: this.points[0],
+        p2: endPoint,
+        length: this.calcLength(this.points[0], endPoint),
+        angle: this.calcAngle(this.points[0], endPoint)
+      };
+
+      this.render();
+    }
+  }
+
+  onWheel(e) {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    this.zoom = Math.max(0.5, Math.min(10, this.zoom * delta));
+    this.render();
+  }
+
+  onKey(e) {
+    if (e.ctrlKey || e.metaKey) {
+      if (e.key === 'z') { this.undo(); e.preventDefault(); }
+      if (e.key === 'y') { this.redo(); e.preventDefault(); }
+    }
+
+    if (e.key === 'Escape') {
+      this.points = [];
+      this.tempLine = null;
+      this.render();
+    }
+
+    if (e.key === 'l') this.setTool('line');
+    if (e.key === 'r') this.setTool('rectangle');
+    if (e.key === 'c') this.setTool('circle');
+    if (e.key === 'F8') this.toggleOrtho();
+  }
+
+  // Math helpers
+  calcLength(p1, p2) {
+    return Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+  }
+
+  calcAngle(p1, p2) {
+    return Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+  }
+
+  // Rendering
+  render() {
+    this.ctx.fillStyle = '#1a1a1a';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.ctx.save();
+    this.ctx.translate(this.canvas.width / 2 + this.pan.x, this.canvas.height / 2 + this.pan.y);
+    this.ctx.scale(this.zoom, this.zoom);
+
+    if (this.gridVisible) this.drawGrid();
+
+    this.objects.forEach(obj => this.drawObject(obj));
+
+    if (this.tempLine) {
+      this.ctx.save();
+      this.ctx.globalAlpha = 0.7;
+      this.drawLine(this.tempLine.p1, this.tempLine.p2, 'construction');
+
+      // Show length and angle
+      const mid = {
+        x: (this.tempLine.p1.x + this.tempLine.p2.x) / 2,
+        y: (this.tempLine.p1.y + this.tempLine.p2.y) / 2
+      };
+
+      this.ctx.fillStyle = '#0e7afe';
+      this.ctx.font = '10px Arial';
+      this.ctx.fillText(
+        `${this.tempLine.length.toFixed(1)}mm @ ${this.tempLine.angle.toFixed(1)}°`,
+        mid.x + 5, mid.y - 5
+      );
+
+      this.ctx.restore();
+    }
+
+    this.ctx.restore();
+
+    this.updateStats();
+  }
+
+  drawGrid() {
+    const size = this.gridSize;
+    const extent = 2000;
+
+    this.ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    this.ctx.lineWidth = 0.5 / this.zoom;
+
+    for (let x = -extent; x <= extent; x += size) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, -extent);
+      this.ctx.lineTo(x, extent);
+      this.ctx.stroke();
+    }
+
+    for (let y = -extent; y <= extent; y += size) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(-extent, y);
+      this.ctx.lineTo(extent, y);
+      this.ctx.stroke();
+    }
+
+    // Axes
+    this.ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    this.ctx.lineWidth = 2 / this.zoom;
+    this.ctx.beginPath();
+    this.ctx.moveTo(-extent, 0);
+    this.ctx.lineTo(extent, 0);
+    this.ctx.moveTo(0, -extent);
+    this.ctx.lineTo(0, extent);
+    this.ctx.stroke();
+  }
+
+  drawObject(obj) {
+    if (obj.type === 'line') {
+      this.drawLine(obj.p1, obj.p2, obj.lineType);
+    }
+    else if (obj.type === 'rectangle') {
+      this.ctx.strokeStyle = this.getColor(obj.lineType);
+      this.ctx.lineWidth = 2 / this.zoom;
+      this.ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+    }
+    else if (obj.type === 'circle') {
+      this.ctx.strokeStyle = this.getColor(obj.lineType);
+      this.ctx.lineWidth = 2 / this.zoom;
+      this.ctx.beginPath();
+      this.ctx.arc(obj.cx, obj.cy, obj.radius, 0, Math.PI * 2);
+      this.ctx.stroke();
+    }
+  }
+
+  drawLine(p1, p2, lineType) {
+    this.ctx.strokeStyle = this.getColor(lineType);
+    this.ctx.lineWidth = 2 / this.zoom;
+
+    if (lineType === 'crease') {
+      this.ctx.setLineDash([5 / this.zoom, 5 / this.zoom]);
+    } else if (lineType === 'perforation') {
+      this.ctx.setLineDash([2 / this.zoom, 3 / this.zoom]);
+    } else if (lineType === 'construction') {
+      this.ctx.setLineDash([10 / this.zoom, 5 / this.zoom]);
+    } else {
+      this.ctx.setLineDash([]);
+    }
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(p1.x, p1.y);
+    this.ctx.lineTo(p2.x, p2.y);
+    this.ctx.stroke();
+
+    this.ctx.setLineDash([]);
+  }
+
+  getColor(lineType) {
+    const colors = {
+      cut: '#ff4444',
+      crease: '#4488ff',
+      perforation: '#ff44ff',
+      construction: '#666666'
+    };
+    return colors[lineType] || colors.cut;
+  }
+
+  // Tools
+  setTool(tool) {
+    this.currentTool = tool;
+    this.points = [];
+    this.tempLine = null;
+
+    document.querySelectorAll('.tool').forEach(t => {
+      t.classList.toggle('active', t.dataset.tool === tool);
+    });
+
+    document.getElementById('currentTool').textContent = tool.toUpperCase();
+
+    const msgs = {
+      line: 'Click first point, then second point',
+      rectangle: 'Click first corner, then opposite corner',
+      circle: 'Click center, then point on circumference',
+      arc: 'Click start, then end, then point on arc'
+    };
+
+    this.setStatus(msgs[tool] || 'Ready');
+    this.render();
+  }
+
+  setLineType(type) {
+    this.currentLineType = type;
+  }
+
+  // Input methods
+  createLineByInput() {
+    const length = parseFloat(document.getElementById('lineLength').value);
+    const angle = parseFloat(document.getElementById('lineAngle').value);
+
+    if (!length || isNaN(length)) return;
+
+    const rad = (angle || 0) * Math.PI / 180;
+    const p1 = { x: 0, y: 0 };
+    const p2 = {
+      x: p1.x + length * Math.cos(rad),
+      y: p1.y + length * Math.sin(rad)
+    };
+
+    this.objects.push({
+      type: 'line',
+      lineType: this.currentLineType,
+      p1, p2,
+      length,
+      angle: angle || 0
+    });
+
+    this.saveHistory();
+    this.render();
+    this.setStatus(`Line created: ${length}mm @ ${angle}°`);
+  }
+
+  createRectByInput() {
+    const w = parseFloat(document.getElementById('rectWidth').value);
+    const h = parseFloat(document.getElementById('rectHeight').value);
+
+    if (!w || !h) return;
+
+    this.objects.push({
+      type: 'rectangle',
+      lineType: this.currentLineType,
+      x: 0,
+      y: 0,
+      width: w,
+      height: h
+    });
+
+    this.saveHistory();
+    this.render();
+    this.setStatus(`Rectangle created: ${w}×${h}mm`);
+  }
+
+  createCircleByInput() {
+    const r = parseFloat(document.getElementById('circleRadius').value);
+
+    if (!r) return;
+
+    this.objects.push({
+      type: 'circle',
+      lineType: this.currentLineType,
+      cx: 0,
+      cy: 0,
+      radius: r
+    });
+
+    this.saveHistory();
+    this.render();
+    this.setStatus(`Circle created: R=${r}mm`);
+  }
+
+  // Command line
+  executeCommand(cmd) {
+    const parts = cmd.toUpperCase().split(' ');
+    const command = parts[0];
+
+    if (command === 'LINE' || command === 'L') {
+      this.setTool('line');
+    }
+    else if (command === 'RECT' || command === 'REC') {
+      this.setTool('rectangle');
+    }
+    else if (command === 'CIRCLE' || command === 'C') {
+      this.setTool('circle');
+    }
+    else if (command === 'ZOOM') {
+      if (parts[1] === 'E') this.zoomExtents();
+    }
+
+    document.getElementById('commandInput').value = '';
+  }
+
+  // Settings
+  setGridSize(value) {
+    this.gridSize = parseFloat(value) || 10;
+    this.render();
+  }
+
+  setSnapTolerance(value) {
+    this.snapTolerance = parseFloat(value) || 5;
+  }
+
+  toggleGrid() {
+    this.gridVisible = !this.gridVisible;
+    this.render();
+  }
+
+  toggleSnap() {
+    this.snapEnabled = !this.snapEnabled;
+    document.getElementById('snapStatus').textContent = this.snapEnabled ? 'ON' : 'OFF';
+  }
+
+  toggleOrtho() {
+    this.orthoEnabled = !this.orthoEnabled;
+    document.getElementById('orthoStatus').textContent = this.orthoEnabled ? 'ON' : 'OFF';
+    this.setStatus(`Ortho mode ${this.orthoEnabled ? 'ON' : 'OFF'} (F8)`);
+  }
+
+  // History
+  saveHistory() {
+    this.history = this.history.slice(0, this.historyIndex + 1);
+    this.history.push(JSON.parse(JSON.stringify(this.objects)));
+    this.historyIndex++;
+  }
+
+  undo() {
+    if (this.historyIndex > 0) {
+      this.historyIndex--;
+      this.objects = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+      this.render();
+      this.setStatus('Undo');
+    }
+  }
+
+  redo() {
+    if (this.historyIndex < this.history.length - 1) {
+      this.historyIndex++;
+      this.objects = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+      this.render();
+      this.setStatus('Redo');
+    }
+  }
+
+  clear() {
+    if (confirm('Clear all objects?')) {
+      this.objects = [];
+      this.saveHistory();
+      this.render();
+    }
+  }
+
+  // Stats
+  updateStats() {
+    document.getElementById('objCount').textContent = this.objects.length;
+
+    let totalLength = 0;
+    this.objects.forEach(obj => {
+      if (obj.type === 'line') totalLength += obj.length;
+      if (obj.type === 'rectangle') totalLength += 2 * (obj.width + obj.height);
+      if (obj.type === 'circle') totalLength += 2 * Math.PI * obj.radius;
+    });
+
+    document.getElementById('totalLength').textContent = totalLength.toFixed(1);
+  }
+
+  setStatus(msg) {
+    document.getElementById('statusMsg').textContent = msg;
+  }
+
+  // Export
+  exportDXF() {
+    let dxf = `0\nSECTION\n2\nENTITIES\n`;
+
+    this.objects.forEach(obj => {
+      if (obj.type === 'line') {
+        dxf += `0\nLINE\n8\n${obj.lineType}\n10\n${obj.p1.x}\n20\n${obj.p1.y}\n11\n${obj.p2.x}\n21\n${obj.p2.y}\n`;
+      }
+      else if (obj.type === 'circle') {
+        dxf += `0\nCIRCLE\n8\n${obj.lineType}\n10\n${obj.cx}\n20\n${obj.cy}\n40\n${obj.radius}\n`;
+      }
+    });
+
+    dxf += `0\nENDSEC\n0\nEOF\n`;
+
+    const blob = new Blob([dxf], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dieline-${Date.now()}.dxf`;
+    a.click();
+
+    this.setStatus('✓ Exported to DXF');
+  }
+
+  zoomExtents() {
+    // Calculate bounds and zoom to fit
+    this.zoom = 1;
+    this.pan = { x: 0, y: 0 };
+    this.render();
+  }
+}
+
+const cad = new TechnicalCAD();
+window.cad = cad;
+  </script>
+</body>
+</html>

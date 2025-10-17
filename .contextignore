@@ -1,0 +1,247 @@
+# .contextignore
+# File da escludere dall'auto-discovery AI (simile a .gitignore)
+# Riduce uso token mantenendo solo documentazione essenziale nel context
+
+# ============================================
+# DOCUMENTAZIONE - Auto-discovery selettiva
+# ============================================
+
+# INCLUDE questi (essenziali per AI - 24 file core)
+# Core Specs & Architecture
+!PLATFORM_SPECS_2025.md
+!ARCHITECTURE_VISUAL.tsx
+!ARCHITECTURE.md
+!MASTER_PROMPT.md
+!FEATURE_LIST_DAM.md
+
+# Development
+!README.md
+!DEVELOPMENT.md
+!SETUP_DEVELOPMENT.md
+!QUICK_START.md
+
+# Platform Standards
+!PLATFORM_STANDARDS.md
+!DATABASE_ARCHITECTURE.md
+!API_FIRST_ARCHITECTURE.md
+
+# Mac Studio & Guides
+!SETUP_MAC_STUDIO.md
+!MAC_STUDIO_ARCHITECTURE.md
+!GUIDE_*.md
+
+# Remote & Deployment
+!SETUP_REMOTE_DEVELOPMENT.md
+!SETUP_VSCODE_REMOTE.md
+!SCALINGO_AUTODEPLOY.md
+
+# Infrastructure
+!INFRASTRUCTURE_MAP.md
+!GIT_REPOS_CHECKLIST.md
+!CONFIG_OVERRIDE_SYSTEM.md
+
+# Navigation
+!INDEX.md
+
+# EXCLUDE tutto il resto della root docs
+*_COMPLETE*.md
+*_SUMMARY*.md
+*_STATUS*.md
+*_IMPLEMENTATION*.md
+*_ARCHITECTURE*.md
+*_SYSTEM*.md
+*_GUIDE*.md
+*_SPEC*.md
+*_ROADMAP*.md
+
+# Docs italiane (solo su richiesta)
+CMS_*.md
+COME_*.md
+
+# Implementation status (solo su richiesta)
+PHASE_*.md
+IMPLEMENTATION_*.md
+FINAL_*.md
+EXPANSION_*.md
+ENTERPRISE_*.md
+
+# Specific systems (load on-demand)
+DAM_*.md
+AUTH_*.md
+APPROVAL_*.md
+PAGE_BUILDER_*.md
+PHOTO*.md
+VISUAL_*.md
+UNIFIED_*.md
+ADMIN_*.md
+APP_*.md
+
+# Advanced topics (load on-demand)
+MULTI_CLOUD_*.md
+SHARDED_*.md
+LARGE_SCALE_*.md
+DEVICE_*.md
+CONTEXTUAL_*.md
+
+# Feature comparisons (reference only)
+WORDPRESS_*.md
+FEATURE_*.md
+
+# Monitoring & ops (load on-demand)
+MONITORING_*.md
+METRICS_*.md
+LOG_*.md
+HEALTH_*.md
+
+# AI & integrations (load on-demand)
+AI_*.md
+N8N_*.md
+
+# Editors & creative tools (load on-demand)
+EDITOR_*.md
+ELEMENTOR_*.md
+TEXT_*.md
+DESKTOP_*.md
+REALTIME_*.md
+IMAGE_*.md
+
+# Email & communication (load on-demand)
+EMAIL_*.md
+
+# Infrastructure (load on-demand)
+INFRASTRUCTURE_*.md
+SERVICE_NODES_*.md
+
+# ============================================
+# NODE_MODULES - Sempre esclusi
+# ============================================
+**/node_modules/**
+node_modules/
+
+# ============================================
+# BUILD ARTIFACTS - Sempre esclusi
+# ============================================
+**/dist/**
+**/build/**
+**/.next/**
+**/.nuxt/**
+**/out/**
+**/coverage/**
+
+# ============================================
+# LOGS - Sempre esclusi
+# ============================================
+**/*.log
+**/logs/**
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================
+# DEPENDENCIES - Escludi package lock files
+# ============================================
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============================================
+# ENV & SECRETS - Sempre esclusi
+# ============================================
+.env
+.env.*
+!.env.example
+**/*.key
+**/*.pem
+**/*.p12
+**/secrets/**
+
+# ============================================
+# CACHE - Sempre esclusi
+# ============================================
+.cache/
+**/.cache/**
+.parcel-cache/
+.turbo/
+
+# ============================================
+# IDE - Escludi files IDE
+# ============================================
+.vscode/**
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ============================================
+# TEST FILES - Include solo se richiesto
+# ============================================
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+**/__tests__/**
+**/__mocks__/**
+
+# ============================================
+# MIGRATION FILES - Load on-demand
+# ============================================
+**/migrations/**/*.sql
+
+# ============================================
+# GENERATED FILES - Sempre esclusi
+# ============================================
+**/*.generated.ts
+**/*.generated.js
+**/generated/**
+
+# ============================================
+# MEDIA FILES - Sempre esclusi
+# ============================================
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.svg
+**/*.ico
+**/*.mp4
+**/*.webm
+**/*.mp3
+**/*.wav
+**/*.pdf
+
+# ============================================
+# SCRIPTS - Load on-demand
+# ============================================
+scripts/**/*.sh
+scripts/**/*.js
+!scripts/README.md
+
+# ============================================
+# DOCKER - Load on-demand
+# ============================================
+**/Dockerfile
+**/docker-compose*.yml
+
+# ============================================
+# DEMO FILES - Escludi
+# ============================================
+**/demo*.html
+**/example*.html
+
+# ============================================
+# BACKUP & TEMP - Sempre esclusi
+# ============================================
+**/*.backup
+**/*.bak
+**/*.tmp
+**/temp/**
+**/tmp/**
+
+# ============================================
+# ARCHIVIO - Escludi documentazione vecchia
+# ============================================
+archive/**
+**/archive/**
+**/deprecated/**

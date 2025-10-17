@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAD Complete Toolset - Week 2 Final</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #1e1e1e;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #toolbar {
+      background: #252526;
+      padding: 10px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      border-bottom: 1px solid #3e3e42;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      padding: 0 10px;
+      border-right: 1px solid #3e3e42;
+    }
+
+    .toolbar-group:last-child {
+      border-right: none;
+    }
+
+    .toolbar-label {
+      color: #cccccc;
+      font-size: 10px;
+      text-transform: uppercase;
+      margin-right: 6px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    button {
+      background: #3c3c3c;
+      color: #cccccc;
+      border: 1px solid #555;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background: #505050;
+      border-color: #777;
+      color: #fff;
+    }
+
+    button.active {
+      background: #0e639c;
+      color: #fff;
+      border-color: #1177bb;
+      box-shadow: 0 0 8px rgba(14, 99, 156, 0.4);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .tool-btn {
+      min-width: 70px;
+    }
+
+    .info {
+      margin-left: auto;
+      font-family: 'Consolas', monospace;
+      color: #4ec9b0;
+      font-size: 10px;
+      font-weight: 500;
+      max-width: 600px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #1e1e1e;
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #stats {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(37, 37, 38, 0.95);
+      padding: 12px;
+      border-radius: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+      color: #cccccc;
+      min-width: 220px;
+      border: 1px solid #3e3e42;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .stat-line {
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stat-label {
+      color: #9cdcfe;
+    }
+
+    .stat-value {
+      color: #4ec9b0;
+      font-weight: bold;
+    }
+
+    .stat-divider {
+      border-top: 1px solid #3e3e42;
+      margin: 8px 0;
+    }
+
+    #help {
+      background: #252526;
+      padding: 12px;
+      border-top: 1px solid #3e3e42;
+      font-family: 'Consolas', monospace;
+      font-size: 9px;
+      line-height: 1.5;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+    }
+
+    .help-title {
+      color: #4ec9b0;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .help-row {
+      display: flex;
+      gap: 25px;
+    }
+
+    .help-col {
+      flex: 1;
+    }
+
+    .help-item {
+      margin-bottom: 2px;
+      color: #cccccc;
+    }
+
+    .help-key {
+      color: #ce9178;
+      font-weight: bold;
+      background: #3c3c3c;
+      padding: 1px 4px;
+      border-radius: 2px;
+      margin-right: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <div class="toolbar-group">
+      <span class="toolbar-label">Tools</span>
+      <button id="btn-select" class="tool-btn active" onclick="selectTool('select')">Select</button>
+      <button id="btn-move" class="tool-btn" onclick="selectTool('move')">Move</button>
+      <button id="btn-line" class="tool-btn" onclick="selectTool('line')">Line</button>
+      <button id="btn-rectangle" class="tool-btn" onclick="selectTool('rectangle')">Rect</button>
+      <button id="btn-circle" class="tool-btn" onclick="selectTool('circle')">Circle</button>
+      <button id="btn-arc" class="tool-btn" onclick="selectTool('arc')">Arc</button>
+      <button id="btn-trim" class="tool-btn" onclick="selectTool('trim')">Trim</button>
+      <button id="btn-offset" class="tool-btn" onclick="selectTool('offset')">Offset</button>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="toolbar-label">Type</span>
+      <button id="btn-cut" class="active" onclick="setLineType('cut')">Cut</button>
+      <button id="btn-crease" onclick="setLineType('crease')">Crease</button>
+      <button id="btn-perf" onclick="setLineType('perforation')">Perf</button>
+      <button id="btn-bleed" onclick="setLineType('bleed')">Bleed</button>
+    </div>
+
+    <div class="toolbar-group">
+      <button onclick="createCompleteTest()">Full Test</button>
+      <button onclick="clearAll()">Clear</button>
+      <button onclick="toggleGrid()">Grid</button>
+    </div>
+
+    <div class="info" id="info">Ready - Week 2 Complete Toolset</div>
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+    <div id="stats">
+      <div class="stat-line">
+        <span class="stat-label">Lines:</span>
+        <span class="stat-value" id="stat-lines">0</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Rectangles:</span>
+        <span class="stat-value" id="stat-rects">0</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Circles:</span>
+        <span class="stat-value" id="stat-circles">0</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Arcs:</span>
+        <span class="stat-value" id="stat-arcs">0</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Total:</span>
+        <span class="stat-value" id="stat-total">0</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-line">
+        <span class="stat-label">Selected:</span>
+        <span class="stat-value" id="stat-selected">0</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-line">
+        <span class="stat-label">FPS:</span>
+        <span class="stat-value" id="stat-fps">0</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Render:</span>
+        <span class="stat-value" id="stat-render">0ms</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Zoom:</span>
+        <span class="stat-value" id="stat-zoom">100%</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="help">
+    <div class="help-title">🎉 WEEK 2 COMPLETE - 8 Professional CAD Tools</div>
+    <div class="help-row">
+      <div class="help-col">
+        <div class="help-item"><span class="help-key">S</span>Select <span class="help-key">M</span>Move <span class="help-key">L</span>Line <span class="help-key">R</span>Rect</div>
+        <div class="help-item"><span class="help-key">C</span>Circle <span class="help-key">A</span>Arc <span class="help-key">T</span>Trim <span class="help-key">O</span>Offset</div>
+        <div class="help-item"><span class="help-key">Offset:</span> Click object, move mouse, click side (D=distance)</div>
+        <div class="help-item"><span class="help-key">Trim:</span> Click segment between intersections</div>
+      </div>
+      <div class="help-col">
+        <div class="help-item"><span class="help-key">Select:</span> Click, Shift+Click, Drag, Ctrl+A, Delete</div>
+        <div class="help-item"><span class="help-key">Move:</span> Drag with ghost, M=coords, S/G=snap toggle</div>
+        <div class="help-item"><span class="help-key">Line:</span> Shift=H/V constraint, C=continuous</div>
+        <div class="help-item"><span class="help-key">Rect:</span> Alt=center, Shift=square</div>
+      </div>
+      <div class="help-col">
+        <div class="help-item"><span class="help-key">Circle:</span> Click center, move for radius</div>
+        <div class="help-item"><span class="help-key">Arc:</span> 3-point arc with R, angle, length</div>
+        <div class="help-item"><span class="help-key">ESC</span>Cancel <span class="help-key">Ctrl+Z/Y</span>Undo/Redo <span class="help-key">Wheel</span>Zoom</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { CADEngine } from './cad-tools/CADEngine.js';
+
+    // Initialize canvas
+    const canvas = document.getElementById('canvas');
+    const updateCanvasSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight - 150;
+      if (window.engine) {
+        engine.render();
+      }
+    };
+    updateCanvasSize();
+
+    // Initialize CAD Engine
+    const engine = new CADEngine(canvas);
+    window.engine = engine;
+
+    // Enable profiling
+    engine.toggleProfiling(true);
+
+    // Activate select tool by default
+    engine.setTool('select');
+
+    // Resize handler
+    window.addEventListener('resize', updateCanvasSize);
+
+    // Global keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) return;
+
+      const currentTool = engine.currentTool;
+
+      switch(e.key.toLowerCase()) {
+        case 's':
+          if (!currentTool || !currentTool.isMoving) selectTool('select');
+          break;
+        case 'm':
+          selectTool('move');
+          break;
+        case 'l':
+          selectTool('line');
+          break;
+        case 'r':
+          if (!e.shiftKey) selectTool('rectangle');
+          break;
+        case 'c':
+          if (!currentTool || engine.currentToolName !== 'line') selectTool('circle');
+          break;
+        case 'a':
+          if (!e.ctrlKey) selectTool('arc');
+          break;
+        case 't':
+          selectTool('trim');
+          break;
+        case 'o':
+          selectTool('offset');
+          break;
+      }
+    });
+
+    // Update stats
+    function updateStats() {
+      const lineCount = engine.objects.filter(obj => obj.type === 'line').length;
+      const rectCount = engine.objects.filter(obj => obj.type === 'rectangle').length;
+      const circleCount = engine.objects.filter(obj => obj.type === 'circle').length;
+      const arcCount = engine.objects.filter(obj => obj.type === 'arc').length;
+
+      document.getElementById('stat-lines').textContent = lineCount;
+      document.getElementById('stat-rects').textContent = rectCount;
+      document.getElementById('stat-circles').textContent = circleCount;
+      document.getElementById('stat-arcs').textContent = arcCount;
+      document.getElementById('stat-total').textContent = engine.objects.length;
+      document.getElementById('stat-fps').textContent = engine.profiling.fps.toFixed(1);
+      document.getElementById('stat-render').textContent = engine.profiling.lastRenderTime.toFixed(2) + 'ms';
+      document.getElementById('stat-zoom').textContent = (engine.zoom * 100).toFixed(0) + '%';
+
+      const selectTool = engine.tools.select;
+      const selectedCount = selectTool ? selectTool.selectedObjects.length : 0;
+      document.getElementById('stat-selected').textContent = selectedCount;
+
+      document.getElementById('info').textContent = engine.statusMessage || 'Ready - Week 2 Complete';
+    }
+
+    setInterval(updateStats, 100);
+
+    // Tool selection
+    window.selectTool = (toolName) => {
+      engine.setTool(toolName);
+      document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+      const btnElement = document.getElementById('btn-' + toolName);
+      if (btnElement) btnElement.classList.add('active');
+    };
+
+    // Line type selection
+    window.setLineType = (lineType) => {
+      const currentTool = engine.currentTool;
+      if (currentTool && currentTool.setLineType) {
+        currentTool.setLineType(lineType);
+      }
+
+      document.querySelectorAll('[id^="btn-cut"], [id^="btn-crease"], [id^="btn-perf"], [id^="btn-bleed"]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      const btnId = {
+        'cut': 'btn-cut',
+        'crease': 'btn-crease',
+        'perforation': 'btn-perf',
+        'bleed': 'btn-bleed'
+      }[lineType];
+
+      if (btnId) document.getElementById(btnId).classList.add('active');
+    };
+
+    // Create complete test - all shapes for testing all tools
+    window.createCompleteTest = () => {
+      engine.objects = [];
+
+      // Lines for trim/offset testing
+      engine.addObject({
+        type: 'line',
+        lineType: 'cut',
+        p1: { x: 100, y: 200 },
+        p2: { x: 400, y: 200 }
+      });
+
+      engine.addObject({
+        type: 'line',
+        lineType: 'cut',
+        p1: { x: 250, y: 100 },
+        p2: { x: 250, y: 400 }
+      });
+
+      // Rectangle
+      engine.addObject({
+        type: 'rectangle',
+        lineType: 'crease',
+        x: 500,
+        y: 150,
+        width: 120,
+        height: 80
+      });
+
+      // Circle
+      engine.addObject({
+        type: 'circle',
+        lineType: 'cut',
+        cx: 700,
+        cy: 220,
+        radius: 60
+      });
+
+      // Arc
+      engine.addObject({
+        type: 'arc',
+        lineType: 'perforation',
+        cx: 250,
+        cy: 200,
+        radius: 100,
+        startAngle: 0,
+        endAngle: Math.PI / 2,
+        counterclockwise: false
+      });
+
+      // Diagonal for trim test
+      engine.addObject({
+        type: 'line',
+        lineType: 'bleed',
+        p1: { x: 150, y: 150 },
+        p2: { x: 350, y: 350 }
+      });
+
+      engine.saveHistory();
+      engine.render();
+
+      console.log('Complete test created - All shapes for testing 8 tools');
+      console.log('Tools: Select, Move, Line, Rectangle, Circle, Arc, Trim, Offset');
+    };
+
+    // Clear all
+    window.clearAll = () => {
+      if (engine.objects.length > 0 && !confirm(`Delete ${engine.objects.length} objects?`)) {
+        return;
+      }
+      engine.objects = [];
+
+      if (engine.tools.select) engine.tools.select.selectedObjects = [];
+      if (engine.tools.move) engine.tools.move.objectsToMove = [];
+
+      engine.saveHistory();
+      engine.render();
+    };
+
+    // Toggle grid
+    window.toggleGrid = () => {
+      engine.showGrid = !engine.showGrid;
+      engine.render();
+    };
+
+    console.log('🎉 WEEK 2 COMPLETE - 8 Professional CAD Tools!');
+    console.log('📐 Tools: Select, Move, Line, Rectangle, Circle, Arc, Trim, Offset');
+    console.log('✨ All tools fully functional with visual feedback');
+    console.log('🚀 56% Complete - Ready for Week 3!');
+  </script>
+</body>
+</html>

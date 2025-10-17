@@ -1,0 +1,216 @@
+# 🔄 Development Checkpoint - [SERVICE_NAME]
+
+> **Progress tracking e bug reporting per singolo servizio**
+> L'agent aggiorna questo file dopo ogni iterazione
+
+---
+
+## 📊 Current Status
+
+**Overall Progress**: 🟡 15% (3/20 P1 features)
+**Last Update**: 2025-10-16 16:30
+**Working Agent**: Claude Code / Cursor / ...
+**Iteration**: 3/15
+
+---
+
+## ✅ Completed (DO NOT TOUCH - LOCKED)
+
+### Iteration 1 - Database Schema ✅ APPROVED
+**Date**: 2025-10-16 14:00
+**Files**:
+- ✅ `migrations/001_[service]_schema.sql` 🔒 LOCKED
+- ✅ `src/models/[model].ts` 🔒 LOCKED
+
+**What Works**:
+- Tables created with RLS
+- Indexes optimized
+- Migrations tested
+
+**Approved by**: Human QA
+**Status**: 🔒 LOCKED - Do not modify
+
+---
+
+### Iteration 2 - GET /api/[resource] ✅ APPROVED
+**Date**: 2025-10-16 15:00
+**Files**:
+- ✅ `src/routes/[resource].ts` (GET endpoint) 🔒 LOCKED
+- ✅ `src/services/[resource].service.ts` 🔒 LOCKED
+
+**What Works**:
+- List endpoint returns correct data
+- Pagination working
+- Filters working
+- Response format correct
+
+**Test URL**: http://localhost:[PORT]/api/[resource]
+**Approved by**: Human QA
+**Status**: 🔒 LOCKED - Do not modify
+
+---
+
+## 🔄 In Progress
+
+### Iteration 3 - POST /api/[resource]
+**Started**: 2025-10-16 16:00
+**ETA**: 30 minutes
+**Files**:
+- 🔧 `src/routes/[resource].ts` (POST endpoint)
+- 🔧 `src/validators/[resource].validator.ts`
+
+**Current Step**: Adding validation rules
+**Next**: Test endpoint with Postman
+
+---
+
+## 🐛 Bugs Found (Needs Debugger)
+
+### Bug #1 - Validation fails on nested objects
+**Found**: 2025-10-16 16:15
+**Severity**: 🔴 High
+**Component**: `src/validators/[resource].validator.ts`
+**Error**:
+```
+TypeError: Cannot read property 'name' of undefined
+  at validateResource (validator.ts:42)
+```
+**Stack Trace**:
+```
+[Full stack trace qui]
+```
+**How to Reproduce**:
+1. POST to /api/[resource]
+2. Send nested object: { contact: { name: "Test" } }
+3. See error
+
+**Status**: 🔴 Waiting for Debugger
+**Priority**: High (blocks iteration 3)
+
+---
+
+## ⚠️ Blockers
+
+1. **Waiting for svc-auth** - Need JWT validation middleware
+   - Blocked since: 2025-10-16 15:30
+   - Impact: Cannot test authenticated endpoints
+
+2. **Database migration pending** - Need tenant schema
+   - Blocked since: 2025-10-16 16:00
+   - Impact: Cannot test with real tenant data
+
+---
+
+## 📋 TODO Next
+
+### Iteration 4 (Next)
+- [ ] Frontend: [Component]List component
+- [ ] Connect to GET /api/[resource]
+- [ ] Display data in table
+
+### Iteration 5 (After)
+- [ ] Frontend: [Component]Form
+- [ ] Connect to POST /api/[resource]
+- [ ] Form validation
+
+---
+
+## 🎯 P1 Features Progress
+
+**Backend P1** (3/10 completed):
+- ✅ Database schema
+- ✅ GET /api/[resource] (list)
+- 🔄 POST /api/[resource] (create)
+- ⏳ GET /api/[resource]/:id (detail)
+- ⏳ PUT /api/[resource]/:id (update)
+- ⏳ DELETE /api/[resource]/:id (delete)
+- ⏳ Search endpoint
+- ⏳ Export endpoint
+- ⏳ Bulk operations
+- ⏳ Validation rules
+
+**Frontend P1** (0/8 completed):
+- ⏳ [Component]List
+- ⏳ [Component]Detail
+- ⏳ [Component]Form
+- ⏳ Search & filters
+- ⏳ Pagination
+- ⏳ Loading states
+- ⏳ Error handling
+- ⏳ Responsive layout
+
+---
+
+## 🧪 Testing Status
+
+### Backend Tests
+- ✅ Unit tests: 5/5 passing
+- ⏳ Integration tests: 0/3
+- ⏳ E2E tests: 0/2
+
+### Frontend Tests
+- ⏳ Component tests: 0/8
+- ⏳ E2E tests: 0/5
+
+### Manual Testing
+- ✅ GET endpoint works
+- 🔄 POST endpoint testing in progress
+- ⏳ Frontend not started
+
+---
+
+## 📝 Notes for Debugger
+
+**Common Issues Found**:
+1. Validation schema too strict - relax some rules
+2. CORS not configured - add to .env
+3. Database RLS blocking queries - check policies
+
+**Good Practices Applied**:
+- All responses use { data, meta } format
+- Error handling with try/catch everywhere
+- Logging with Winston
+
+---
+
+## 🚀 Deployment Readiness
+
+**Backend**:
+- [ ] All P1 endpoints working
+- [ ] Tests passing (80%+ coverage)
+- [ ] Environment variables documented
+- [ ] Database migrations ready
+- [ ] Docker build successful
+
+**Frontend**:
+- [ ] All P1 components working
+- [ ] Responsive design verified
+- [ ] Error states handled
+- [ ] Loading states implemented
+- [ ] Build successful
+
+**Status**: 🔴 Not Ready (15% complete)
+
+---
+
+## 💬 Messages
+
+### To Human QA
+> Iteration 2 completed. Please test GET endpoint at:
+> http://localhost:[PORT]/api/[resource]
+>
+> Sample request:
+> ```bash
+> curl http://localhost:[PORT]/api/[resource]?page=1&limit=10
+> ```
+>
+> If OK, please approve for LOCK 🔒
+
+### To Debugger
+> Bug #1 needs attention. Validation fails on nested objects.
+> Error details above. Priority: High
+
+---
+
+**Template Version**: 1.0.0
+**Last Modified**: 2025-10-16 16:30

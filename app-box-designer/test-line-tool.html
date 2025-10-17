@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LineTool Test - CAD Engine</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #2a2a2a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #toolbar {
+      background: #1a1a1a;
+      padding: 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-bottom: 2px solid #00ff00;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      padding-right: 15px;
+      border-right: 1px solid #444;
+    }
+
+    .toolbar-group:last-child {
+      border-right: none;
+    }
+
+    .toolbar-label {
+      color: #888;
+      font-size: 12px;
+      text-transform: uppercase;
+      margin-right: 5px;
+    }
+
+    button {
+      background: #333;
+      color: #fff;
+      border: 2px solid #555;
+      padding: 8px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+      font-size: 12px;
+    }
+
+    button:hover {
+      background: #444;
+      border-color: #777;
+    }
+
+    button.active {
+      background: #00ff00;
+      color: #000;
+      border-color: #00ff00;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .info {
+      margin-left: auto;
+      font-family: monospace;
+      color: #00ff00;
+      font-size: 14px;
+    }
+
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #help {
+      background: #1a1a1a;
+      padding: 15px;
+      border-top: 2px solid #00ff00;
+      font-family: monospace;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .help-title {
+      color: #00ff00;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .help-row {
+      display: flex;
+      gap: 20px;
+    }
+
+    .help-col {
+      flex: 1;
+    }
+
+    .help-item {
+      margin-bottom: 4px;
+    }
+
+    .help-key {
+      color: #00aaff;
+      font-weight: bold;
+    }
+
+    #stats {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #00ff00;
+      min-width: 200px;
+    }
+
+    .stat-line {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <div class="toolbar-group">
+      <span class="toolbar-label">Tool:</span>
+      <button id="btn-line" class="active" onclick="selectTool('line')">Line Tool</button>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="toolbar-label">Line Type:</span>
+      <button id="btn-cut" class="active" onclick="setLineType('cut')">Cut</button>
+      <button id="btn-crease" onclick="setLineType('crease')">Crease</button>
+      <button id="btn-perf" onclick="setLineType('perforation')">Perforation</button>
+      <button id="btn-bleed" onclick="setLineType('bleed')">Bleed</button>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="toolbar-label">Mode:</span>
+      <button id="btn-continuous" onclick="toggleContinuous()">Continuous: OFF</button>
+      <button id="btn-snap" class="active" onclick="toggleSnap()">Snap: ON</button>
+    </div>
+
+    <div class="toolbar-group">
+      <button onclick="testQuickLines()">Quick Test (50 lines)</button>
+      <button onclick="clearAll()">Clear All</button>
+      <button onclick="toggleProfiling()">Profiling</button>
+    </div>
+
+    <div class="info" id="info">Lines: 0 | Ready</div>
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+    <div id="stats">
+      <div class="stat-line">Lines: <span id="stat-lines">0</span></div>
+      <div class="stat-line">FPS: <span id="stat-fps">0</span></div>
+      <div class="stat-line">Render: <span id="stat-render">0</span>ms</div>
+      <div class="stat-line">Zoom: <span id="stat-zoom">100</span>%</div>
+    </div>
+  </div>
+
+  <div id="help">
+    <div class="help-title">KEYBOARD SHORTCUTS</div>
+    <div class="help-row">
+      <div class="help-col">
+        <div class="help-item"><span class="help-key">Shift+Drag</span> - Horizontal/Vertical lock</div>
+        <div class="help-item"><span class="help-key">H</span> - Toggle Horizontal constraint</div>
+        <div class="help-item"><span class="help-key">V</span> - Toggle Vertical constraint</div>
+        <div class="help-item"><span class="help-key">A</span> - Toggle Angle snap</div>
+      </div>
+      <div class="help-col">
+        <div class="help-item"><span class="help-key">1-4</span> - Angle snap (15°, 30°, 45°, 90°)</div>
+        <div class="help-item"><span class="help-key">C</span> - Toggle Continuous mode</div>
+        <div class="help-item"><span class="help-key">S</span> - Toggle Snap to objects</div>
+        <div class="help-item"><span class="help-key">ESC</span> - Cancel current operation</div>
+      </div>
+      <div class="help-col">
+        <div class="help-item"><span class="help-key">Mouse Wheel</span> - Zoom in/out</div>
+        <div class="help-item"><span class="help-key">Ctrl+Z</span> - Undo</div>
+        <div class="help-item"><span class="help-key">Ctrl+Y</span> - Redo</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { CADEngine } from './cad-tools/CADEngine.js';
+
+    // Initialize canvas
+    const canvas = document.getElementById('canvas');
+    const updateCanvasSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight - 230; // toolbar + help
+      if (window.engine) {
+        engine.render();
+      }
+    };
+    updateCanvasSize();
+
+    // Initialize CAD Engine
+    const engine = new CADEngine(canvas);
+    window.engine = engine; // For debugging
+
+    // Enable profiling
+    engine.toggleProfiling(true);
+
+    // Activate line tool by default
+    engine.setTool('line');
+
+    // Resize handler
+    window.addEventListener('resize', updateCanvasSize);
+
+    // Update stats
+    function updateStats() {
+      const lineTool = engine.tools.line;
+      const lineCount = engine.objects.filter(obj => obj.type === 'line').length;
+
+      document.getElementById('stat-lines').textContent = lineCount;
+      document.getElementById('stat-fps').textContent = engine.profiling.fps.toFixed(1);
+      document.getElementById('stat-render').textContent = engine.profiling.lastRenderTime.toFixed(2);
+      document.getElementById('stat-zoom').textContent = (engine.zoom * 100).toFixed(0);
+
+      document.getElementById('info').textContent =
+        `Lines: ${lineCount} | ${engine.statusMessage}`;
+    }
+
+    setInterval(updateStats, 100);
+
+    // Tool selection
+    window.selectTool = (toolName) => {
+      engine.setTool(toolName);
+      document.querySelectorAll('#toolbar button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById('btn-' + toolName).classList.add('active');
+    };
+
+    // Line type selection
+    window.setLineType = (lineType) => {
+      const lineTool = engine.tools.line;
+      if (lineTool) {
+        lineTool.setLineType(lineType);
+      }
+
+      document.querySelectorAll('[id^="btn-"][id$="cut"], [id^="btn-"][id$="crease"], [id^="btn-"][id$="perf"], [id^="btn-"][id$="bleed"]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      const btnId = {
+        'cut': 'btn-cut',
+        'crease': 'btn-crease',
+        'perforation': 'btn-perf',
+        'bleed': 'btn-bleed'
+      }[lineType];
+
+      document.getElementById(btnId).classList.add('active');
+    };
+
+    // Toggle continuous mode
+    window.toggleContinuous = () => {
+      const lineTool = engine.tools.line;
+      if (lineTool) {
+        lineTool.setContinuousMode(!lineTool.continuousMode);
+        document.getElementById('btn-continuous').textContent =
+          `Continuous: ${lineTool.continuousMode ? 'ON' : 'OFF'}`;
+        document.getElementById('btn-continuous').classList.toggle('active', lineTool.continuousMode);
+      }
+    };
+
+    // Toggle snap
+    window.toggleSnap = () => {
+      const lineTool = engine.tools.line;
+      if (lineTool) {
+        lineTool.snapToObjects = !lineTool.snapToObjects;
+        document.getElementById('btn-snap').textContent =
+          `Snap: ${lineTool.snapToObjects ? 'ON' : 'OFF'}`;
+        document.getElementById('btn-snap').classList.toggle('active', lineTool.snapToObjects);
+      }
+    };
+
+    // Quick test - create 50 random lines
+    window.testQuickLines = () => {
+      const startTime = performance.now();
+
+      for (let i = 0; i < 50; i++) {
+        const x1 = Math.random() * 800;
+        const y1 = Math.random() * 600;
+        const x2 = x1 + (Math.random() * 200 - 100);
+        const y2 = y1 + (Math.random() * 200 - 100);
+
+        engine.addObject({
+          type: 'line',
+          p1: { x: x1, y: y1 },
+          p2: { x: x2, y: y2 },
+          lineType: ['cut', 'crease', 'perforation', 'bleed'][Math.floor(Math.random() * 4)]
+        });
+      }
+
+      engine.saveHistory();
+      engine.render();
+
+      const createTime = performance.now() - startTime;
+      console.log(`Created 50 lines in ${createTime.toFixed(2)}ms`);
+    };
+
+    // Clear all
+    window.clearAll = () => {
+      engine.objects = [];
+      engine.saveHistory();
+      engine.render();
+    };
+
+    // Toggle profiling
+    window.toggleProfiling = () => {
+      engine.toggleProfiling(!engine.enableProfiling);
+    };
+
+    console.log('LineTool Test Ready!');
+    console.log('Use mouse to draw lines, keyboard shortcuts for constraints');
+    console.log('Try: Shift+Drag, H, V, A, 1-4, C, S, ESC');
+  </script>
+</body>
+</html>

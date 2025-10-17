@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Loading - Box Designer CAD</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #2d2d2d;
+      border-radius: 5px;
+    }
+    .status {
+      padding: 5px 10px;
+      margin: 5px 0;
+      border-radius: 3px;
+    }
+    .success {
+      background: #0e6027;
+      color: #4ec9b0;
+    }
+    .error {
+      background: #5a1d1d;
+      color: #f48771;
+    }
+    .pending {
+      background: #2d2d30;
+      color: #858585;
+    }
+    pre {
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 3px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>📐 Box Designer CAD - Test Loading</h1>
+
+  <div class="test-section">
+    <h2>Module Import Tests</h2>
+    <div id="test-results"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Console Output</h2>
+    <pre id="console-output"></pre>
+  </div>
+
+  <script type="module">
+    const results = document.getElementById('test-results');
+    const consoleOutput = document.getElementById('console-output');
+
+    // Capture console logs
+    const logs = [];
+    const originalLog = console.log;
+    const originalError = console.error;
+
+    console.log = function(...args) {
+      logs.push('LOG: ' + args.join(' '));
+      originalLog.apply(console, args);
+      updateConsole();
+    };
+
+    console.error = function(...args) {
+      logs.push('ERROR: ' + args.join(' '));
+      originalError.apply(console, args);
+      updateConsole();
+    };
+
+    function updateConsole() {
+      consoleOutput.textContent = logs.join('\n');
+    }
+
+    function addResult(name, status, message = '') {
+      const div = document.createElement('div');
+      div.className = `status ${status}`;
+      div.textContent = `${status === 'success' ? '✓' : status === 'error' ? '✗' : '○'} ${name}${message ? ': ' + message : ''}`;
+      results.appendChild(div);
+    }
+
+    // Test imports sequentially
+    async function runTests() {
+      console.log('Starting module import tests...');
+
+      // Test 1: CADEngine
+      try {
+        addResult('CADEngine', 'pending', 'Loading...');
+        const { CADEngine } = await import('./cad-tools/CADEngine.js');
+        addResult('CADEngine', 'success', 'Loaded successfully');
+        console.log('CADEngine loaded:', typeof CADEngine);
+      } catch (error) {
+        addResult('CADEngine', 'error', error.message);
+        console.error('CADEngine error:', error);
+        return; // Stop on critical error
+      }
+
+      // Test 2: FilletTool
+      try {
+        addResult('FilletTool', 'pending', 'Loading...');
+        const { FilletTool } = await import('./cad-tools/FilletTool.js');
+        addResult('FilletTool', 'success', 'Loaded successfully');
+        console.log('FilletTool loaded:', typeof FilletTool);
+      } catch (error) {
+        addResult('FilletTool', 'error', error.message);
+        console.error('FilletTool error:', error);
+      }
+
+      // Test 3: MirrorTool
+      try {
+        addResult('MirrorTool', 'pending', 'Loading...');
+        const { MirrorTool } = await import('./cad-tools/MirrorTool.js');
+        addResult('MirrorTool', 'success', 'Loaded successfully');
+        console.log('MirrorTool loaded:', typeof MirrorTool);
+      } catch (error) {
+        addResult('MirrorTool', 'error', error.message);
+        console.error('MirrorTool error:', error);
+      }
+
+      // Test 4: RotateTool
+      try {
+        addResult('RotateTool', 'pending', 'Loading...');
+        const { RotateTool } = await import('./cad-tools/RotateTool.js');
+        addResult('RotateTool', 'success', 'Loaded successfully');
+        console.log('RotateTool loaded:', typeof RotateTool);
+      } catch (error) {
+        addResult('RotateTool', 'error', error.message);
+        console.error('RotateTool error:', error);
+      }
+
+      // Test 5: ScaleTool
+      try {
+        addResult('ScaleTool', 'pending', 'Loading...');
+        const { ScaleTool } = await import('./cad-tools/ScaleTool.js');
+        addResult('ScaleTool', 'success', 'Loaded successfully');
+        console.log('ScaleTool loaded:', typeof ScaleTool);
+      } catch (error) {
+        addResult('ScaleTool', 'error', error.message);
+        console.error('ScaleTool error:', error);
+      }
+
+      // Test 6: Toolbar
+      try {
+        addResult('Toolbar', 'pending', 'Loading...');
+        const { Toolbar } = await import('./src/components/Toolbar.js');
+        addResult('Toolbar', 'success', 'Loaded successfully');
+        console.log('Toolbar loaded:', typeof Toolbar);
+      } catch (error) {
+        addResult('Toolbar', 'error', error.message);
+        console.error('Toolbar error:', error);
+      }
+
+      console.log('All tests completed!');
+    }
+
+    // Run tests on load
+    runTests();
+  </script>
+</body>
+</html>

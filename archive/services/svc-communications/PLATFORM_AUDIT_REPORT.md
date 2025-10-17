@@ -1,0 +1,1 @@
+- ✅ svc-communications: deps=✓, health=✓, auth=✓ (port 5641)

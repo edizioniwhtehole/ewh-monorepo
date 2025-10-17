@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# EWH Mac Studio - macOS App
+# Gestisce tutto con feedback visivo
+
+REMOTE_HOST="fabio@192.168.1.47"
+REMOTE_PATH="/Users/fabio/dev/ewh"
+LOCAL_PATH="/Users/andromeda/dev/ewh"
+
+# Funzione notifica
+notify() {
+    local title="$1"
+    local message="$2"
+    local sound="${3:-default}"
+    osascript -e "display notification \"$message\" with title \"$title\" sound name \"$sound\""
+}
+
+# Funzione dialog
+dialog() {
+    local message="$1"
+    osascript -e "display dialog \"$message\" with title \"EWH Mac Studio\" buttons {\"OK\"} default button \"OK\""
+}
+
+# Check se già running
+if [ -f /tmp/ewh-mac-studio-running.pid ]; then
+    OLD_PID=$(cat /tmp/ewh-mac-studio-running.pid)
+    if ps -p $OLD_PID > /dev/null 2>&1; then
+        # Già running - mostra menu
+        CHOICE=$(osascript <<EOF
+tell application "System Events"
+    activate
+    set choice to button returned of (display dialog "EWH Mac Studio è già in esecuzione!" buttons {"Apri Browser", "Ferma", "Status"} default button "Apri Browser" with title "EWH Mac Studio")
+end tell
+EOF
+)
+
+        case "$CHOICE" in
+            "Apri Browser")
+                open http://localhost:5400
+                ;;
+            "Ferma")
+                "$LOCAL_PATH/stop-mac-studio.sh"
+                notify "EWH Mac Studio" "Sistema fermato"
+                ;;
+            "Status")
+                ssh $REMOTE_HOST 'export PATH=/usr/local/bin:$PATH && pm2 list' > /tmp/ewh-status.txt
+                open -a TextEdit /tmp/ewh-status.txt
+                ;;
+        esac
+        exit 0
+    fi
+fi
+
+# === AVVIO ===
+
+notify "EWH Mac Studio" "Avvio in corso..." "Glass"
+
+# Progress bar simulato con notifiche
+(
+    sleep 2
+    notify "EWH Mac Studio" "📦 Sincronizzazione codice..."
+) &
+
+# 1. Verifica connessione
+if ! ssh -o ConnectTimeout=3 $REMOTE_HOST "echo 'OK'" &>/dev/null; then
+    dialog "❌ Mac Studio non raggiungibile!\n\nVerifica:\n- Mac Studio acceso\n- Stessa rete WiFi\n- Remote Login abilitato"
+    exit 1
+fi
+
+# 2. Sync
+rsync -az --delete \
+  --exclude 'node_modules' \
+  --exclude '.git' \
+  --exclude 'dist' \
+  --exclude 'build' \
+  $LOCAL_PATH/svc-auth \
+  $LOCAL_PATH/svc-api-gateway \
+  $LOCAL_PATH/svc-pm \
+  $LOCAL_PATH/app-pm-frontend \
+  $REMOTE_HOST:$REMOTE_PATH/ &>/dev/null
+
+notify "EWH Mac Studio" "🚀 Avvio servizi..." "Glass"
+
+# 3. Verifica/avvia servizi
+SERVICES=$(ssh $REMOTE_HOST 'export PATH=/usr/local/bin:$PATH && pm2 list | grep -c online || echo 0')
+
+if [ "$SERVICES" -lt 4 ]; then
+    ssh $REMOTE_HOST 'export PATH=/usr/local/bin:$PATH && pm2 restart all 2>/dev/null || {
+        cd /Users/fabio/dev/ewh/svc-auth && pm2 start npm --name svc-auth -- run dev 2>/dev/null || true
+        cd /Users/fabio/dev/ewh/svc-api-gateway && pm2 start npm --name svc-api-gateway -- run dev 2>/dev/null || true
+        cd /Users/fabio/dev/ewh/svc-pm && pm2 start npm --name svc-pm -- run dev 2>/dev/null || true
+        cd /Users/fabio/dev/ewh/app-pm-frontend && pm2 start npm --name app-pm-frontend -- run dev 2>/dev/null || true
+    }' &>/dev/null
+    sleep 8
+fi
+
+# 4. Port forwarding
+pkill -f "ssh.*-L.*192.168.1.47" 2>/dev/null || true
+sleep 1
+
+ssh -N -L 4000:localhost:4000 -L 5500:localhost:5500 -L 5400:localhost:5400 $REMOTE_HOST &
+SSH_PID=$!
+echo $SSH_PID > /tmp/ewh-mac-studio-ssh.pid
+
+notify "EWH Mac Studio" "🌐 Port forwarding attivo..." "Glass"
+
+# 5. Sync automatico
+if command -v fswatch &> /dev/null; then
+    (
+        while true; do
+            fswatch -o \
+                --exclude='node_modules' \
+                --exclude='.git' \
+                --exclude='dist' \
+                --exclude='build' \
+                "$LOCAL_PATH" | while read event; do
+                sleep 1
+                rsync -az --delete \
+                    --exclude 'node_modules' \
+                    --exclude '.git' \
+                    $LOCAL_PATH/svc-auth \
+                    $LOCAL_PATH/svc-api-gateway \
+                    $LOCAL_PATH/svc-pm \
+                    $LOCAL_PATH/app-pm-frontend \
+                    $REMOTE_HOST:$REMOTE_PATH/ &>/dev/null
+
+                # Notifica discreta (solo badge)
+                osascript -e 'display notification "Sincronizzato" with title "EWH" sound name "Morse"' &>/dev/null || true
+            done
+            sleep 5
+        done
+    ) &
+    SYNC_PID=$!
+    echo $SYNC_PID > /tmp/ewh-mac-studio-sync.pid
+fi
+
+# Salva running
+echo $$ > /tmp/ewh-mac-studio-running.pid
+
+# SUCCESS!
+notify "EWH Mac Studio" "✅ Tutto pronto! Apertura browser..." "Hero"
+
+sleep 2
+open http://localhost:5400
+
+# Notifica finale
+osascript <<EOF
+display notification "Sistema attivo e sincronizzato" with title "🎉 EWH Mac Studio" subtitle "http://localhost:5400"
+EOF
+
+exit 0

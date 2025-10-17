@@ -1,0 +1,164 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2025-10-14T00:00:00Z",
+  "services": {
+    "svc-pm": {
+      "name": "Project Management Service",
+      "baseUrl": "http://localhost:5500",
+      "port": 5500,
+      "frontend": {
+        "url": "http://localhost:5400",
+        "port": 5400
+      },
+      "endpoints": {
+        "projects": {
+          "list": { "method": "GET", "path": "/api/pm/projects", "auth": true },
+          "get": { "method": "GET", "path": "/api/pm/projects/:id", "auth": true },
+          "create": { "method": "POST", "path": "/api/pm/projects", "auth": true },
+          "update": { "method": "PATCH", "path": "/api/pm/projects/:id", "auth": true },
+          "delete": { "method": "DELETE", "path": "/api/pm/projects/:id", "auth": true }
+        },
+        "tasks": {
+          "list": { "method": "GET", "path": "/api/pm/projects/:projectId/tasks", "auth": true },
+          "create": { "method": "POST", "path": "/api/pm/projects/:projectId/tasks", "auth": true },
+          "update": { "method": "PATCH", "path": "/api/pm/tasks/:id", "auth": true }
+        }
+      }
+    },
+    "svc-procurement": {
+      "name": "Procurement & RFQ Service",
+      "baseUrl": "http://localhost:5600",
+      "port": 5600,
+      "frontend": {
+        "url": "http://localhost:5700",
+        "port": 5700
+      },
+      "endpoints": {
+        "suppliers": {
+          "list": { "method": "GET", "path": "/api/procurement/suppliers", "auth": true },
+          "get": { "method": "GET", "path": "/api/procurement/suppliers/:id", "auth": true },
+          "create": { "method": "POST", "path": "/api/procurement/suppliers", "auth": true }
+        },
+        "rfq": {
+          "list": { "method": "GET", "path": "/api/procurement/rfq", "auth": true },
+          "create": { "method": "POST", "path": "/api/procurement/rfq", "auth": true },
+          "respond": { "method": "POST", "path": "/api/procurement/rfq/:id/responses", "auth": true }
+        }
+      }
+    },
+    "svc-quotations": {
+      "name": "Quotations Service",
+      "baseUrl": "http://localhost:5800",
+      "port": 5800,
+      "frontend": {
+        "url": "http://localhost:5900",
+        "port": 5900
+      },
+      "endpoints": {
+        "quotations": {
+          "list": { "method": "GET", "path": "/api/quotations", "auth": true },
+          "get": { "method": "GET", "path": "/api/quotations/:id", "auth": true },
+          "create": { "method": "POST", "path": "/api/quotations", "auth": true },
+          "approve": { "method": "POST", "path": "/api/quotations/:id/approve", "auth": true }
+        }
+      }
+    },
+    "svc-inventory": {
+      "name": "Inventory Management Service",
+      "baseUrl": "http://localhost:6400",
+      "port": 6400,
+      "frontend": {
+        "url": "http://localhost:6800",
+        "port": 6800
+      },
+      "endpoints": {
+        "items": {
+          "list": { "method": "GET", "path": "/api/inventory/items", "auth": true },
+          "get": { "method": "GET", "path": "/api/inventory/items/:id", "auth": true },
+          "getFull": { "method": "GET", "path": "/api/inventory/items/:id/full", "auth": true },
+          "create": { "method": "POST", "path": "/api/inventory/items", "auth": true },
+          "update": { "method": "PUT", "path": "/api/inventory/items/:id", "auth": true }
+        },
+        "stock": {
+          "adjustments": { "method": "POST", "path": "/api/inventory/items/:id/stock", "auth": true },
+          "movements": { "method": "GET", "path": "/api/inventory/movements", "auth": true }
+        },
+        "specs": {
+          "list": { "method": "GET", "path": "/api/inventory/items/:id/specs", "auth": true },
+          "create": { "method": "POST", "path": "/api/inventory/items/:id/specs", "auth": true }
+        }
+      }
+    },
+    "svc-orders-purchase": {
+      "name": "Purchase Orders Service",
+      "baseUrl": "http://localhost:6200",
+      "port": 6200,
+      "frontend": {
+        "url": "http://localhost:6900",
+        "port": 6900
+      },
+      "endpoints": {
+        "orders": {
+          "list": { "method": "GET", "path": "/api/orders/purchase", "auth": true },
+          "get": { "method": "GET", "path": "/api/orders/purchase/:id", "auth": true },
+          "create": { "method": "POST", "path": "/api/orders/purchase", "auth": true },
+          "update": { "method": "PATCH", "path": "/api/orders/purchase/:id", "auth": true }
+        },
+        "receiving": {
+          "create": { "method": "POST", "path": "/api/orders/purchase/:id/receive", "auth": true }
+        }
+      }
+    },
+    "svc-orders-sales": {
+      "name": "Sales Orders Service",
+      "baseUrl": "http://localhost:6300",
+      "port": 6300,
+      "frontend": {
+        "url": "http://localhost:7000",
+        "port": 7000
+      },
+      "endpoints": {
+        "orders": {
+          "list": { "method": "GET", "path": "/api/orders/sales", "auth": true },
+          "get": { "method": "GET", "path": "/api/orders/sales/:id", "auth": true },
+          "create": { "method": "POST", "path": "/api/orders/sales", "auth": true },
+          "update": { "method": "PATCH", "path": "/api/orders/sales/:id", "auth": true }
+        },
+        "shipments": {
+          "list": { "method": "GET", "path": "/api/orders/sales/:id/shipments", "auth": true },
+          "create": { "method": "POST", "path": "/api/orders/sales/:id/shipments", "auth": true }
+        }
+      }
+    }
+  },
+  "workflows": {
+    "procurement_to_purchase_order": {
+      "description": "Create purchase order from procurement RFQ",
+      "steps": [
+        { "service": "svc-procurement", "action": "rfq.get", "output": "rfq_data" },
+        { "service": "svc-orders-purchase", "action": "orders.create", "input": "rfq_data" }
+      ]
+    },
+    "quotation_to_sales_order": {
+      "description": "Convert approved quotation to sales order",
+      "steps": [
+        { "service": "svc-quotations", "action": "quotations.get", "output": "quote_data" },
+        { "service": "svc-orders-sales", "action": "orders.create", "input": "quote_data" }
+      ]
+    },
+    "purchase_order_to_inventory": {
+      "description": "Receive purchase order and update inventory",
+      "steps": [
+        { "service": "svc-orders-purchase", "action": "receiving.create", "output": "receipt_data" },
+        { "service": "svc-inventory", "action": "stock.adjustments", "input": "receipt_data" }
+      ]
+    },
+    "sales_order_to_inventory": {
+      "description": "Ship sales order and reduce inventory",
+      "steps": [
+        { "service": "svc-orders-sales", "action": "shipments.create", "output": "shipment_data" },
+        { "service": "svc-inventory", "action": "stock.adjustments", "input": "shipment_data" }
+      ]
+    }
+  }
+}

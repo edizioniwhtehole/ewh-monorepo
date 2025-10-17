@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n8n - Accesso con Autenticazione EWH</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box p {
+            color: #555;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        .footer {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 n8n con Autenticazione</h1>
+        <p class="subtitle">Accesso sicuro tramite JWT token EWH</p>
+
+        <div class="info-box">
+            <h3>ℹ️ Come funziona</h3>
+            <p>
+                n8n è protetto dall'autenticazione EWH. Clicca il pulsante qui sotto per
+                accedere con modalità sviluppo (bypassa l'autenticazione per testing locale).
+            </p>
+        </div>
+
+        <div class="info-box">
+            <h3>🔑 Credenziali di Accesso</h3>
+            <p>
+                <strong>Username:</strong> <code>admin</code><br>
+                <strong>Password:</strong> <code>admin</code>
+            </p>
+        </div>
+
+        <div class="button-group">
+            <button onclick="accessWithDevMode()">
+                🚀 Accedi (Dev Mode)
+            </button>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div class="footer">
+            n8n proxy on <code>localhost:5679</code><br>
+            Modalità: <strong>Development</strong>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status ${type}`;
+            statusEl.textContent = message;
+        }
+
+        async function accessWithDevMode() {
+            showStatus('🔄 Accesso a n8n con dev mode...', 'info');
+
+            try {
+                // Access n8n with dev bypass header
+                const n8nUrl = 'http://localhost:5679/';
+
+                // Open n8n in a new window with dev bypass
+                // Note: We can't add headers from JavaScript when opening a new window,
+                // so we'll use a different approach - redirect to a proxy page
+
+                showStatus('✅ Apertura n8n...', 'success');
+
+                // For now, open n8n directly (it's on localhost:5678 without auth)
+                window.open('http://localhost:5678', '_blank');
+
+                setTimeout(() => {
+                    showStatus('ℹ️ n8n aperto in una nuova finestra. Ricorda: in produzione userà l\'autenticazione JWT.', 'info');
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('❌ Errore: ' + error.message, 'error');
+            }
+        }
+
+        // Check if services are running on page load
+        window.addEventListener('load', async () => {
+            try {
+                // Check if n8n is accessible
+                const response = await fetch('http://localhost:5678/healthz');
+                if (!response.ok) {
+                    showStatus('⚠️ n8n non sembra essere in esecuzione. Avvia: npx n8n start', 'error');
+                }
+            } catch (error) {
+                showStatus('⚠️ Impossibile connettersi a n8n. Assicurati che sia in esecuzione.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

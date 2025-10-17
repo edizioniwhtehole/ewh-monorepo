@@ -1,0 +1,1 @@
+- ✅ svc-voice: deps=✓, health=✓, auth=✓ (port 5642)

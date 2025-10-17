@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAD Engine Performance Test</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #2a2a2a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #toolbar {
+      background: #1a1a1a;
+      padding: 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-bottom: 2px solid #00ff00;
+    }
+
+    button {
+      background: #00ff00;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #00cc00;
+      transform: scale(1.05);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .info {
+      margin-left: auto;
+      font-family: monospace;
+      color: #00ff00;
+    }
+
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    #log {
+      background: #1a1a1a;
+      padding: 10px;
+      height: 150px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      border-top: 2px solid #00ff00;
+    }
+
+    .log-entry {
+      padding: 2px 0;
+    }
+
+    .log-success {
+      color: #00ff00;
+    }
+
+    .log-error {
+      color: #ff0000;
+    }
+
+    .log-info {
+      color: #00aaff;
+    }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <button onclick="test50Objects()">Test 50 Objects</button>
+    <button onclick="test100Objects()">Test 100 Objects</button>
+    <button onclick="test500Objects()">Test 500 Objects</button>
+    <button onclick="test1000Objects()">Test 1000 Objects</button>
+    <button onclick="clearObjects()">Clear All</button>
+    <button onclick="toggleProfiling()">Toggle Profiling</button>
+    <div class="info" id="info">Objects: 0</div>
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div id="log"></div>
+
+  <script type="module">
+    import { CADEngine } from './cad-tools/CADEngine.js';
+
+    // Initialize canvas
+    const canvas = document.getElementById('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 250;
+
+    // Initialize CAD Engine
+    const engine = new CADEngine(canvas);
+    window.engine = engine; // For debugging
+
+    // Enable profiling by default
+    engine.toggleProfiling(true);
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight - 250;
+      engine.render();
+    });
+
+    // Log function
+    function log(message, type = 'info') {
+      const logDiv = document.getElementById('log');
+      const entry = document.createElement('div');
+      entry.className = `log-entry log-${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    // Update info
+    function updateInfo() {
+      const stats = engine.getPerformanceStats();
+      document.getElementById('info').textContent =
+        `Objects: ${stats.objectCount} | FPS: ${stats.fps.toFixed(1)} | Avg: ${stats.avgRenderTime.toFixed(2)}ms`;
+    }
+
+    setInterval(updateInfo, 100);
+
+    // Generate random objects
+    function generateRandomObjects(count) {
+      const types = ['line', 'circle', 'arc', 'rectangle', 'polygon', 'ellipse'];
+      const lineTypes = ['cut', 'crease', 'perforation', 'bleed'];
+      const objects = [];
+
+      const startTime = performance.now();
+
+      for (let i = 0; i < count; i++) {
+        const type = types[Math.floor(Math.random() * types.length)];
+        const lineType = lineTypes[Math.floor(Math.random() * lineTypes.length)];
+        const x = Math.random() * 800;
+        const y = Math.random() * 800;
+
+        let obj = { type, lineType };
+
+        switch (type) {
+          case 'line':
+            obj.p1 = { x, y };
+            obj.p2 = { x: x + Math.random() * 200 - 100, y: y + Math.random() * 200 - 100 };
+            break;
+
+          case 'circle':
+            obj.cx = x;
+            obj.cy = y;
+            obj.radius = Math.random() * 50 + 10;
+            break;
+
+          case 'arc':
+            obj.cx = x;
+            obj.cy = y;
+            obj.radius = Math.random() * 50 + 10;
+            obj.startAngle = Math.random() * Math.PI * 2;
+            obj.endAngle = obj.startAngle + Math.random() * Math.PI;
+            break;
+
+          case 'rectangle':
+            obj.x = x;
+            obj.y = y;
+            obj.width = Math.random() * 100 + 20;
+            obj.height = Math.random() * 100 + 20;
+            break;
+
+          case 'polygon':
+            const sides = Math.floor(Math.random() * 6) + 3;
+            obj.points = [];
+            const radius = Math.random() * 50 + 20;
+            for (let j = 0; j < sides; j++) {
+              const angle = (j / sides) * Math.PI * 2;
+              obj.points.push({
+                x: x + Math.cos(angle) * radius,
+                y: y + Math.sin(angle) * radius
+              });
+            }
+            break;
+
+          case 'ellipse':
+            obj.cx = x;
+            obj.cy = y;
+            obj.rx = Math.random() * 50 + 10;
+            obj.ry = Math.random() * 50 + 10;
+            obj.rotation = Math.random() * Math.PI;
+            break;
+        }
+
+        objects.push(obj);
+        engine.addObject(obj);
+      }
+
+      const createTime = performance.now() - startTime;
+
+      engine.saveHistory();
+      engine.render();
+
+      const renderTime = engine.profiling.lastRenderTime;
+
+      log(`Created ${count} objects in ${createTime.toFixed(2)}ms`, 'success');
+      log(`Render time: ${renderTime.toFixed(2)}ms`, 'info');
+
+      if (renderTime > 16.67) {
+        log(`⚠️ WARNING: Render time > 16.67ms (${(16.67 / renderTime * 100).toFixed(0)}% of 60fps budget)`, 'error');
+      } else {
+        log(`✓ Render time OK for 60fps`, 'success');
+      }
+
+      return objects;
+    }
+
+    // Test functions
+    window.test50Objects = () => {
+      log('--- Testing with 50 objects ---', 'info');
+      generateRandomObjects(50);
+    };
+
+    window.test100Objects = () => {
+      log('--- Testing with 100 objects ---', 'info');
+      generateRandomObjects(100);
+    };
+
+    window.test500Objects = () => {
+      log('--- Testing with 500 objects ---', 'info');
+      generateRandomObjects(500);
+    };
+
+    window.test1000Objects = () => {
+      log('--- Testing with 1000 objects ---', 'info');
+      generateRandomObjects(1000);
+    };
+
+    window.clearObjects = () => {
+      engine.objects = [];
+      engine.saveHistory();
+      engine.render();
+      log('Cleared all objects', 'info');
+    };
+
+    window.toggleProfiling = () => {
+      engine.toggleProfiling(!engine.enableProfiling);
+      log(`Profiling ${engine.enableProfiling ? 'enabled' : 'disabled'}`, 'info');
+    };
+
+    // Initial log
+    log('CAD Engine Performance Test Ready', 'success');
+    log('Click buttons above to test different object counts', 'info');
+    log('Target: <16.67ms for 60fps', 'info');
+  </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+# 🎯 [SERVICE_NAME] - Quick Context
+
+> **Versione minima per ridurre token usage**
+> Leggi SOLO questo file per iniziare. Altri docs solo se necessario.
+
+---
+
+## ⚡ Quick Facts (30 secondi)
+
+| Info | Value |
+|------|-------|
+| **Service Type** | Backend Service / Frontend App |
+| **Port Backend** | [BACKEND_PORT] |
+| **Port Frontend** | [FRONTEND_PORT] |
+| **Database** | `ewh_tenant.[schema_name]` |
+| **Auth** | JWT via svc-auth:4610 |
+| **Status** | 🔴 Not Started / 🟡 In Progress / 🟢 Ready |
+
+---
+
+## 📋 P1 Features ONLY (leggi FEATURES.md per dettagli)
+
+**Backend P1**:
+1. [ ] Feature 1 (es: Contacts CRUD)
+2. [ ] Feature 2 (es: Search endpoint)
+3. [ ] Feature 3 (es: Export API)
+
+**Frontend P1**:
+1. [ ] ComponentList
+2. [ ] ComponentDetail
+3. [ ] ComponentForm
+
+**Total P1**: X features backend + Y features frontend
+
+---
+
+## 🔌 Dependencies
+
+**Servizi necessari**:
+- `svc-auth:4610` - Authentication
+- `svc-contacts:4600` - (se usa contatti)
+- `svc-storage:4740` - (se usa file)
+
+**Come avviarli**:
+```bash
+cd svc-auth && npm run dev &
+cd svc-[service] && npm run dev
+```
+
+---
+
+## 🚀 Quick Start (5 minuti)
+
+```bash
+# 1. Backend
+cd svc-[service]
+npm install
+npm run migrate  # Se necessario
+npm run dev      # Port [BACKEND_PORT]
+
+# 2. Frontend
+cd app-[service]-frontend
+npm install
+npm run dev      # Port [FRONTEND_PORT]
+
+# 3. Test
+open http://localhost:[FRONTEND_PORT]
+```
+
+---
+
+## 📊 Database Schema (Minimal)
+
+```sql
+-- Tabelle principali (vedi migrations/ per dettagli)
+CREATE TABLE [main_table] (
+  id UUID PRIMARY KEY,
+  tenant_id UUID NOT NULL,
+  name VARCHAR(255),
+  -- ... altri campi
+);
+
+-- RLS SEMPRE ABILITATO
+ALTER TABLE [main_table] ENABLE ROW LEVEL SECURITY;
+```
+
+**Migration path**: `migrations/XXX_[service]_schema.sql`
+
+---
+
+## 🎨 Tech Stack (Solo quello che usi)
+
+**Backend**:
+- Fastify + TypeScript
+- PostgreSQL (RLS)
+- JWT auth
+
+**Frontend**:
+- Next.js 14 + React 18
+- TypeScript
+- Tailwind CSS
+- Zustand (state)
+
+---
+
+## ⚠️ Common Gotchas
+
+1. **401 Unauthorized**: Hai il JWT token? Vedi `AUTHENTICATION.md`
+2. **CORS error**: Verifica `CORS_ORIGIN` in `.env`
+3. **Port in use**: Chiudi altri servizi o cambia porta
+4. **DB connection**: Verifica `DATABASE_URL` in `.env`
+
+---
+
+## 📚 Docs (Leggi SOLO se serve)
+
+**Essential** (leggi se blocchi):
+- [FEATURES.md](./FEATURES.md) - Feature list completa
+- [API.md](./API.md) - API documentation
+- [README.md](./README.md) - Setup dettagliato
+
+**Reference** (leggi solo su richiesta):
+- [../PLATFORM_SPECS_2025.md](../PLATFORM_SPECS_2025.md) - 7000 righe (EVITA!)
+- [../DATABASE_ARCHITECTURE.md](../DATABASE_ARCHITECTURE.md) - Solo se problemi DB
+- [../AGENT_WORKFLOW.md](../AGENT_WORKFLOW.md) - Workflow sviluppo
+
+---
+
+## 🐛 Bug Reporting
+
+Se trovi un bug, scrivi in `CHECKPOINT.md`:
+
+```markdown
+## 🐛 Bug Found (2025-10-16 15:30)
+Component: ContactForm
+Error: "Cannot read property 'name' of undefined"
+Stack trace: [...]
+Status: Needs Debugger
+```
+
+---
+
+## ✅ Progress Tracking
+
+Scrivi in `CHECKPOINT.md` dopo ogni iterazione:
+- Cosa hai completato
+- Cosa funziona
+- Cosa è bloccato
+- Prossimo step
+
+---
+
+**Last Update**: [DATE]
+**Total Tokens**: ~800 (vs 7000 di PLATFORM_SPECS!)

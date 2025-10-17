@@ -1,0 +1,228 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║         ✅ SISTEMA AUTO-AVVIO EWH - INSTALLAZIONE COMPLETATA                 ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+📦 COMPONENTI INSTALLATI:
+
+1. ✅ Service Orchestrator (service-orchestrator.cjs)
+   - Auto-discovery di servizi
+   - Avvio automatico sequenziale
+   - Hot-reload su modifiche
+   - Health monitoring
+   - Auto-restart on crash
+   
+2. ✅ Service Registry Hook (app-shell-frontend/src/hooks/useServiceRegistry.ts)
+   - useServiceRegistry() - Accesso completo
+   - useFrontends() - Solo frontend
+   - useBackends() - Solo backend
+   - useService(name) - Servizio specifico
+
+3. ✅ Service Navigator UI (app-shell-frontend/src/components/ServiceNavigator.tsx)
+   - Lista collapsabile servizi
+   - Status indicators real-time
+   - Uptime tracking
+   - Click to navigate
+
+4. ✅ Dynamic Service Mount (app-shell-frontend/src/components/DynamicServiceMount.tsx)
+   - Mounting automatico in iframe
+   - Hot-reload capability
+   - Error handling
+   - Reload controls
+
+5. ✅ Services Dashboard (app-shell-frontend/src/pages/services/index.tsx)
+   - Overview completa
+   - Statistiche aggregate
+   - Filtri per tipo
+   - Navigation integrata
+
+6. ✅ Script di Avvio (start-orchestrator.sh)
+   - Setup automatico
+   - Dependency installation
+   - One-command start
+
+7. ✅ Menu Comandi Rapidi (COMANDI_RAPIDI.sh)
+   - Menu interattivo
+   - Start/stop/restart
+   - Status monitoring
+   - Port management
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧪 TEST ESEGUITI:
+
+✅ Installazione dipendenze (pnpm install)
+✅ Installazione chokidar per file watching
+✅ Creazione service-registry.json
+✅ Avvio orchestratore in background
+✅ Verifica auto-discovery (8 frontends, 9 backends trovati)
+✅ Verifica avvio servizi:
+   - svc-api-gateway (porta 4000) ✅
+   - svc-auth (porta 4001) ✅
+   - svc-billing (porta 4004) ✅
+   - svc-box-designer (porta 5850) ✅
+✅ Gestione porte in uso (kill automatico)
+✅ Logs strutturati con colori
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 COME USARLO:
+
+Metodo 1 - Start Diretto:
+  cd /Users/andromeda/dev/ewh
+  pnpm start
+
+Metodo 2 - Script di Avvio:
+  cd /Users/andromeda/dev/ewh
+  ./start-orchestrator.sh
+
+Metodo 3 - Menu Interattivo:
+  cd /Users/andromeda/dev/ewh
+  ./COMANDI_RAPIDI.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔄 WORKFLOW AUTOMATICO:
+
+1. Modifichi un file sorgente
+   ↓
+2. Chokidar rileva il cambiamento
+   ↓
+3. Orchestratore ferma il servizio
+   ↓
+4. Attesa 2 secondi
+   ↓
+5. Orchestratore riavvia il servizio
+   ↓
+6. Health check verifica lo stato
+   ↓
+7. Service registry si aggiorna
+   ↓
+8. Shell rileva il nuovo registry
+   ↓
+9. Iframe si ricarica automaticamente
+   ↓
+10. FATTO! 🎉
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 SERVIZI RILEVATI:
+
+Frontends (8):
+  • app-shell-frontend (3000)
+  • app-web-frontend (3100)
+  • app-admin-frontend (3200)
+  • app-dam (3300)
+  • app-pm-frontend (3310)
+  • app-box-designer (3350)
+  • app-communications-client (3360)
+  • app-previz-frontend (3370)
+
+Backends (9):
+  • svc-api-gateway (4000)
+  • svc-auth (4001)
+  • svc-plugins (4002)
+  • svc-media (4003)
+  • svc-billing (4004)
+  • svc-pm (4400)
+  • svc-box-designer (5850)
+  • svc-communications (4510)
+  • svc-previz (5870)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📁 FILE STRUTTURA:
+
+/Users/andromeda/dev/ewh/
+├── service-orchestrator.cjs         ← Orchestratore (15KB)
+├── start-orchestrator.sh            ← Script avvio (1.3KB)
+├── COMANDI_RAPIDI.sh                ← Menu (4KB)
+├── service-registry.json            ← Registry (auto-gen)
+├── package.json                     ← Aggiornato
+├── .gitignore                       ← service-registry.json aggiunto
+│
+├── AUTO_START_SYSTEM.md             ← Docs completa (9.2KB)
+├── QUICK_START_AUTO_SYSTEM.md       ← Quick start (7.3KB)
+├── SISTEMA_AUTO_AVVIO_COMPLETO.md   ← Overview (12KB)
+├── README_AUTO_START.txt            ← ASCII summary
+├── SUMMARY_INSTALLAZIONE.txt        ← Questo file
+│
+└── app-shell-frontend/src/
+    ├── hooks/useServiceRegistry.ts
+    ├── components/
+    │   ├── ServiceNavigator.tsx
+    │   └── DynamicServiceMount.tsx
+    └── pages/services/index.tsx
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ CARATTERISTICHE:
+
+✅ Auto-discovery servizi (scansiona app-* e svc-*)
+✅ Auto-start all'avvio
+✅ Hot-reload su modifiche file
+✅ Health monitoring ogni 10s
+✅ Auto-restart on crash (dopo 2s)
+✅ Dynamic mounting nella shell
+✅ Real-time status updates
+✅ Port conflict resolution
+✅ Staggered startup (2s delay)
+✅ Graceful shutdown (SIGTERM)
+✅ Colored logs per servizio
+✅ Service registry JSON
+✅ React hooks integrati
+✅ UI components pronti
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DOCUMENTAZIONE:
+
+Leggi per iniziare:
+  • QUICK_START_AUTO_SYSTEM.md - Guida rapida in 3 passi
+  • AUTO_START_SYSTEM.md - Documentazione completa
+  • SISTEMA_AUTO_AVVIO_COMPLETO.md - Overview sistema
+
+Per problemi:
+  • Vedi sezione Troubleshooting in AUTO_START_SYSTEM.md
+  • Esegui ./COMANDI_RAPIDI.sh e scegli opzione debug
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 PROSSIMI PASSI:
+
+1. Esegui:
+   pnpm start
+
+2. Aspetta che tutti i servizi si avviino (~30-60s)
+
+3. Apri il browser:
+   http://localhost:3000/services
+
+4. Modifica un file per testare hot-reload
+
+5. Enjoy! 🎉
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 TIPS:
+
+• Usa ./COMANDI_RAPIDI.sh per un menu interattivo
+• Vedi i logs in tempo reale durante l'avvio
+• Service registry si aggiorna ogni 10s automaticamente
+• Hot-reload ha 2s di delay per stabilità
+• Servizi crashati si riavviano automaticamente
+• Porte in conflitto vengono liberate automaticamente
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ INSTALLAZIONE COMPLETATA CON SUCCESSO!
+
+Il sistema è pronto per essere utilizzato.
+Non devi più avviare manualmente i servizi!
+
+Per iniziare ora:
+  cd /Users/andromeda/dev/ewh
+  pnpm start
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

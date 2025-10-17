@@ -1,0 +1,105 @@
+version: '3.8'
+
+# Docker Compose LIGHT - Con limiti di risorse
+# Per sviluppo su macchine con risorse limitate
+
+services:
+  # Database condiviso (necessario)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ewh_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ewhpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_light:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # Redis condiviso (necessario)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  # Auth (essenziale)
+  svc-auth:
+    build:
+      context: ../svc-auth
+      dockerfile: Dockerfile.dev
+    environment:
+      DATABASE_URL: postgresql://postgres:ewhpass@postgres:5432/ewh_dev
+      REDIS_URL: redis://redis:6379
+      PORT: 3000
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../svc-auth:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # API Gateway (essenziale)
+  svc-api-gateway:
+    build:
+      context: ../svc-api-gateway
+      dockerfile: Dockerfile.dev
+    environment:
+      PORT: 8080
+      AUTH_SERVICE_URL: http://svc-auth:3000
+      NODE_ENV: development
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../svc-api-gateway:/app
+      - /app/node_modules
+    depends_on:
+      - svc-auth
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # Shell Frontend (essenziale per UI)
+  app-shell-frontend:
+    build:
+      context: ../app-shell-frontend
+      dockerfile: Dockerfile.dev
+    environment:
+      PORT: 3001
+      REACT_APP_API_URL: http://localhost:8080
+      NODE_ENV: development
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../app-shell-frontend:/app
+      - /app/node_modules
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 1G
+
+volumes:
+  postgres_data_light:
+
+# NOTA: Aggiungi altri servizi solo quando servono!
+# Copia questo file e aggiungi il servizio specifico che stai sviluppando

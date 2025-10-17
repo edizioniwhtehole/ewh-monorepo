@@ -1,0 +1,1 @@
+- ✅ app-orders-purchase-frontend: deps=✓, auth=✓ (port 5900)

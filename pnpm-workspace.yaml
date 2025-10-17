@@ -1,0 +1,8 @@
+packages:
+  - 'app-admin-frontend'
+  - 'app-photoediting'
+  - 'app-web-frontend'
+  - 'shared/packages/*'
+  - 'shared/widgets'
+  - 'svc-*'
+  - 'plugins/*'

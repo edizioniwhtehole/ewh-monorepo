@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EWH - Universal Approval System Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- Header -->
+  <header class="gradient-bg text-white shadow-lg">
+    <div class="container mx-auto px-6 py-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-bold">EWH Platform</h1>
+          <p class="text-purple-200 mt-2">Universal Approval System + Enterprise DAM</p>
+        </div>
+        <div class="text-right">
+          <div class="text-sm text-purple-200">Implementation Date</div>
+          <div class="text-lg font-semibold">October 10, 2025</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats Bar -->
+  <div class="bg-white border-b">
+    <div class="container mx-auto px-6 py-6">
+      <div class="grid grid-cols-5 gap-4 text-center">
+        <div>
+          <div class="text-3xl font-bold text-purple-600">46</div>
+          <div class="text-sm text-gray-600">Database Tables</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-blue-600">1,800+</div>
+          <div class="text-sm text-gray-600">Lines of SQL</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-green-600">1,100+</div>
+          <div class="text-sm text-gray-600">Lines of TypeScript</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-orange-600">50+</div>
+          <div class="text-sm text-gray-600">API Endpoints</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-red-600">10</div>
+          <div class="text-sm text-gray-600">Spec Documents</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-6 py-8">
+
+    <!-- System Architecture -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">🏗️ System Architecture</h2>
+
+      <div class="grid grid-cols-3 gap-6">
+
+        <!-- Frontend -->
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover transition-all duration-300 fade-in">
+          <div class="text-4xl mb-4">💻</div>
+          <h3 class="text-xl font-bold text-gray-800 mb-3">Frontend Apps</h3>
+          <div class="space-y-2">
+            <div class="flex items-center">
+              <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">READY</span>
+              <span class="ml-2 text-sm">app-media-frontend (3300)</span>
+            </div>
+            <div class="flex items-center">
+              <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">PLANNED</span>
+              <span class="ml-2 text-sm">app-approvals-frontend</span>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-gray-600">
+            Next.js 14, React Query, Zustand, Shadcn/ui
+          </div>
+        </div>
+
+        <!-- Backend -->
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover transition-all duration-300 fade-in" style="animation-delay: 0.1s">
+          <div class="text-4xl mb-4">⚙️</div>
+          <h3 class="text-xl font-bold text-gray-800 mb-3">Backend Services</h3>
+          <div class="space-y-2">
+            <div class="flex items-center">
+              <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">LIVE</span>
+              <span class="ml-2 text-sm">svc-approvals (4002)</span>
+            </div>
+            <div class="flex items-center">
+              <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">LIVE</span>
+              <span class="ml-2 text-sm">svc-media (4000)</span>
+            </div>
+            <div class="flex items-center">
+              <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">PLANNED</span>
+              <span class="ml-2 text-sm">svc-ai-vision (4010)</span>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-gray-600">
+            Fastify, PostgreSQL, VM2 Sandbox, Redis
+          </div>
+        </div>
+
+        <!-- Database -->
+        <div class="bg-white rounded-lg shadow-md p-6 card-hover transition-all duration-300 fade-in" style="animation-delay: 0.2s">
+          <div class="text-4xl mb-4">🗄️</div>
+          <h3 class="text-xl font-bold text-gray-800 mb-3">Database</h3>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-sm">approvals schema</span>
+              <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">14 tables</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm">dam schema</span>
+              <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">15 tables</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm">Triggers</span>
+              <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-1 rounded">8</span>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-gray-600">
+            PostgreSQL 16, Fulltext Search, GIN Indexes
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Database Schema -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">📊 Database Schema</h2>
+
+      <div class="grid grid-cols-2 gap-6">
+
+        <!-- Approvals Schema -->
+        <div class="bg-white rounded-lg shadow-md p-6 fade-in" style="animation-delay: 0.3s">
+          <h3 class="text-xl font-bold text-purple-700 mb-4">📋 Approvals Schema (14 tables)</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-purple-500 rounded-full mr-3"></span>
+              <span class="font-medium">approval_items</span>
+              <span class="ml-auto text-gray-500">Core tracking</span>
+            </div>
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-purple-500 rounded-full mr-3"></span>
+              <span class="font-medium">pipelines</span>
+              <span class="ml-auto text-gray-500">Workflows</span>
+            </div>
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-purple-500 rounded-full mr-3"></span>
+              <span class="font-medium">widget_definitions</span>
+              <span class="ml-auto text-gray-500">Custom UI</span>
+            </div>
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-purple-500 rounded-full mr-3"></span>
+              <span class="font-medium">tenant_scripts</span>
+              <span class="ml-auto text-gray-500">Sandbox code</span>
+            </div>
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-purple-500 rounded-full mr-3"></span>
+              <span class="font-medium">field_mappings</span>
+              <span class="ml-auto text-gray-500">Data transform</span>
+            </div>
+            <div class="text-center text-gray-400 text-xs mt-3">+ 9 more tables</div>
+          </div>
+        </div>
+
+        <!-- DAM Schema -->
+        <div class="bg-white rounded-lg shadow-md p-6 fade-in" style="animation-delay: 0.4s">
+          <h3 class="text-xl font-bold text-blue-700 mb-4">🖼️ DAM Schema (15 tables)</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-blue-500 rounded-full mr-3"></span>
+              <span class="font-medium">ai_analysis</span>
+              <span class="ml-auto text-gray-500">AI results</span>
+            </div>
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-blue-500 rounded-full mr-3"></span>
+              <span class="font-medium">annotations</span>
+              <span class="ml-auto text-gray-500">Comments/drawing</span>
+            </div>
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-blue-500 rounded-full mr-3"></span>
+              <span class="font-medium">asset_ratings</span>
+              <span class="ml-auto text-gray-500">Star ratings</span>
+            </div>
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-blue-500 rounded-full mr-3"></span>
+              <span class="font-medium">culling_status</span>
+              <span class="ml-auto text-gray-500">Pick/reject</span>
+            </div>
+            <div class="flex items-center py-2 border-b border-gray-100">
+              <span class="w-4 h-4 bg-blue-500 rounded-full mr-3"></span>
+              <span class="font-medium">asset_translations</span>
+              <span class="ml-auto text-gray-500">Multilingual</span>
+            </div>
+            <div class="text-center text-gray-400 text-xs mt-3">+ 10 more tables</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Features -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">✨ Key Features</h2>
+
+      <div class="grid grid-cols-3 gap-6">
+
+        <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-lg shadow-lg p-6 fade-in" style="animation-delay: 0.5s">
+          <div class="text-3xl mb-3">🎨</div>
+          <h3 class="text-lg font-bold mb-2">Tenant Customization</h3>
+          <ul class="text-sm space-y-1 text-purple-100">
+            <li>• Zero-deploy changes</li>
+            <li>• Visual widget builder</li>
+            <li>• Sandboxed scripts (VM2)</li>
+            <li>• Custom API routes</li>
+            <li>• Field mapping</li>
+          </ul>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-lg shadow-lg p-6 fade-in" style="animation-delay: 0.6s">
+          <div class="text-3xl mb-3">🤖</div>
+          <h3 class="text-lg font-bold mb-2">AI-Powered DAM</h3>
+          <ul class="text-sm space-y-1 text-blue-100">
+            <li>• Auto-tagging</li>
+            <li>• Image classification</li>
+            <li>• Quality analysis</li>
+            <li>• Caption generation</li>
+            <li>• Object detection</li>
+          </ul>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-500 to-green-700 text-white rounded-lg shadow-lg p-6 fade-in" style="animation-delay: 0.7s">
+          <div class="text-3xl mb-3">✅</div>
+          <h3 class="text-lg font-bold mb-2">Universal Approvals</h3>
+          <ul class="text-sm space-y-1 text-green-100">
+            <li>• Multi-stage pipelines</li>
+            <li>• Conditional routing</li>
+            <li>• Custom widgets</li>
+            <li>• Polymorphic design</li>
+            <li>• Permission-based editing</li>
+          </ul>
+        </div>
+
+        <div class="bg-gradient-to-br from-orange-500 to-orange-700 text-white rounded-lg shadow-lg p-6 fade-in" style="animation-delay: 0.8s">
+          <div class="text-3xl mb-3">✍️</div>
+          <h3 class="text-lg font-bold mb-2">Annotations</h3>
+          <ul class="text-sm space-y-1 text-orange-100">
+            <li>• Drawing canvas</li>
+            <li>• Text overlays</li>
+            <li>• Threaded comments</li>
+            <li>• @mentions</li>
+            <li>• Resolve/unresolve</li>
+          </ul>
+        </div>
+
+        <div class="bg-gradient-to-br from-pink-500 to-pink-700 text-white rounded-lg shadow-lg p-6 fade-in" style="animation-delay: 0.9s">
+          <div class="text-3xl mb-3">🔍</div>
+          <h3 class="text-lg font-bold mb-2">Culling System</h3>
+          <ul class="text-sm space-y-1 text-pink-100">
+            <li>• Pick/reject workflow</li>
+            <li>• Keyboard shortcuts</li>
+            <li>• Side-by-side compare</li>
+            <li>• Color labels</li>
+            <li>• Session tracking</li>
+          </ul>
+        </div>
+
+        <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white rounded-lg shadow-lg p-6 fade-in" style="animation-delay: 1s">
+          <div class="text-3xl mb-3">⭐</div>
+          <h3 class="text-lg font-bold mb-2">Ratings & Reviews</h3>
+          <ul class="text-sm space-y-1 text-indigo-100">
+            <li>• 1-5 star ratings</li>
+            <li>• Quick reactions</li>
+            <li>• Review text</li>
+            <li>• Aggregated stats</li>
+            <li>• Context-specific</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Implementation Status -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">🚀 Implementation Status</h2>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="space-y-4">
+
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="font-semibold text-gray-700">Database Schema</span>
+              <span class="text-green-600 font-bold">100%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="bg-green-500 h-3 rounded-full" style="width: 100%"></div>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">✅ 46 tables, 8 triggers, 3 functions</div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="font-semibold text-gray-700">Backend Services</span>
+              <span class="text-blue-600 font-bold">60%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="bg-blue-500 h-3 rounded-full" style="width: 60%"></div>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">✅ Core services | ⏳ REST APIs</div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="font-semibold text-gray-700">Frontend Apps</span>
+              <span class="text-yellow-600 font-bold">30%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="bg-yellow-500 h-3 rounded-full" style="width: 30%"></div>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">✅ Structure | ⏳ Components</div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="font-semibold text-gray-700">Documentation</span>
+              <span class="text-green-600 font-bold">100%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="bg-green-500 h-3 rounded-full" style="width: 100%"></div>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">✅ 10 comprehensive spec files</div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="font-semibold text-gray-700">Testing</span>
+              <span class="text-red-600 font-bold">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="bg-red-500 h-3 rounded-full" style="width: 0%"></div>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">⏳ Unit, Integration, E2E tests</div>
+          </div>
+
+        </div>
+
+        <!-- Overall Progress -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <div class="flex justify-between mb-2">
+            <span class="font-bold text-gray-800 text-lg">Overall Progress</span>
+            <span class="text-purple-600 font-bold text-lg">58%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-4">
+            <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-4 rounded-full" style="width: 58%"></div>
+          </div>
+          <div class="text-sm text-gray-600 mt-2">Foundation complete. Ready for frontend implementation & testing.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">🎯 Next Steps</h2>
+
+      <div class="grid grid-cols-2 gap-6">
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded mr-2">WEEK 1-2</span>
+            Immediate
+          </h3>
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-start">
+              <span class="text-yellow-500 mr-2">⏳</span>
+              <span>Install dependencies (pnpm install)</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-yellow-500 mr-2">⏳</span>
+              <span>Implement svc-media REST API</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-yellow-500 mr-2">⏳</span>
+              <span>Create app-media-frontend components</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-yellow-500 mr-2">⏳</span>
+              <span>Field mapping engine</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-yellow-500 mr-2">⏳</span>
+              <span>Custom routes registration</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded mr-2">WEEK 3-4</span>
+            Short-term
+          </h3>
+          <ul class="space-y-2 text-sm">
+            <li class="flex items-start">
+              <span class="text-blue-500 mr-2">📋</span>
+              <span>app-approvals-frontend structure</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-blue-500 mr-2">📋</span>
+              <span>Custom widget renderer</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-blue-500 mr-2">📋</span>
+              <span>Permission-based editing UI</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-blue-500 mr-2">📋</span>
+              <span>Lifecycle hooks execution</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-blue-500 mr-2">📋</span>
+              <span>End-to-end testing</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8">
+    <div class="container mx-auto px-6 text-center">
+      <p class="text-sm">EWH Platform - Universal Approval System + Enterprise DAM</p>
+      <p class="text-xs text-gray-400 mt-2">Implementation completed: October 10, 2025</p>
+      <div class="mt-4 flex justify-center space-x-4 text-xs">
+        <a href="#" class="text-purple-400 hover:text-purple-300">Documentation</a>
+        <a href="#" class="text-purple-400 hover:text-purple-300">API Reference</a>
+        <a href="#" class="text-purple-400 hover:text-purple-300">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

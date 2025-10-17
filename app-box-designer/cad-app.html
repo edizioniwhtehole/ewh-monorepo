@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Box Designer CAD - Professional CAD Application</title>
+  <meta name="description" content="Professional web-based CAD application for packaging design">
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    /* Production layout */
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .canvas-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.5s ease;
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-logo {
+      font-size: 48px;
+      color: var(--text-accent);
+      margin-bottom: 24px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .loading-text {
+      font-size: 16px;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-primary);
+      border-top-color: var(--text-accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Welcome Message */
+    .welcome-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: var(--text-secondary);
+      pointer-events: none;
+      opacity: 0.5;
+      z-index: 1;
+    }
+
+    .welcome-message h1 {
+      font-size: 32px;
+      color: var(--text-accent);
+      margin-bottom: 16px;
+    }
+
+    .welcome-message p {
+      font-size: 14px;
+      margin: 8px 0;
+    }
+
+    .welcome-message kbd {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-primary);
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+    }
+
+    .welcome-message.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="loading-logo">📐</div>
+    <div class="loading-text">Box Designer CAD</div>
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Main Application -->
+  <div class="app-container">
+    <!-- Toolbar -->
+    <div id="toolbar-container"></div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <!-- Canvas Area -->
+      <div class="canvas-wrapper">
+        <canvas id="canvas"></canvas>
+
+        <!-- Welcome Message (shown when no objects) -->
+        <div class="welcome-message" id="welcome-message">
+          <h1>Welcome to Box Designer CAD</h1>
+          <p>Press <kbd>L</kbd> to draw lines, <kbd>R</kbd> for rectangles, <kbd>C</kbd> for circles</p>
+          <p>Press <kbd>?</kbd> for keyboard shortcuts</p>
+          <p>Right-click for context menu</p>
+        </div>
+
+        <!-- Stats Overlay -->
+        <div class="stats-overlay">
+          <div class="stat-line">
+            <span class="stat-label">Objects:</span>
+            <span class="stat-value" id="stat-total">0</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">Selected:</span>
+            <span class="stat-value" id="stat-selected">0</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-line">
+            <span class="stat-label">Tool:</span>
+            <span class="stat-value" id="stat-tool">select</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">FPS:</span>
+            <span class="stat-value" id="stat-fps">60</span>
+          </div>
+          <div class="stat-line">
+            <span class="stat-label">Zoom:</span>
+            <span class="stat-value" id="stat-zoom">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Properties Panel -->
+      <div id="properties-container"></div>
+    </div>
+
+    <!-- Status Bar -->
+    <div id="status-container"></div>
+  </div>
+
+  <script type="module">
+    import { CADEngine } from './cad-tools/CADEngine.js';
+    import { Toolbar } from './src/components/Toolbar.js';
+    import { PropertiesPanel } from './src/components/PropertiesPanel.js';
+    import { StatusBar } from './src/components/StatusBar.js';
+    import { ContextMenu } from './src/components/ContextMenu.js';
+    import { KeyboardShortcuts } from './src/components/KeyboardShortcuts.js';
+
+    /**
+     * Main CAD Application
+     * Production-ready implementation
+     * Week 3 Day 15: Final Integration
+     */
+    class CADApplication {
+      constructor() {
+        this.engine = null;
+        this.toolbar = null;
+        this.propertiesPanel = null;
+        this.statusBar = null;
+        this.contextMenu = null;
+        this.keyboardShortcuts = null;
+
+        this.init();
+      }
+
+      /**
+       * Initialize application
+       */
+      async init() {
+        console.log('🎨 Initializing Box Designer CAD...');
+
+        try {
+          // Initialize canvas
+          await this.initCanvas();
+
+          // Initialize CAD engine
+          this.initEngine();
+
+          // Initialize all UI components
+          this.initComponents();
+
+          // Setup event handlers
+          this.setupEventHandlers();
+
+          // Hide loading screen
+          this.hideLoadingScreen();
+
+          console.log('✅ Box Designer CAD initialized successfully');
+          console.log('📐 Week 3 Complete: 77% CAD System Ready');
+        } catch (error) {
+          console.error('❌ Initialization error:', error);
+          this.showError('Failed to initialize application');
+        }
+      }
+
+      /**
+       * Initialize canvas
+       */
+      async initCanvas() {
+        const canvas = document.getElementById('canvas');
+        if (!canvas) throw new Error('Canvas element not found');
+
+        const wrapper = canvas.parentElement;
+        canvas.width = wrapper.clientWidth;
+        canvas.height = wrapper.clientHeight;
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+          canvas.width = wrapper.clientWidth;
+          canvas.height = wrapper.clientHeight;
+          if (this.engine) {
+            this.engine.render();
+          }
+        });
+
+        console.log('  ✓ Canvas initialized');
+      }
+
+      /**
+       * Initialize CAD engine
+       */
+      initEngine() {
+        const canvas = document.getElementById('canvas');
+        this.engine = new CADEngine(canvas);
+        this.engine.toggleProfiling(true);
+        this.engine.setTool('select');
+
+        console.log('  ✓ CAD Engine initialized');
+      }
+
+      /**
+       * Initialize UI components
+       */
+      initComponents() {
+        // Toolbar
+        const toolbarContainer = document.getElementById('toolbar-container');
+        this.toolbar = new Toolbar(this, toolbarContainer);
+        console.log('  ✓ Toolbar component');
+
+        // Properties Panel
+        const propertiesContainer = document.getElementById('properties-container');
+        this.propertiesPanel = new PropertiesPanel(this, propertiesContainer);
+        console.log('  ✓ Properties Panel component');
+
+        // Status Bar
+        const statusContainer = document.getElementById('status-container');
+        this.statusBar = new StatusBar(this, statusContainer);
+        console.log('  ✓ Status Bar component');
+
+        // Context Menu
+        this.contextMenu = new ContextMenu(this);
+        console.log('  ✓ Context Menu component');
+
+        // Keyboard Shortcuts
+        this.keyboardShortcuts = new KeyboardShortcuts(this);
+        console.log('  ✓ Keyboard Shortcuts component');
+      }
+
+      /**
+       * Setup event handlers
+       */
+      setupEventHandlers() {
+        // Stats update
+        setInterval(() => this.updateStats(), 100);
+
+        // Welcome message visibility
+        setInterval(() => this.updateWelcomeMessage(), 500);
+
+        // Global keyboard shortcuts
+        this.setupKeyboardShortcuts();
+
+        console.log('  ✓ Event handlers configured');
+      }
+
+      /**
+       * Setup keyboard shortcuts
+       */
+      setupKeyboardShortcuts() {
+        window.addEventListener('keydown', (e) => {
+          // Don't interfere with browser shortcuts
+          if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'z') {
+              if (e.shiftKey) {
+                this.engine.redo();
+                this.statusBar.setMessage('Redo', 'success');
+              } else {
+                this.engine.undo();
+                this.statusBar.setMessage('Undo', 'success');
+              }
+              e.preventDefault();
+              return;
+            }
+            if (e.key === 'a') {
+              this.contextMenu.selectAll();
+              e.preventDefault();
+              return;
+            }
+            if (e.key === 'd') {
+              this.contextMenu.duplicate();
+              e.preventDefault();
+              return;
+            }
+            return;
+          }
+
+          const currentTool = this.engine.currentTool;
+
+          switch(e.key.toLowerCase()) {
+            case 's':
+              if (!currentTool || !currentTool.isMoving) {
+                this.toolbar.setActiveTool('select');
+              }
+              break;
+            case 'm':
+              this.toolbar.setActiveTool('move');
+              break;
+            case 'l':
+              this.toolbar.setActiveTool('line');
+              break;
+            case 'r':
+              if (!e.shiftKey) {
+                this.toolbar.setActiveTool('rectangle');
+              }
+              break;
+            case 'c':
+              if (!currentTool || this.engine.currentToolName !== 'line') {
+                this.toolbar.setActiveTool('circle');
+              }
+              break;
+            case 'a':
+              if (!e.ctrlKey) {
+                this.toolbar.setActiveTool('arc');
+              }
+              break;
+            case 't':
+              this.toolbar.setActiveTool('trim');
+              break;
+            case 'o':
+              this.toolbar.setActiveTool('offset');
+              break;
+            case 'f':
+              this.toolbar.setActiveTool('fillet');
+              break;
+            case 'i':
+              this.toolbar.setActiveTool('mirror');
+              break;
+            case 'n':
+              this.toolbar.setActiveTool('rotate');
+              break;
+            case 'x':
+              this.toolbar.setActiveTool('scale');
+              break;
+            case 'g':
+              this.engine.showGrid = !this.engine.showGrid;
+              this.engine.render();
+              this.statusBar.setMessage(`Grid ${this.engine.showGrid ? 'on' : 'off'}`, 'info');
+              break;
+          }
+        });
+      }
+
+      /**
+       * Update stats overlay
+       */
+      updateStats() {
+        if (!this.engine) return;
+
+        document.getElementById('stat-total').textContent = this.engine.objects.length;
+        document.getElementById('stat-fps').textContent = this.engine.profiling.fps.toFixed(0);
+        document.getElementById('stat-zoom').textContent = (this.engine.zoom * 100).toFixed(0) + '%';
+
+        const selectTool = this.engine.tools.select;
+        const selectedCount = selectTool ? selectTool.selectedObjects.length : 0;
+        document.getElementById('stat-selected').textContent = selectedCount;
+
+        document.getElementById('stat-tool').textContent = this.engine.currentToolName || 'none';
+
+        // Update undo/redo button states
+        if (this.toolbar) {
+          this.toolbar.setUndoEnabled(this.engine.canUndo());
+          this.toolbar.setRedoEnabled(this.engine.canRedo());
+        }
+      }
+
+      /**
+       * Update welcome message visibility
+       */
+      updateWelcomeMessage() {
+        const welcomeMsg = document.getElementById('welcome-message');
+        if (welcomeMsg && this.engine) {
+          if (this.engine.objects.length > 0) {
+            welcomeMsg.classList.add('hidden');
+          } else {
+            welcomeMsg.classList.remove('hidden');
+          }
+        }
+      }
+
+      /**
+       * Hide loading screen
+       */
+      hideLoadingScreen() {
+        const loadingScreen = document.getElementById('loading-screen');
+        setTimeout(() => {
+          loadingScreen.classList.add('hidden');
+        }, 500);
+      }
+
+      /**
+       * Show error message
+       */
+      showError(message) {
+        const loadingScreen = document.getElementById('loading-screen');
+        loadingScreen.innerHTML = `
+          <div style="color: #d16969; font-size: 24px; margin-bottom: 16px;">⚠️</div>
+          <div style="color: #cccccc; font-size: 16px;">${message}</div>
+        `;
+      }
+    }
+
+    // Initialize application
+    window.app = new CADApplication();
+
+    // Console welcome message
+    console.log('%c╔═══════════════════════════════════════════════════════════════╗', 'color: #4ec9b0');
+    console.log('%c║                                                               ║', 'color: #4ec9b0');
+    console.log('%c║              📐 BOX DESIGNER CAD v1.0                        ║', 'color: #4ec9b0; font-weight: bold');
+    console.log('%c║                                                               ║', 'color: #4ec9b0');
+    console.log('%c║  Week 3 Complete: Professional UI/UX (77%)                   ║', 'color: #9cdcfe');
+    console.log('%c║                                                               ║', 'color: #4ec9b0');
+    console.log('%c║  Keyboard Shortcuts:                                          ║', 'color: #cccccc');
+    console.log('%c║    S/M/L/R/C/A/T/O - Tools                                   ║', 'color: #cccccc');
+    console.log('%c║    Ctrl+Z/Ctrl+Shift+Z - Undo/Redo                          ║', 'color: #cccccc');
+    console.log('%c║    Ctrl+A/Ctrl+D - Select All/Duplicate                     ║', 'color: #cccccc');
+    console.log('%c║    ? - Help    Right Click - Context Menu                   ║', 'color: #cccccc');
+    console.log('%c║                                                               ║', 'color: #4ec9b0');
+    console.log('%c╚═══════════════════════════════════════════════════════════════╝', 'color: #4ec9b0');
+  </script>
+</body>
+</html>

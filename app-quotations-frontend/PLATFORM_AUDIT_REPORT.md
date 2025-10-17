@@ -1,0 +1,1 @@
+- ✅ app-quotations-frontend: deps=✓, auth=✓ (port 6100)

@@ -1,0 +1,107 @@
+name: Daily Backup Verification
+
+on:
+  schedule:
+    # Run daily at 3 AM UTC
+    - cron: '0 3 * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Specific backup date to verify (YYYY-MM-DD)'
+        required: false
+        type: string
+
+jobs:
+  verify-backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup test database
+        run: |
+          docker run -d \
+            --name postgres-backup-test \
+            -e POSTGRES_USER=ewh \
+            -e POSTGRES_PASSWORD=ewhpass \
+            -e POSTGRES_DB=ewh_backup_test \
+            -p 5433:5432 \
+            postgres:15
+
+          # Wait for PostgreSQL to be ready
+          until docker exec postgres-backup-test pg_isready; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+
+      - name: Verify backup
+        env:
+          # Production database (backup source)
+          PROD_DB_HOST: ${{ secrets.PROD_DB_HOST }}
+          PROD_DB_PORT: ${{ secrets.PROD_DB_PORT }}
+          PROD_DB_NAME: ${{ secrets.PROD_DB_NAME }}
+          PROD_DB_USER: ${{ secrets.PROD_DB_USER }}
+          PROD_DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+
+          # Test database (restore target)
+          TEST_DB_HOST: localhost
+          TEST_DB_PORT: 5433
+          TEST_DB_NAME: ewh_backup_test
+          TEST_DB_USER: ewh
+          TEST_DB_PASSWORD: ewhpass
+
+          # S3 credentials
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+
+          # Alerting
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PAGERDUTY_INTEGRATION_KEY: ${{ secrets.PAGERDUTY_INTEGRATION_KEY }}
+        run: |
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            npm run verify-backup -- --date=${{ github.event.inputs.date }}
+          else
+            npm run verify-backup
+          fi
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-verification-logs
+          path: |
+            /tmp/backup-*.log
+            /tmp/backup-*.sql.gz
+          retention-days: 7
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker stop postgres-backup-test || true
+          docker rm postgres-backup-test || true
+
+      - name: Report status
+        if: always()
+        uses: ravsamhq/notify-slack-action@v2
+        with:
+          status: ${{ job.status }}
+          notification_title: 'Backup Verification ${{ job.status }}'
+          message_format: '{emoji} Backup verification workflow completed with status: *{status_message}*'
+          footer: 'EWH Platform | Backup Verification'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

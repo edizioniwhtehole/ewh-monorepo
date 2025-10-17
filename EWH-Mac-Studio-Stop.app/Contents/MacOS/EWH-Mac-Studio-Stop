@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# EWH Mac Studio Stop - macOS App
+
+REMOTE_HOST="fabio@192.168.1.47"
+
+# Funzione notifica
+notify() {
+    local title="$1"
+    local message="$2"
+    osascript -e "display notification \"$message\" with title \"$title\""
+}
+
+# Check se running
+if [ ! -f /tmp/ewh-mac-studio-running.pid ]; then
+    osascript -e 'display dialog "EWH Mac Studio non è in esecuzione" buttons {"OK"} default button "OK" with title "EWH Mac Studio"'
+    exit 0
+fi
+
+# Chiedi conferma
+STOP_REMOTE=$(osascript <<EOF
+tell application "System Events"
+    activate
+    set choice to button returned of (display dialog "Fermare EWH Mac Studio?\n\nVuoi fermare anche i servizi sul Mac Studio?" buttons {"Annulla", "Solo Locale", "Tutto"} default button "Solo Locale" with title "EWH Mac Studio")
+end tell
+EOF
+)
+
+if [ "$STOP_REMOTE" = "Annulla" ]; then
+    exit 0
+fi
+
+notify "EWH Mac Studio" "Arresto in corso..." "Glass"
+
+# Kill port forward
+if [ -f /tmp/ewh-mac-studio-ssh.pid ]; then
+    SSH_PID=$(cat /tmp/ewh-mac-studio-ssh.pid)
+    kill $SSH_PID 2>/dev/null || true
+    rm /tmp/ewh-mac-studio-ssh.pid
+fi
+
+# Kill sync
+if [ -f /tmp/ewh-mac-studio-sync.pid ]; then
+    SYNC_PID=$(cat /tmp/ewh-mac-studio-sync.pid)
+    kill $SYNC_PID 2>/dev/null || true
+    rm /tmp/ewh-mac-studio-sync.pid
+fi
+
+# Kill eventuali altri processi
+pkill -f "ssh.*-L.*192.168.1.47" 2>/dev/null || true
+pkill -f "fswatch.*ewh" 2>/dev/null || true
+
+# Rimuovi running flag
+rm -f /tmp/ewh-mac-studio-running.pid
+
+# Ferma Mac Studio se richiesto
+if [ "$STOP_REMOTE" = "Tutto" ]; then
+    notify "EWH Mac Studio" "Arresto servizi Mac Studio..."
+    ssh $REMOTE_HOST 'export PATH=/usr/local/bin:$PATH && pm2 stop all' &>/dev/null || true
+fi
+
+notify "EWH Mac Studio" "✅ Sistema fermato" "Hero"
+
+exit 0

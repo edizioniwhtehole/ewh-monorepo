@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EWH Manager ULTRA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        .header .stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+        }
+        .stat {
+            background: #f7fafc;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .stat strong { color: #667eea; font-size: 20px; }
+        .controls {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-danger { background: #f56565; color: white; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-info { background: #4299e1; color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            font-size: 20px;
+            color: #2d3748;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 12px;
+            padding: 16px;
+            border-left: 4px solid #cbd5e0;
+            transition: all 0.3s;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .card.running { border-left-color: #48bb78; background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%); }
+        .card.stopped { border-left-color: #cbd5e0; }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-online { background: #48bb78; color: white; }
+        .status-stopped { background: #cbd5e0; color: #4a5568; }
+        .card-metrics {
+            display: flex;
+            gap: 16px;
+            margin: 12px 0;
+            font-size: 13px;
+            color: #4a5568;
+        }
+        .metric { display: flex; align-items: center; gap: 4px; }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+        .badge-success { background: #c6f6d5; color: #22543d; }
+        .badge-danger { background: #fed7d7; color: #742a2a; }
+        .badge-info { background: #bee3f8; color: #2c5282; }
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .chart-container {
+            height: 80px;
+            margin: 12px 0;
+            position: relative;
+        }
+        canvas { width: 100% !important; height: 100% !important; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            animation: fadeIn 0.2s;
+        }
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title { font-size: 24px; color: #2d3748; }
+        .modal-close {
+            background: #edf2f7;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            color: #4a5568;
+            transition: all 0.2s;
+        }
+        .modal-close:hover { background: #e2e8f0; transform: rotate(90deg); }
+        .modal-body { color: #4a5568; line-height: 1.6; }
+        .output {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .output.success { border-left: 4px solid #48bb78; }
+        .output.error { border-left: 4px solid #f56565; }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 2000;
+            animation: slideInRight 0.3s;
+            max-width: 350px;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 EWH Manager ULTRA</h1>
+        <p style="color: #718096; margin-top: 4px;">Dashboard completo con hot reload, log streaming, grafici e notifiche</p>
+        <div class="stats">
+            <div class="stat">
+                <div>Servizi</div>
+                <strong id="services-count">0</strong>
+            </div>
+            <div class="stat">
+                <div>App</div>
+                <strong id="apps-count">0</strong>
+            </div>
+            <div class="stat">
+                <div>Running</div>
+                <strong id="running-count" style="color: #48bb78;">0</strong>
+            </div>
+            <div class="stat">
+                <div>Hot Reload</div>
+                <strong style="color: #48bb78;">✓ Attivo</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-success" onclick="startAll()">▶️ Avvia Tutti</button>
+        <button class="btn btn-danger" onclick="stopAll()">⏹️ Ferma Tutti</button>
+        <button class="btn btn-primary" onclick="refresh()">🔄 Aggiorna</button>
+        <button class="btn btn-info" onclick="checkFileChanges()">👁️ File Changes</button>
+        <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+            <span style="font-size: 12px; color: #718096;">Apri app via:</span>
+            <select id="host-mode" onchange="updateHostMode()" class="btn" style="padding: 8px 12px;">
+                <option value="localhost">🖥️ Localhost (tunnel SSH)</option>
+                <option value="192.168.1.47" selected>🌐 Mac Studio (192.168.1.47)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔧 Servizi Backend</h2>
+        <div class="grid" id="services-grid"></div>
+    </div>
+
+    <div class="section">
+        <h2>📱 Applicazioni Frontend</h2>
+        <div class="grid" id="apps-grid"></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Operazione in corso...</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        const charts = {};
+
+        async function api(endpoint, method = 'GET', body = null) {
+            const options = { method };
+            if (body) {
+                options.headers = { 'Content-Type': 'application/json' };
+                options.body = JSON.stringify(body);
+            }
+            const response = await fetch(endpoint, options);
+            return response.json();
+        }
+
+        function openModal(title, body = '<div class="spinner"></div>') {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = body;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function showOutput(output, success) {
+            const cssClass = success ? 'success' : 'error';
+            document.getElementById('modal-body').innerHTML =
+                `<div class="output ${cssClass}">${output || 'Nessun output'}</div>`;
+        }
+
+        function showNotification(message) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        async function startWithModal(name) {
+            openModal(`🚀 Avvio ${name}`);
+            const result = await api('/api/start', 'POST', { name });
+            showOutput(result.output, result.success);
+            if (result.success) showNotification(`✅ ${name} avviato`);
+            setTimeout(refresh, 2000);
+        }
+
+        async function stopWithModal(name) {
+            openModal(`⏹️ Fermo ${name}`);
+            const result = await api('/api/stop', 'POST', { name });
+            showOutput(result.output, result.success);
+            if (result.success) showNotification(`⏸️ ${name} fermato`);
+            setTimeout(refresh, 2000);
+        }
+
+        async function restartWithModal(name) {
+            openModal(`🔄 Riavvio ${name}`);
+            const result = await api('/api/restart', 'POST', { name });
+            showOutput(result.output, result.success);
+            if (result.success) showNotification(`🔄 ${name} riavviato`);
+            setTimeout(refresh, 2000);
+        }
+
+        async function installWithModal(name) {
+            openModal(`📦 Installo dipendenze per ${name}`, '<div class="spinner"></div><p style="text-align:center;margin-top:16px;">Questo può richiedere alcuni minuti...</p>');
+            const result = await api('/api/install', 'POST', { name });
+            showOutput(result.output, result.success);
+            if (result.success) showNotification(`📦 ${name} dipendenze installate`);
+            setTimeout(refresh, 2000);
+        }
+
+        async function syncWithModal(name) {
+            openModal(`🔄 Sincronizzazione ${name}`);
+            const result = await api('/api/sync', 'POST', { name });
+            showOutput(result.output, result.success);
+            if (result.success) showNotification(`🔄 ${name} sincronizzato`);
+            setTimeout(refresh, 1000);
+        }
+
+        async function showLogs(name) {
+            openModal(`📋 Log di ${name}`, '<div class="spinner"></div>');
+            const result = await api(`/api/logs?name=${name}&lines=100`);
+            showOutput(result.logs, true);
+        }
+
+        let currentHost = '192.168.1.47'; // Default to Mac Studio IP
+
+        function updateHostMode() {
+            currentHost = document.getElementById('host-mode').value;
+            localStorage.setItem('ewh-host-mode', currentHost);
+            showNotification(`🔄 Modalità cambiata: ${currentHost === 'localhost' ? 'Tunnel SSH' : 'IP Mac Studio'}`);
+        }
+
+        function openInBrowser(port) {
+            window.open(`http://${currentHost}:${port}`, '_blank');
+        }
+
+        // Restore saved preference
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('ewh-host-mode');
+            if (saved) {
+                currentHost = saved;
+                document.getElementById('host-mode').value = saved;
+            }
+        });
+
+        function createChart(canvasId, cpuData, memoryData) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+
+            const ctx = canvas.getContext('2d');
+            charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(cpuData.length).fill(''),
+                    datasets: [
+                        {
+                            label: 'CPU %',
+                            data: cpuData,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'RAM MB',
+                            data: memoryData,
+                            borderColor: '#48bb78',
+                            backgroundColor: 'rgba(72, 187, 120, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { display: false },
+                        x: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderProject(project, container) {
+            const card = document.createElement('div');
+            card.className = `card ${project.running ? 'running' : 'stopped'}`;
+
+            const hasDeps = project.has_dependencies;
+            const port = project.port;
+
+            const chartId = `chart-${project.name}`;
+            const cpuHistory = project.cpu_history || [];
+            const memoryHistory = project.memory_history || [];
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title">${project.name}</div>
+                    <span class="status-badge ${project.running ? 'status-online' : 'status-stopped'}">
+                        ${project.running ? 'ONLINE' : 'OFFLINE'}
+                    </span>
+                </div>
+                ${project.running ? `
+                    <div class="card-metrics">
+                        <div class="metric">🔥 CPU: ${project.cpu}%</div>
+                        <div class="metric">💾 RAM: ${project.memory} MB</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="${chartId}"></canvas>
+                    </div>
+                ` : ''}
+                <div style="margin: 8px 0;">
+                    ${hasDeps ? '<span class="badge badge-success">✓ Deps</span>' : '<span class="badge badge-danger">✗ Deps</span>'}
+                    ${port ? `<span class="badge badge-info">:${port}</span>` : ''}
+                </div>
+                <div class="card-actions">
+                    ${project.running ?
+                        `<button class="btn btn-danger btn-sm" onclick="stopWithModal('${project.name}')">⏹️ Stop</button>
+                         <button class="btn btn-primary btn-sm" onclick="restartWithModal('${project.name}')">🔄 Restart</button>` :
+                        `<button class="btn btn-success btn-sm" onclick="startWithModal('${project.name}')">▶️ Start</button>`
+                    }
+                    ${!hasDeps ? `<button class="btn btn-info btn-sm" onclick="installWithModal('${project.name}')">📦 Install</button>` : ''}
+                    <button class="btn btn-primary btn-sm" onclick="syncWithModal('${project.name}')">🔄 Sync</button>
+                    <button class="btn btn-info btn-sm" onclick="showLogs('${project.name}')">📋 Log</button>
+                    ${port ? `<button class="btn btn-info btn-sm" onclick="openInBrowser(${port})">🌐 Apri</button>` : ''}
+                </div>
+            `;
+
+            container.appendChild(card);
+
+            if (project.running && cpuHistory.length > 0) {
+                setTimeout(() => createChart(chartId, cpuHistory, memoryHistory), 100);
+            }
+        }
+
+        async function refresh() {
+            const data = await api('/api/projects');
+
+            document.getElementById('services-count').textContent = data.services.length;
+            document.getElementById('apps-count').textContent = data.apps.length;
+
+            const runningCount = [...data.services, ...data.apps].filter(p => p.running).length;
+            document.getElementById('running-count').textContent = runningCount;
+
+            const servicesGrid = document.getElementById('services-grid');
+            const appsGrid = document.getElementById('apps-grid');
+
+            servicesGrid.innerHTML = '';
+            appsGrid.innerHTML = '';
+
+            data.services.forEach(s => renderProject(s, servicesGrid));
+            data.apps.forEach(a => renderProject(a, appsGrid));
+        }
+
+        async function startAll() {
+            if (!confirm('Avviare tutti i servizi e le app?')) return;
+            openModal('🚀 Avvio tutti i progetti...', '<div class="spinner"></div><p style="text-align:center;margin-top:16px;">Questo può richiedere alcuni minuti...</p>');
+            const result = await api('/api/start-all', 'POST');
+            const successCount = result.results.filter(r => r.success).length;
+            showOutput(`Avviati ${successCount}/${result.results.length} progetti`, successCount > 0);
+            setTimeout(refresh, 3000);
+        }
+
+        async function stopAll() {
+            if (!confirm('Fermare tutti i servizi?')) return;
+            openModal('⏹️ Fermo tutti i servizi...');
+            await api('/api/stop-all', 'POST');
+            showOutput('Tutti i servizi sono stati fermati', true);
+            setTimeout(refresh, 2000);
+        }
+
+        async function checkFileChanges() {
+            const result = await api('/api/file-changes');
+            if (result.changes.length > 0) {
+                showNotification(`🔄 ${result.changes.length} file modificati: ${result.changes.join(', ')}`);
+            } else {
+                showNotification('👁️ Nessun file modificato');
+            }
+        }
+
+        // Auto-refresh ogni 5 secondi
+        setInterval(refresh, 5000);
+
+        // Check file changes ogni 3 secondi
+        setInterval(checkFileChanges, 3000);
+
+        // Initial load
+        refresh();
+
+        // Close modal on outside click
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') closeModal();
+        });
+    </script>
+</body>
+</html>

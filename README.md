@@ -1,24 +1,70 @@
-# EWH Monorepo
+# EWH Platform - Enterprise Web Hypervisor
 
-> Monorepo per il sistema EWH (Edizioni White Hole) SaaS platform - 50+ microservizi, architettura a eventi, multi-tenant B2B.
+> Multi-tenant SaaS platform per gestione aziendale completa: PM, CRM, DAM, Orders, Inventory e molto altro.
 
 ![License](https://img.shields.io/badge/license-Proprietary-red.svg)
-[![Platform](https://img.shields.io/badge/platform-Scalingo-blue.svg)](https://scalingo.com)
+[![Database](https://img.shields.io/badge/Database-PostgreSQL%20%2B%20Supabase-green.svg)](https://supabase.com)
+[![Storage](https://img.shields.io/badge/Storage-Wasabi-orange.svg)](https://wasabi.com)
 [![Node](https://img.shields.io/badge/node-20.x-green.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/typescript-5.6+-blue.svg)](https://typescriptlang.org)
 
 ## 📚 Documentazione
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Architettura completa del sistema, stack tecnologico, flussi principali
+### Core Documentation
+- **[SETUP_COMPLETE_SUMMARY.md](SETUP_COMPLETE_SUMMARY.md)** - ✅ Riepilogo setup completo (START HERE!)
+- **[ARCHITECTURE_TIERED_SCALING.md](ARCHITECTURE_TIERED_SCALING.md)** - Architettura 6-tier progressive scaling
+- **[ADMIN_SETUP_INSTRUCTIONS.md](ADMIN_SETUP_INSTRUCTIONS.md)** - Setup admin panel (roadmap + task board)
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Architettura microservizi legacy
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** - Setup ambiente, workflow sviluppo, testing, debugging
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Deploy su Scalingo, gestione secrets, monitoring, rollback
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Linee guida per contribuire al progetto
 
 ## 🏗️ Architettura
 
-Questo è un **monorepo gestito con git submodules** contenente 52 microservizi indipendenti, ciascuno deployabile separatamente su Scalingo.
+### Database Strategy (NEW! 2025)
 
-### Organizzazione Servizi
+**Progressive Scaling Architecture** - Schema-per-servizio con tenant isolation:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SERVICE REGISTRY                         │
+│  (mappa tenant + service → DB location)                     │
+└─────────────────────────────────────────────────────────────┘
+                          │
+          ┌───────────────┼───────────────┐
+          │               │               │
+    ┌─────▼─────┐   ┌─────▼─────┐   ┌─────▼─────┐
+    │ DB MAIN   │   │ DB PM     │   │ DB DAM    │
+    │ (shared)  │   │ (split)   │   │ (split)   │
+    ├───────────┤   ├───────────┤   ├───────────┤
+    │ svc_pm    │   │ svc_pm    │   │ svc_dam   │
+    │ svc_crm   │   │ tenant_*  │   │ tenant_*  │
+    │ svc_dam   │   │           │   │           │
+    └───────────┘   └───────────┘   └───────────┘
+```
+
+**Tenant Tiers:**
+- **TRIAL** (1000 users/shard) → Tabella condivisa, soft limits
+- **SINGLE** (500 users/shard) → Tabella condivisa, più risorse
+- **TEAM** (max 500 schemas/DB) → Schema dedicato per servizio
+- **ENTERPRISE** (DB dedicato) → 1 DB per tenant + SLA
+- **MEGA** (DB per servizio) → Custom pricing
+
+**Auto-Split Logic:**
+- Revenue > €50k/mese → Split service to dedicated DB
+- Tenants > 100 → Split
+- Query time > 200ms → Split
+- Growth rate > 30%/mese → Split
+
+**Storage:** Wasabi S3 (~€5/TB vs €23/TB AWS) + Glacier archiving
+
+👉 **[Vedi architettura completa](ARCHITECTURE_TIERED_SCALING.md)**
+
+---
+
+### Microservices Structure
+
+Questo è un **monorepo gestito con git submodules** contenente 50+ microservizi indipendenti.
+
+#### Organizzazione Servizi
 
 ```
 ├── ewh-master          # Repository master & documentazione
@@ -42,32 +88,65 @@ Questo è un **monorepo gestito con git submodules** contenente 52 microservizi 
 
 ## 🚀 Quick Start
 
-### Primo Setup (Nuovo Developer)
+### 1. Admin Panel Setup (PRIORITY!)
+
+**Configura admin panel per roadmap + task tracking:**
+
+```bash
+# 1. Esegui migration SQL su Supabase
+# Vai su: https://supabase.com/dashboard/project/qubhjidkgpxlyruwkfkb/sql
+# Copia contenuto da: migrations/100_admin_roadmap_checklist.sql
+# Incolla e RUN
+
+# 2. Verifica setup
+node scripts/test-admin-setup.cjs
+
+# 3. Avvia admin frontend
+cd app-admin-frontend
+cp .env.example .env
+npm install
+npm run dev
+
+# Apri:
+# - Roadmap: http://localhost:5173/roadmap
+# - Tasks: http://localhost:5173/development
+```
+
+**👉 [Istruzioni dettagliate](ADMIN_SETUP_INSTRUCTIONS.md)**
+
+---
+
+### 2. Development Environment
+
+#### Primo Setup (Nuovo Developer)
 
 ```bash
 # Clone del monorepo con tutti i submodule
 git clone --recursive https://github.com/edizioniwhtehole/ewh-monorepo.git
 cd ewh-monorepo
 
-# Avvia i servizi con Docker Compose
-cd compose
-docker-compose -f docker-compose.dev.yml up
+# Install dependencies
+pnpm install
+
+# Setup environment
+cp .env.example .env
+# Edit .env con le tue credenziali Supabase
+
+# Avvia servizi
+pnpm dev
 ```
 
-### Setup Esistente (Se hai già clonato i repo)
-
-Se hai già le cartelle dei servizi ma vuoi usare il monorepo:
+#### Setup Esistente (Se hai già clonato i repo)
 
 ```bash
 cd /path/to/ewh
-git init
-git remote add origin https://github.com/edizioniwhtehole/ewh-monorepo.git
-git fetch
-git reset --hard origin/main
 
 # Registra i submodule esistenti
 git submodule init
 git submodule update
+
+# Install dependencies
+pnpm install
 ```
 
 ## 📦 Gestione Submodules

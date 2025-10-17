@@ -1,0 +1,1 @@
+- ✅ app-previz-frontend: deps=✓, auth=⚠ (port 5801)

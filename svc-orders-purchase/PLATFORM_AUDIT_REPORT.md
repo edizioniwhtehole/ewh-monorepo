@@ -1,0 +1,1 @@
+- ✅ svc-orders-purchase: deps=✓, health=✓, auth=✓ (port 5901)

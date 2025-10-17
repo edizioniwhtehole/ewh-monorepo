@@ -1,0 +1,54 @@
+{
+  "name": "Scatola Tronco Piramide - Esempio",
+  "description": "Esempio di scatola a tronco di piramide con base quadrata 12cm e top 14cm",
+  "config": {
+    "id": "example-1",
+    "name": "Scatola Piramidale Custom",
+    "shape": "truncated_pyramid",
+    "dimensions": {
+      "baseWidth": 120,
+      "baseLength": 120,
+      "topWidth": 140,
+      "topLength": 140,
+      "height": 80
+    },
+    "material": {
+      "name": "Cartone ondulato E",
+      "thickness": 1.5,
+      "weight": 450,
+      "rigidity": "medium"
+    },
+    "bottomType": "automatic",
+    "topType": "simple",
+    "gluingFlaps": {
+      "enabled": true,
+      "width": 15
+    },
+    "bleed": {
+      "enabled": true,
+      "width": 3
+    },
+    "handles": {
+      "enabled": false,
+      "type": "die_cut"
+    },
+    "window": {
+      "enabled": false
+    },
+    "printing": {
+      "inside": false,
+      "outside": true,
+      "safetyMargin": 5
+    }
+  },
+  "expectedResults": {
+    "internalVolume": "~1073 cm³",
+    "internalVolumeLiters": "~1.07 litri",
+    "notes": [
+      "Volume calcolato con formula tronco di piramide: h/3 * (A1 + A2 + sqrt(A1*A2))",
+      "A1 = area base (12cm x 12cm = 144 cm²)",
+      "A2 = area top (14cm x 14cm = 196 cm²)",
+      "h = altezza (8cm)"
+    ]
+  }
+}

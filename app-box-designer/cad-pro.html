@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Box Designer CAD Professional</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #1e1e1e;
+      --bg-light: #252526;
+      --bg-lighter: #2d2d30;
+      --border: #3e3e42;
+      --text: #cccccc;
+      --text-dim: #858585;
+      --accent: #0e7afe;
+      --accent-hover: #1f8bff;
+      --green: #16c60c;
+      --red: #f85149;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      height: 52px;
+      background: var(--bg-light);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .logo {
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+    }
+
+    .btn {
+      padding: 6px 14px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      background: var(--bg-lighter);
+      color: var(--text);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn:hover {
+      background: #37373d;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .btn.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn.success {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+    }
+
+    .spacer { flex: 1; }
+
+    /* Toolbar */
+    .toolbar {
+      height: 44px;
+      background: var(--bg-lighter);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+    }
+
+    .tool-group {
+      display: flex;
+      gap: 2px;
+      padding: 0 8px;
+      border-right: 1px solid var(--border);
+    }
+
+    .tool-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .tool-btn:hover {
+      background: #37373d;
+      border-color: var(--border);
+    }
+
+    .tool-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-light);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      background: var(--bg-lighter);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 11px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .tab.active {
+      border-bottom-color: var(--accent);
+      background: var(--bg-light);
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .panel {
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      padding: 4px 0;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .template-item {
+      padding: 10px;
+      background: var(--bg-lighter);
+      border-radius: 4px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+
+    .template-item:hover {
+      background: #37373d;
+      border-color: var(--border);
+    }
+
+    .template-item.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .template-name {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .template-code {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .param-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      background: var(--bg-lighter);
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    .param-label {
+      font-size: 12px;
+    }
+
+    .param-input {
+      width: 70px;
+      padding: 4px 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .param-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* Canvas */
+    .canvas-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      cursor: crosshair;
+    }
+
+    /* Properties panel */
+    .props-panel {
+      width: 280px;
+      background: var(--bg-light);
+      border-left: 1px solid var(--border);
+      padding: 12px;
+      overflow-y: auto;
+    }
+
+    .prop-group {
+      margin-bottom: 16px;
+    }
+
+    .prop-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .prop-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      background: var(--bg-lighter);
+      border-radius: 4px;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    /* Status */
+    .status {
+      height: 28px;
+      background: var(--bg-light);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #37373d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border); }
+
+    /* Handle styles */
+    .handle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: white;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <i class="fas fa-cube"></i>
+      Box Designer CAD Pro
+    </div>
+
+    <button class="btn" onclick="cad.undo()" title="Undo (Ctrl+Z)">
+      <i class="fas fa-undo"></i> Undo
+    </button>
+    <button class="btn" onclick="cad.redo()" title="Redo (Ctrl+Y)">
+      <i class="fas fa-redo"></i> Redo
+    </button>
+
+    <div class="spacer"></div>
+
+    <button class="btn" onclick="cad.exportJSON()">
+      <i class="fas fa-download"></i> Export
+    </button>
+    <button class="btn success" onclick="cad.saveTemplate()">
+      <i class="fas fa-save"></i> Save
+    </button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="tool-group">
+      <div class="tool-btn active" data-tool="select" onclick="cad.setTool('select')" title="Select (V)">
+        <i class="fas fa-mouse-pointer"></i>
+      </div>
+      <div class="tool-btn" data-tool="pan" onclick="cad.setTool('pan')" title="Pan (H)">
+        <i class="fas fa-hand-paper"></i>
+      </div>
+    </div>
+
+    <div class="tool-group">
+      <div class="tool-btn" data-tool="line" onclick="cad.setTool('line')" title="Line (L)">
+        <i class="fas fa-minus"></i>
+      </div>
+      <div class="tool-btn" data-tool="rectangle" onclick="cad.setTool('rectangle')" title="Rectangle (R)">
+        <i class="fas fa-square"></i>
+      </div>
+      <div class="tool-btn" data-tool="circle" onclick="cad.setTool('circle')" title="Circle (C)">
+        <i class="fas fa-circle"></i>
+      </div>
+    </div>
+
+    <div class="tool-group">
+      <div class="tool-btn" onclick="cad.zoomIn()">
+        <i class="fas fa-search-plus"></i>
+      </div>
+      <span style="font-size: 11px; padding: 0 6px;" id="zoomLevel">100%</span>
+      <div class="tool-btn" onclick="cad.zoomOut()">
+        <i class="fas fa-search-minus"></i>
+      </div>
+      <div class="tool-btn" onclick="cad.zoomFit()">
+        <i class="fas fa-expand"></i>
+      </div>
+    </div>
+
+    <div class="tool-group">
+      <div class="tool-btn" onclick="cad.toggleGrid()" id="gridBtn">
+        <i class="fas fa-th"></i>
+      </div>
+      <div class="tool-btn" onclick="cad.toggleSnap()" id="snapBtn">
+        <i class="fas fa-magnet"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-tabs">
+        <div class="tab active" onclick="switchTab(0)">
+          <i class="fas fa-th-large"></i> Templates
+        </div>
+        <div class="tab" onclick="switchTab(1)">
+          <i class="fas fa-sliders-h"></i> Params
+        </div>
+      </div>
+
+      <div class="sidebar-content" id="tab0">
+        <div class="panel">
+          <div class="panel-title">
+            <span><i class="fas fa-box"></i> FEFCO Standard</span>
+          </div>
+          <div id="templatesList"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-content" id="tab1" style="display: none;">
+        <div class="panel">
+          <div class="panel-title">
+            <span><i class="fas fa-cog"></i> Parameters</span>
+          </div>
+          <div id="paramsList">
+            <div style="padding: 20px; text-align: center; color: var(--text-dim); font-size: 12px;">
+              Select a template
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-area">
+      <canvas id="canvas"></canvas>
+      <div class="loading" id="loading">Loading CAD engine...</div>
+    </div>
+
+    <!-- Right Properties -->
+    <div class="props-panel">
+      <div class="prop-group">
+        <div class="prop-title"><i class="fas fa-info-circle"></i> Selection</div>
+        <div id="selectionInfo">
+          <div style="padding: 12px; text-align: center; color: var(--text-dim); font-size: 12px;">
+            No object selected
+          </div>
+        </div>
+      </div>
+
+      <div class="prop-group">
+        <div class="prop-title"><i class="fas fa-chart-bar"></i> Statistics</div>
+        <div class="prop-row">
+          <span>Objects:</span>
+          <span id="objectCount">0</span>
+        </div>
+        <div class="prop-row">
+          <span>Points:</span>
+          <span id="pointCount">0</span>
+        </div>
+        <div class="prop-row">
+          <span>Dimensions:</span>
+          <span id="dimensions">-</span>
+        </div>
+        <div class="prop-row">
+          <span>Area:</span>
+          <span id="area">-</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status">
+    <div class="status-item">
+      <i class="fas fa-mouse-pointer"></i>
+      <span id="cursor">X: 0, Y: 0</span>
+    </div>
+    <div class="status-item">
+      <i class="fas fa-tools"></i>
+      <span id="toolName">Select Tool</span>
+    </div>
+    <div class="status-item">
+      <i class="fas fa-info-circle"></i>
+      <span id="message">Ready</span>
+    </div>
+  </div>
+
+  <script src="cad-engine.js"></script>
+  <script>
+    // CAD Application Class
+    class CADApplication {
+      constructor() {
+        this.canvas = document.getElementById('canvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        // State
+        this.objects = [];
+        this.selectedObjects = [];
+        this.currentTool = 'select';
+        this.currentLineType = 'cut';
+        this.zoom = 1;
+        this.pan = { x: 0, y: 0 };
+        this.grid = { size: 10, visible: true };
+        this.snap = { enabled: true, tolerance: 5 };
+        this.history = [];
+        this.historyIndex = -1;
+
+        // Drawing state
+        this.isDrawing = false;
+        this.drawStart = null;
+        this.tempObject = null;
+        this.isDragging = false;
+        this.dragStart = null;
+        this.hoveredHandle = null;
+
+        // Templates
+        this.currentTemplate = null;
+        this.currentParams = null;
+
+        this.init();
+      }
+
+      init() {
+        this.resizeCanvas();
+        window.addEventListener('resize', () => this.resizeCanvas());
+
+        this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
+        this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+        this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
+        this.canvas.addEventListener('wheel', (e) => this.onWheel(e));
+
+        document.addEventListener('keydown', (e) => this.onKeyDown(e));
+
+        this.loadTemplates();
+        this.render();
+
+        document.getElementById('loading').style.display = 'none';
+      }
+
+      resizeCanvas() {
+        const container = this.canvas.parentElement;
+        this.canvas.width = container.clientWidth;
+        this.canvas.height = container.clientHeight;
+        this.render();
+      }
+
+      // Coordinate conversion
+      screenToWorld(x, y) {
+        const rect = this.canvas.getBoundingClientRect();
+        return {
+          x: (x - rect.left - this.canvas.width / 2 - this.pan.x) / this.zoom,
+          y: (y - rect.top - this.canvas.height / 2 - this.pan.y) / this.zoom
+        };
+      }
+
+      worldToScreen(x, y) {
+        return {
+          x: x * this.zoom + this.canvas.width / 2 + this.pan.x,
+          y: y * this.zoom + this.canvas.height / 2 + this.pan.y
+        };
+      }
+
+      snapToGrid(point) {
+        if (!this.snap.enabled) return point;
+
+        const size = this.grid.size;
+        return {
+          x: Math.round(point.x / size) * size,
+          y: Math.round(point.y / size) * size
+        };
+      }
+
+      // Mouse events
+      onMouseDown(e) {
+        const world = this.screenToWorld(e.clientX, e.clientY);
+        const snapped = this.snapToGrid(world);
+
+        if (this.currentTool === 'select') {
+          // Check for handle drag
+          const handle = this.getHandleAt(e.clientX, e.clientY);
+          if (handle) {
+            this.isDragging = true;
+            this.dragStart = snapped;
+            this.hoveredHandle = handle;
+            return;
+          }
+
+          // Select object
+          const obj = this.getObjectAt(snapped);
+          if (obj) {
+            if (!e.shiftKey) this.selectedObjects = [];
+            this.selectedObjects.push(obj);
+            this.updateSelection();
+          } else {
+            this.selectedObjects = [];
+            this.updateSelection();
+          }
+        }
+        else if (this.currentTool === 'pan') {
+          this.isDragging = true;
+          this.dragStart = { x: e.clientX, y: e.clientY };
+        }
+        else if (this.currentTool === 'line') {
+          if (!this.isDrawing) {
+            this.isDrawing = true;
+            this.tempObject = {
+              type: 'polyline',
+              lineType: this.currentLineType,
+              points: [snapped],
+              closed: false
+            };
+          } else {
+            this.tempObject.points.push(snapped);
+          }
+        }
+        else if (this.currentTool === 'rectangle' || this.currentTool === 'circle') {
+          this.isDrawing = true;
+          this.drawStart = snapped;
+        }
+
+        this.render();
+      }
+
+      onMouseMove(e) {
+        const world = this.screenToWorld(e.clientX, e.clientY);
+        const snapped = this.snapToGrid(world);
+
+        // Update cursor position
+        document.getElementById('cursor').textContent =
+          `X: ${Math.round(snapped.x)}, Y: ${Math.round(snapped.y)}`;
+
+        if (this.isDragging) {
+          if (this.currentTool === 'pan') {
+            this.pan.x += e.clientX - this.dragStart.x;
+            this.pan.y += e.clientY - this.dragStart.y;
+            this.dragStart = { x: e.clientX, y: e.clientY };
+          }
+          else if (this.hoveredHandle) {
+            // Drag handle
+            const obj = this.hoveredHandle.object;
+            const idx = this.hoveredHandle.index;
+            obj.points[idx] = snapped;
+          }
+          this.render();
+        }
+        else if (this.isDrawing) {
+          if (this.currentTool === 'rectangle') {
+            this.tempObject = {
+              type: 'rectangle',
+              lineType: this.currentLineType,
+              x: Math.min(this.drawStart.x, snapped.x),
+              y: Math.min(this.drawStart.y, snapped.y),
+              width: Math.abs(snapped.x - this.drawStart.x),
+              height: Math.abs(snapped.y - this.drawStart.y)
+            };
+          }
+          else if (this.currentTool === 'circle') {
+            const dx = snapped.x - this.drawStart.x;
+            const dy = snapped.y - this.drawStart.y;
+            this.tempObject = {
+              type: 'circle',
+              lineType: this.currentLineType,
+              cx: this.drawStart.x,
+              cy: this.drawStart.y,
+              radius: Math.sqrt(dx * dx + dy * dy)
+            };
+          }
+          this.render();
+        }
+        else {
+          // Check for handle hover
+          const handle = this.getHandleAt(e.clientX, e.clientY);
+          this.hoveredHandle = handle;
+          this.canvas.style.cursor = handle ? 'pointer' :
+            (this.currentTool === 'pan' ? 'grab' : 'crosshair');
+        }
+      }
+
+      onMouseUp(e) {
+        const world = this.screenToWorld(e.clientX, e.clientY);
+        const snapped = this.snapToGrid(world);
+
+        if (this.isDrawing && (this.currentTool === 'rectangle' || this.currentTool === 'circle')) {
+          if (this.tempObject && (this.tempObject.width > 1 || this.tempObject.radius > 1)) {
+            this.objects.push(this.tempObject);
+            this.saveHistory();
+            this.updateMessage(`Created ${this.currentTool}`);
+          }
+          this.isDrawing = false;
+          this.drawStart = null;
+          this.tempObject = null;
+        }
+
+        if (this.isDragging) {
+          if (this.hoveredHandle) {
+            this.saveHistory();
+          }
+          this.isDragging = false;
+          this.dragStart = null;
+          this.hoveredHandle = null;
+        }
+
+        this.render();
+      }
+
+      onWheel(e) {
+        e.preventDefault();
+
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        const oldZoom = this.zoom;
+        this.zoom = Math.max(0.1, Math.min(10, this.zoom * delta));
+
+        // Zoom to cursor position
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        this.pan.x = mouseX - (mouseX - this.pan.x) * (this.zoom / oldZoom);
+        this.pan.y = mouseY - (mouseY - this.pan.y) * (this.zoom / oldZoom);
+
+        this.updateZoomDisplay();
+        this.render();
+      }
+
+      onKeyDown(e) {
+        if (e.ctrlKey || e.metaKey) {
+          if (e.key === 'z') { this.undo(); e.preventDefault(); }
+          if (e.key === 'y') { this.redo(); e.preventDefault(); }
+          if (e.key === 's') { this.saveTemplate(); e.preventDefault(); }
+        }
+
+        if (e.key === 'Escape') {
+          this.isDrawing = false;
+          this.tempObject = null;
+          this.render();
+        }
+
+        if (e.key === 'Enter' && this.currentTool === 'line' && this.tempObject) {
+          this.objects.push(this.tempObject);
+          this.saveHistory();
+          this.isDrawing = false;
+          this.tempObject = null;
+          this.render();
+        }
+
+        if (e.key === 'Delete' && this.selectedObjects.length > 0) {
+          this.selectedObjects.forEach(obj => {
+            const idx = this.objects.indexOf(obj);
+            if (idx >= 0) this.objects.splice(idx, 1);
+          });
+          this.selectedObjects = [];
+          this.saveHistory();
+          this.updateSelection();
+          this.render();
+        }
+
+        // Tool shortcuts
+        if (e.key === 'v') this.setTool('select');
+        if (e.key === 'h') this.setTool('pan');
+        if (e.key === 'l') this.setTool('line');
+        if (e.key === 'r') this.setTool('rectangle');
+        if (e.key === 'c') this.setTool('circle');
+      }
+
+      // Object detection
+      getObjectAt(point) {
+        for (let i = this.objects.length - 1; i >= 0; i--) {
+          const obj = this.objects[i];
+          if (this.isPointInObject(point, obj)) {
+            return obj;
+          }
+        }
+        return null;
+      }
+
+      isPointInObject(point, obj) {
+        if (obj.type === 'rectangle') {
+          return point.x >= obj.x && point.x <= obj.x + obj.width &&
+                 point.y >= obj.y && point.y <= obj.y + obj.height;
+        }
+        else if (obj.type === 'circle') {
+          const dx = point.x - obj.cx;
+          const dy = point.y - obj.cy;
+          return Math.sqrt(dx * dx + dy * dy) <= obj.radius + 5;
+        }
+        else if (obj.type === 'polyline' && obj.points) {
+          // Check proximity to any line segment
+          for (let i = 0; i < obj.points.length - 1; i++) {
+            const dist = this.pointToLineDistance(point, obj.points[i], obj.points[i + 1]);
+            if (dist < 5) return true;
+          }
+        }
+        return false;
+      }
+
+      pointToLineDistance(point, p1, p2) {
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len === 0) return Math.sqrt((point.x - p1.x) ** 2 + (point.y - p1.y) ** 2);
+
+        const t = Math.max(0, Math.min(1, ((point.x - p1.x) * dx + (point.y - p1.y) * dy) / (len * len)));
+        const projX = p1.x + t * dx;
+        const projY = p1.y + t * dy;
+
+        return Math.sqrt((point.x - projX) ** 2 + (point.y - projY) ** 2);
+      }
+
+      getHandleAt(screenX, screenY) {
+        if (this.selectedObjects.length !== 1) return null;
+
+        const obj = this.selectedObjects[0];
+        const handles = this.getHandles(obj);
+
+        for (let i = 0; i < handles.length; i++) {
+          const screen = this.worldToScreen(handles[i].x, handles[i].y);
+          const dx = screenX - screen.x;
+          const dy = screenY - screen.y;
+          if (Math.sqrt(dx * dx + dy * dy) < 6) {
+            return { object: obj, index: i };
+          }
+        }
+
+        return null;
+      }
+
+      getHandles(obj) {
+        if (obj.type === 'rectangle') {
+          return [
+            { x: obj.x, y: obj.y },
+            { x: obj.x + obj.width, y: obj.y },
+            { x: obj.x + obj.width, y: obj.y + obj.height },
+            { x: obj.x, y: obj.y + obj.height }
+          ];
+        }
+        else if (obj.type === 'polyline') {
+          return obj.points || [];
+        }
+        return [];
+      }
+
+      // Rendering
+      render() {
+        this.ctx.fillStyle = '#1a1a1a';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.save();
+        this.ctx.translate(this.canvas.width / 2 + this.pan.x, this.canvas.height / 2 + this.pan.y);
+        this.ctx.scale(this.zoom, this.zoom);
+
+        if (this.grid.visible) this.drawGrid();
+
+        this.objects.forEach(obj => this.drawObject(obj));
+
+        if (this.tempObject) {
+          this.ctx.globalAlpha = 0.6;
+          this.drawObject(this.tempObject);
+          this.ctx.globalAlpha = 1;
+        }
+
+        if (this.selectedObjects.length === 1) {
+          this.drawHandles(this.selectedObjects[0]);
+        }
+
+        this.ctx.restore();
+
+        this.updateStats();
+      }
+
+      drawGrid() {
+        const size = this.grid.size;
+        const ext = 2000;
+
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+        this.ctx.lineWidth = 0.5 / this.zoom;
+
+        for (let x = -ext; x <= ext; x += size) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, -ext);
+          this.ctx.lineTo(x, ext);
+          this.ctx.stroke();
+        }
+
+        for (let y = -ext; y <= ext; y += size) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(-ext, y);
+          this.ctx.lineTo(ext, y);
+          this.ctx.stroke();
+        }
+
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        this.ctx.lineWidth = 1 / this.zoom;
+
+        for (let x = -ext; x <= ext; x += 100) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, -ext);
+          this.ctx.lineTo(x, ext);
+          this.ctx.stroke();
+        }
+
+        for (let y = -ext; y <= ext; y += 100) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(-ext, y);
+          this.ctx.lineTo(ext, y);
+          this.ctx.stroke();
+        }
+
+        this.ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        this.ctx.lineWidth = 2 / this.zoom;
+        this.ctx.beginPath();
+        this.ctx.moveTo(-ext, 0);
+        this.ctx.lineTo(ext, 0);
+        this.ctx.moveTo(0, -ext);
+        this.ctx.lineTo(0, ext);
+        this.ctx.stroke();
+      }
+
+      drawObject(obj) {
+        const styles = {
+          cut: { color: '#ff4444', width: 2, dash: [] },
+          crease: { color: '#4488ff', width: 1.5, dash: [5, 5] },
+          perforation: { color: '#ff44ff', width: 1.5, dash: [2, 3] },
+          bleed: { color: '#44ff44', width: 1, dash: [] }
+        };
+
+        const style = styles[obj.lineType] || styles.cut;
+
+        this.ctx.strokeStyle = style.color;
+        this.ctx.lineWidth = style.width / this.zoom;
+        this.ctx.setLineDash(style.dash.map(d => d / this.zoom));
+
+        if (obj.type === 'rectangle') {
+          this.ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+        }
+        else if (obj.type === 'circle') {
+          this.ctx.beginPath();
+          this.ctx.arc(obj.cx, obj.cy, obj.radius, 0, Math.PI * 2);
+          this.ctx.stroke();
+        }
+        else if (obj.type === 'polyline' && obj.points && obj.points.length > 1) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(obj.points[0].x, obj.points[0].y);
+          for (let i = 1; i < obj.points.length; i++) {
+            this.ctx.lineTo(obj.points[i].x, obj.points[i].y);
+          }
+          if (obj.closed) this.ctx.closePath();
+          this.ctx.stroke();
+        }
+
+        this.ctx.setLineDash([]);
+      }
+
+      drawHandles(obj) {
+        const handles = this.getHandles(obj);
+
+        handles.forEach(h => {
+          this.ctx.fillStyle = 'white';
+          this.ctx.strokeStyle = '#0e7afe';
+          this.ctx.lineWidth = 2 / this.zoom;
+          this.ctx.beginPath();
+          this.ctx.arc(h.x, h.y, 4 / this.zoom, 0, Math.PI * 2);
+          this.ctx.fill();
+          this.ctx.stroke();
+        });
+      }
+
+      // Tools
+      setTool(tool) {
+        this.currentTool = tool;
+        this.isDrawing = false;
+        this.tempObject = null;
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.tool === tool);
+        });
+
+        const names = {
+          select: 'Select Tool',
+          pan: 'Pan Tool',
+          line: 'Line Tool',
+          rectangle: 'Rectangle Tool',
+          circle: 'Circle Tool'
+        };
+
+        document.getElementById('toolName').textContent = names[tool] || tool;
+        this.updateMessage(`Switched to ${names[tool]}`);
+      }
+
+      // Templates
+      loadTemplates() {
+        const templates = {
+          'rectangular': {
+            name: 'Rectangular Box',
+            code: 'FEFCO 0201',
+            params: { length: 100, width: 80, height: 60 }
+          },
+          'pyramidal': {
+            name: 'Pyramidal Bucket',
+            code: 'Custom',
+            params: { baseWidth: 85, baseDepth: 85, topWidth: 70, topDepth: 70, height: 200 }
+          },
+          'sleeve': {
+            name: 'Sleeve Box',
+            code: 'FEFCO 0427',
+            params: { length: 100, width: 80, height: 60 }
+          }
+        };
+
+        const container = document.getElementById('templatesList');
+        container.innerHTML = '';
+
+        Object.entries(templates).forEach(([key, tmpl]) => {
+          const div = document.createElement('div');
+          div.className = 'template-item';
+          div.onclick = () => this.selectTemplate(key, tmpl);
+          div.innerHTML = `
+            <div class="template-name">${tmpl.name}</div>
+            <div class="template-code">${tmpl.code}</div>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      selectTemplate(key, tmpl) {
+        this.currentTemplate = key;
+        this.currentParams = { ...tmpl.params };
+
+        document.querySelectorAll('.template-item').forEach(el => el.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        const container = document.getElementById('paramsList');
+        container.innerHTML = '';
+
+        Object.entries(this.currentParams).forEach(([param, value]) => {
+          const div = document.createElement('div');
+          div.className = 'param-row';
+          div.innerHTML = `
+            <span class="param-label">${param}</span>
+            <input type="number" class="param-input" value="${value}"
+                   onchange="cad.currentParams.${param} = parseFloat(this.value)">
+          `;
+          container.appendChild(div);
+        });
+
+        const btn = document.createElement('button');
+        btn.className = 'btn primary';
+        btn.style.width = '100%';
+        btn.style.marginTop = '8px';
+        btn.onclick = () => this.generateTemplate();
+        btn.innerHTML = '<i class="fas fa-plus"></i> Generate';
+        container.appendChild(btn);
+
+        switchTab(1);
+      }
+
+      generateTemplate() {
+        if (!this.currentTemplate) return;
+
+        this.objects = [];
+
+        if (this.currentTemplate === 'pyramidal' && window.CADEngine) {
+          const gen = new window.CADEngine.PyramidalBucket(this.currentParams);
+          const lines = gen.generate();
+
+          lines.forEach(line => {
+            if (line.points && line.points.length >= 2) {
+              this.objects.push({
+                type: 'polyline',
+                lineType: line.type,
+                points: line.points,
+                closed: line.closed
+              });
+            }
+          });
+        }
+        else if (this.currentTemplate === 'rectangular' && window.CADEngine) {
+          const gen = new window.CADEngine.RectangularBox(this.currentParams);
+          const lines = gen.generate();
+
+          lines.forEach(line => {
+            if (line.points && line.points.length >= 2) {
+              this.objects.push({
+                type: 'polyline',
+                lineType: line.type,
+                points: line.points,
+                closed: line.closed
+              });
+            }
+          });
+        }
+
+        this.saveHistory();
+        this.render();
+        this.updateMessage(`Generated ${this.objects.length} objects`);
+        switchTab(0);
+      }
+
+      // History
+      saveHistory() {
+        this.history = this.history.slice(0, this.historyIndex + 1);
+        this.history.push(JSON.parse(JSON.stringify(this.objects)));
+        this.historyIndex++;
+        if (this.history.length > 50) {
+          this.history.shift();
+          this.historyIndex--;
+        }
+      }
+
+      undo() {
+        if (this.historyIndex > 0) {
+          this.historyIndex--;
+          this.objects = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+          this.selectedObjects = [];
+          this.render();
+          this.updateMessage('Undo');
+        }
+      }
+
+      redo() {
+        if (this.historyIndex < this.history.length - 1) {
+          this.historyIndex++;
+          this.objects = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
+          this.selectedObjects = [];
+          this.render();
+          this.updateMessage('Redo');
+        }
+      }
+
+      // Zoom
+      zoomIn() {
+        this.zoom = Math.min(10, this.zoom * 1.2);
+        this.updateZoomDisplay();
+        this.render();
+      }
+
+      zoomOut() {
+        this.zoom = Math.max(0.1, this.zoom / 1.2);
+        this.updateZoomDisplay();
+        this.render();
+      }
+
+      zoomFit() {
+        this.zoom = 1;
+        this.pan = { x: 0, y: 0 };
+        this.updateZoomDisplay();
+        this.render();
+      }
+
+      updateZoomDisplay() {
+        document.getElementById('zoomLevel').textContent = Math.round(this.zoom * 100) + '%';
+      }
+
+      toggleGrid() {
+        this.grid.visible = !this.grid.visible;
+        const btn = document.getElementById('gridBtn');
+        btn.style.color = this.grid.visible ? '#0e7afe' : '';
+        this.render();
+      }
+
+      toggleSnap() {
+        this.snap.enabled = !this.snap.enabled;
+        const btn = document.getElementById('snapBtn');
+        btn.style.color = this.snap.enabled ? '#0e7afe' : '';
+        this.updateMessage(`Snap ${this.snap.enabled ? 'enabled' : 'disabled'}`);
+      }
+
+      // UI updates
+      updateSelection() {
+        const info = document.getElementById('selectionInfo');
+
+        if (this.selectedObjects.length === 0) {
+          info.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--text-dim); font-size: 12px;">No object selected</div>';
+        } else if (this.selectedObjects.length === 1) {
+          const obj = this.selectedObjects[0];
+          info.innerHTML = `
+            <div class="prop-row">
+              <span>Type:</span>
+              <span>${obj.type}</span>
+            </div>
+            <div class="prop-row">
+              <span>Line Type:</span>
+              <span>${obj.lineType}</span>
+            </div>
+          `;
+        } else {
+          info.innerHTML = `<div class="prop-row"><span>Multiple (${this.selectedObjects.length})</span></div>`;
+        }
+
+        this.render();
+      }
+
+      updateStats() {
+        document.getElementById('objectCount').textContent = this.objects.length;
+
+        let totalPoints = 0;
+        this.objects.forEach(obj => {
+          if (obj.points) totalPoints += obj.points.length;
+        });
+        document.getElementById('pointCount').textContent = totalPoints;
+
+        // Calculate bounds
+        if (this.objects.length > 0) {
+          let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+          this.objects.forEach(obj => {
+            if (obj.type === 'rectangle') {
+              minX = Math.min(minX, obj.x);
+              minY = Math.min(minY, obj.y);
+              maxX = Math.max(maxX, obj.x + obj.width);
+              maxY = Math.max(maxY, obj.y + obj.height);
+            }
+            else if (obj.points) {
+              obj.points.forEach(p => {
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x);
+                maxY = Math.max(maxY, p.y);
+              });
+            }
+          });
+
+          const w = Math.ceil(maxX - minX);
+          const h = Math.ceil(maxY - minY);
+          document.getElementById('dimensions').textContent = `${w} × ${h} mm`;
+          document.getElementById('area').textContent = `${((w * h) / 100).toFixed(2)} cm²`;
+        } else {
+          document.getElementById('dimensions').textContent = '-';
+          document.getElementById('area').textContent = '-';
+        }
+      }
+
+      updateMessage(msg) {
+        document.getElementById('message').textContent = msg;
+      }
+
+      // Export
+      exportJSON() {
+        const data = {
+          version: '3.0',
+          objects: this.objects,
+          timestamp: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `box-design-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        this.updateMessage('✓ Exported JSON');
+      }
+
+      async saveTemplate() {
+        const name = prompt('Template name:', 'My Box Design');
+        if (!name) return;
+
+        try {
+          const response = await fetch('http://localhost:5850/api/box/templates', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer dev-token'
+            },
+            body: JSON.stringify({
+              name,
+              description: 'CAD Professional design',
+              category: 'custom',
+              base_config: { type: 'cad' },
+              dieline: {
+                version: '3.0',
+                objects: this.objects
+              },
+              preview_svg: '<svg></svg>',
+              is_public: false
+            })
+          });
+
+          if (response.ok) {
+            this.updateMessage('✓ Saved to database');
+          } else {
+            throw new Error('Save failed');
+          }
+        } catch (err) {
+          this.updateMessage('✗ Save failed');
+          console.error(err);
+        }
+      }
+    }
+
+    // Tab switching
+    function switchTab(idx) {
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', i === idx);
+      });
+
+      document.querySelectorAll('.sidebar-content').forEach((c, i) => {
+        c.style.display = i === idx ? 'block' : 'none';
+      });
+    }
+
+    // Initialize
+    const cad = new CADApplication();
+    window.cad = cad;
+  </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+- ✅ app-inventory-frontend: deps=✓, auth=✓ (port 5700)

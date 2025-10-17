@@ -1,0 +1,231 @@
+# Feature List - [SERVICE_NAME]
+
+> **Versione**: 1.0.0
+> **Servizio**: [SERVICE_NAME]
+> **Tipo**: Backend Service / Frontend App
+> **Repository**: [REPO_URL]
+> **Ports**: Backend: [BACKEND_PORT] | Frontend: [FRONTEND_PORT]
+
+---
+
+## 📋 Overview
+
+[Breve descrizione del servizio - 2-3 righe]
+
+**Responsabilità principali**:
+- Responsabilità 1
+- Responsabilità 2
+- Responsabilità 3
+
+**Integrazioni**:
+- Servizio A (per funzionalità X)
+- Servizio B (per funzionalità Y)
+
+---
+
+## 🎯 Priority System
+
+Features sono organizzate per priorità:
+
+- **P1** - Core essenziale (il servizio non funziona senza)
+- **P2** - Funzionalità importanti (richieste da maggioranza clienti)
+- **P3** - Features avanzate (differenziazione competitiva)
+- **P4** - Innovazione (vantaggio competitivo)
+- **P5+** - Tecnologie emergenti / futuro
+
+**REGOLA**: Sviluppare P1 → P2 → P3... in sequenza. Non saltare priorità.
+
+---
+
+## 📦 Feature Categories
+
+### 1. CATEGORY_NAME (Priority Level)
+
+#### Core Features (P1)
+
+**Feature Name**
+- Descrizione dettagliata della feature
+- Requisiti specifici
+- Acceptance criteria
+- API endpoints (se backend)
+- UI components (se frontend)
+
+**Feature Name 2**
+- ...
+
+#### Advanced Features (P2)
+
+**Feature Name**
+- ...
+
+#### Future Features (P3+)
+
+**Feature Name**
+- ...
+
+---
+
+### 2. CATEGORY_NAME_2 (Priority Level)
+
+... (ripeti struttura)
+
+---
+
+## 🔌 API Endpoints (Solo Backend)
+
+### Core Endpoints (P1)
+
+```
+GET    /api/v1/resource
+POST   /api/v1/resource
+GET    /api/v1/resource/:id
+PUT    /api/v1/resource/:id
+DELETE /api/v1/resource/:id
+```
+
+### Advanced Endpoints (P2)
+
+```
+GET    /api/v1/resource/search
+POST   /api/v1/resource/bulk
+...
+```
+
+---
+
+## 🎨 UI Components (Solo Frontend)
+
+### Core Components (P1)
+
+- `ResourceList` - Lista risorse
+- `ResourceDetail` - Dettaglio risorsa
+- `ResourceForm` - Form creazione/modifica
+
+### Advanced Components (P2)
+
+- `ResourceSearch` - Ricerca avanzata
+- `ResourceFilters` - Filtri
+- ...
+
+---
+
+## 🗄️ Database Schema
+
+**Tabelle principali**:
+
+```sql
+-- ewh_tenant schema
+CREATE TABLE resource (
+  id UUID PRIMARY KEY,
+  tenant_id UUID NOT NULL,
+  name VARCHAR(255),
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+);
+```
+
+**Indexes**:
+```sql
+CREATE INDEX idx_resource_tenant ON resource(tenant_id);
+```
+
+---
+
+## 🔄 Development Workflow
+
+### Iterazione 1 (P1 - Core)
+- [ ] Backend: GET /api/resource (lista)
+- [ ] Frontend: ResourceList component
+- [ ] Test: Lista visualizzata correttamente
+
+### Iterazione 2 (P1 - Core)
+- [ ] Backend: GET /api/resource/:id (dettaglio)
+- [ ] Frontend: ResourceDetail component
+- [ ] Test: Dettaglio visualizzato al click
+
+### Iterazione 3 (P1 - Core)
+- [ ] Backend: POST /api/resource (creazione)
+- [ ] Frontend: ResourceForm component
+- [ ] Test: Form crea nuova risorsa
+
+... (continua per tutte le feature P1)
+
+---
+
+## ✅ Definition of Done
+
+Una feature è completata quando:
+
+- ✅ Backend implementato (se servizio backend)
+- ✅ Frontend implementato (se app frontend)
+- ✅ Database schema aggiornato
+- ✅ Test automatici scritti
+- ✅ Test manuale effettuato
+- ✅ **Frontend aperto e funzionante per QA**
+- ✅ Documentazione aggiornata (API.md / README.md)
+- ✅ Controllo qualità umano superato
+
+---
+
+## 🧪 Testing
+
+### Test Automatici
+
+```bash
+# Backend
+npm test
+
+# Frontend
+npm run test
+npm run test:e2e
+```
+
+### Test Manuali
+
+```bash
+# Backend
+npm run dev  # http://localhost:[BACKEND_PORT]
+
+# Frontend
+npm run dev  # http://localhost:[FRONTEND_PORT]
+
+# Test nel browser:
+# 1. Apri http://localhost:[FRONTEND_PORT]
+# 2. [Passi specifici per testare]
+# 3. Verifica [risultato atteso]
+```
+
+---
+
+## 📚 Documentazione Correlata
+
+- [AGENT_WORKFLOW.md](../AGENT_WORKFLOW.md) - Workflow obbligatorio
+- [PLATFORM_SPECS_2025.md](../PLATFORM_SPECS_2025.md) - Specifiche globali
+- [DATABASE_ARCHITECTURE.md](../DATABASE_ARCHITECTURE.md) - Schema DB
+- [API_FIRST_ARCHITECTURE.md](../API_FIRST_ARCHITECTURE.md) - Design API
+- [API.md](./API.md) - API documentation (questo servizio)
+- [README.md](./README.md) - Setup e usage
+
+---
+
+## 🐛 Known Issues
+
+Nessuno al momento.
+
+---
+
+## 📅 Roadmap
+
+### Q4 2025
+- [ ] P1 features complete
+- [ ] P2 features partial
+
+### Q1 2026
+- [ ] P2 features complete
+- [ ] P3 features started
+
+---
+
+**Ultimo aggiornamento**: [DATA]
+**Maintainer**: [TEAM/PERSON]
+**Status**: 🟡 In Development / 🟢 Production Ready / 🔴 Planned

@@ -1,0 +1,1 @@
+- ✅ svc-quotations: deps=✓, health=✓, auth=⚠ (port 6101)

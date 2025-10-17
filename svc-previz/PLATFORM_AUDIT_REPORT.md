@@ -1,0 +1,1 @@
+- ✅ svc-previz: deps=✓, health=✓, auth=⚠ (port 5800)

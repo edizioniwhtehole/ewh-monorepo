@@ -335,12 +335,14 @@ Monitoring: Scalingo built-in + Sentry (TODO)
 
 ## Database & Storage
 
-### PostgreSQL Multi-Tenant
+### PostgreSQL Multi-Tenant Strategy
 
-**Strategia:** Database condiviso, schema per servizio, tenant_id in ogni tabella
+#### Core Platform: Shared Database per Service
+
+**Strategia Base:** Database condiviso, schema per servizio, tenant_id in ogni tabella
 
 ```sql
--- Esempio: svc-orders schema
+-- Esempio: svc-orders schema (core platform)
 CREATE TABLE orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES auth.organizations(id),
@@ -357,19 +359,106 @@ CREATE POLICY tenant_isolation ON orders
   USING (tenant_id = current_setting('app.current_tenant')::UUID);
 ```
 
-**Addons Scalingo:**
-- 39 servizi con addon PostgreSQL dedicato
+#### Vertical Isolation: Multi-Tier Data Separation
+
+**Per verticali specializzati (Real Estate, Medical, E-commerce):**
+
+```
+┌─────────────────────────────────────────────────┐
+│  EWH/POLOSAS - Core Platform (Shared)          │
+├─────────────────────────────────────────────────┤
+│  • svc-auth       → db_auth (shared)            │
+│  • svc-billing    → db_billing (shared)         │
+│  • svc-api-gateway → stateless                  │
+│  • app-admin      → stateless                   │
+└─────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│  Vertical: Real Estate                          │
+├─────────────────────────────────────────────────┤
+│  Option A - Shared DB, Separate Schema:        │
+│    db_ewh → schema: realestate_dms              │
+│           → schema: realestate_crm              │
+│                                                 │
+│  Option B - Dedicated DB per Vertical:         │
+│    db_ewh_realestate → all schemas              │
+│                                                 │
+│  Option C - Dedicated DB per Tenant:           │
+│    db_tenant_acme_realestate → isolated         │
+│                                                 │
+│  Storage: s3://ewh-prod/realestate/{tenant}/    │
+└─────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────┐
+│  Vertical: Medical (HIPAA Compliant)           │
+├─────────────────────────────────────────────────┤
+│  Mandatory: Dedicated Infrastructure            │
+│    db_ewh_medical → encrypted at rest           │
+│    s3://ewh-medical → separate bucket           │
+│    Deployed on: separate Scalingo stack        │
+└─────────────────────────────────────────────────┘
+```
+
+**Three-Tier Isolation Model:**
+
+1. **Tier 1 - Schema Separation** (Cost-effective):
+   ```sql
+   -- Stesso database, schema dedicato per verticale
+   CREATE SCHEMA realestate_dms;
+   CREATE SCHEMA medical_dms;
+
+   CREATE TABLE realestate_dms.documents (
+     id UUID PRIMARY KEY,
+     tenant_id UUID NOT NULL,
+     vertical VARCHAR(50) DEFAULT 'realestate',
+     -- ...
+   );
+   ```
+   - **Use case**: Verticali low-risk, costi ridotti
+   - **Compliance**: Sufficiente per GDPR base
+
+2. **Tier 2 - Database Separation** (Balanced):
+   ```yaml
+   # scalingo.yml
+   addons:
+     - plan: postgresql:postgresql-starter-1024
+       name: db-realestate
+     - plan: postgresql:postgresql-starter-1024
+       name: db-medical
+   ```
+   - **Use case**: Verticali con volumi diversi o compliance specifiche
+   - **Scaling**: Indipendente per verticale
+   - **Cost**: ~€30/month per DB addon
+
+3. **Tier 3 - Tenant-Dedicated Database** (Maximum Isolation):
+   ```yaml
+   # For enterprise clients with strict compliance
+   db-tenant-acme-medical:
+     plan: postgresql-business-1024
+     encryption: true
+     backup_retention: 365_days
+     dedicated_instance: true
+   ```
+   - **Use case**: Healthcare, Finance, Enterprise SLA
+   - **Compliance**: HIPAA, SOC2, ISO27001 ready
+   - **Cost**: €100-500/month per tenant
+
+**Addons Scalingo (Current):**
+- 39 servizi con addon PostgreSQL dedicato (core platform)
 - Alcuni servizi condividono addon (media + redis)
 - Backup automatici giornalieri
+- **Vertical addons**: Provisioning on-demand via Scalingo API
 
 ### Object Storage (Wasabi S3)
 
-**Buckets:**
-- `ewh-prod` - Produzione
+#### Core Platform Buckets
+
+**Standard Buckets:**
+- `ewh-prod` - Produzione core platform
 - `ewh-staging` - Staging
 - `ewh-dev` - Sviluppo locale (MinIO)
 
-**Struttura:**
+**Struttura Core:**
 ```
 ewh-prod/
 ├── media/
@@ -381,7 +470,51 @@ ewh-prod/
 └── backups/
 ```
 
-**CDN:** Cloudflare in front di Wasabi per caching globale
+#### Vertical-Specific Storage Isolation
+
+**Option A - Prefix-based Separation** (Same bucket):
+```
+ewh-prod/
+├── core/{tenant-id}/          # Core platform tenants
+├── realestate/{tenant-id}/    # Real estate vertical
+├── medical/{tenant-id}/       # Medical vertical (non-compliant)
+└── ecommerce/{tenant-id}/     # E-commerce vertical
+```
+- **Pros**: Single bucket, cost-effective
+- **Cons**: No physical isolation, harder compliance
+
+**Option B - Dedicated Buckets per Vertical** (Recommended):
+```
+Buckets:
+  - ewh-prod-core          # Core platform
+  - ewh-prod-realestate    # Real estate vertical
+  - ewh-prod-medical       # Medical vertical (HIPAA-compliant)
+  - ewh-prod-ecommerce     # E-commerce vertical
+
+Structure per bucket:
+ewh-prod-medical/
+├── {tenant-id}/
+│   ├── patient-records/
+│   ├── imaging/
+│   └── reports/
+├── encrypted-backups/
+└── audit-logs/
+```
+- **Pros**: Physical isolation, compliance-ready, independent lifecycle
+- **Cons**: Multiple buckets to manage (~$6/month each)
+
+**Option C - Tenant-Dedicated Buckets** (Enterprise):
+```
+ewh-tenant-acme-medical/     # Dedicated for Acme Corp
+ewh-tenant-cityhosp-medical/ # Dedicated for City Hospital
+```
+- **Use case**: Enterprise clients with strict data residency requirements
+- **Features**: Custom retention, encryption keys, geo-location
+
+**CDN Strategy:**
+- **Core Platform**: Cloudflare in front of Wasabi for global caching
+- **Verticals**: Separate CDN zones with vertical-specific caching rules
+- **Medical/Sensitive**: No CDN, direct S3 access with signed URLs
 
 ---
 
@@ -423,6 +556,8 @@ ewh-prod/
 
 ### Scalingo Deployment
 
+#### Core Platform Deployment
+
 **Ogni microservizio = 1 Scalingo app:**
 
 ```
@@ -438,6 +573,113 @@ ewh-stg-svc-auth      → github.com/edizioniwhtehole/svc-auth (develop)
 **Scaling:**
 - Horizontal: 1-2 container per servizio
 - Vertical: S (512MB) staging, M (1GB) production
+
+#### Vertical-Specific Deployment Strategies
+
+**Strategy A - Single Infrastructure, Multi-Tenant Routing** (Recommended for MVP):
+
+```
+┌────────────────────────────────────────┐
+│   Shared Scalingo Stack                │
+├────────────────────────────────────────┤
+│  svc-dms (single instance)             │
+│    ├─ Routes to: db_core               │
+│    ├─ Routes to: db_realestate         │
+│    └─ Routes to: db_medical            │
+│                                        │
+│  Routing logic:                        │
+│    tenant.vertical → database_url      │
+└────────────────────────────────────────┘
+```
+
+**Implementation:**
+```typescript
+// Database connection routing based on vertical
+function getDatabaseUrl(tenant: Tenant): string {
+  const verticalDbMap = {
+    'core': process.env.DATABASE_URL_CORE,
+    'realestate': process.env.DATABASE_URL_REALESTATE,
+    'medical': process.env.DATABASE_URL_MEDICAL,
+  }
+  return verticalDbMap[tenant.vertical] || verticalDbMap['core']
+}
+```
+
+**Pros:**
+- Single deployment per service
+- Cost-effective (~€30/month per vertical DB addon)
+- Easier maintenance
+- Code reuse
+
+**Cons:**
+- Single point of failure
+- Shared compute resources
+- All verticals deploy together
+
+**Strategy B - Separate Infrastructure per Vertical** (Recommended for Scale):
+
+```
+Core Platform:
+  ewh-prod-svc-auth      → db_auth (shared across all)
+  ewh-prod-svc-billing   → db_billing (shared)
+  ewh-prod-svc-gateway   → routes by vertical subdomain
+
+Real Estate Vertical:
+  ewh-prod-re-svc-dms       → db_realestate_dms
+  ewh-prod-re-svc-crm       → db_realestate_crm
+  ewh-prod-re-svc-projects  → db_realestate_projects
+  Storage: s3://ewh-prod-realestate/
+
+Medical Vertical:
+  ewh-prod-med-svc-dms      → db_medical_dms (encrypted)
+  ewh-prod-med-svc-crm      → db_medical_crm (encrypted)
+  Storage: s3://ewh-prod-medical/ (HIPAA-compliant)
+  Region: EU-WEST (compliance requirement)
+```
+
+**Deployment per Vertical:**
+```bash
+# Deploy real estate vertical services
+./deploy-vertical.sh realestate production
+
+# Deploys:
+# - ewh-prod-re-svc-dms
+# - ewh-prod-re-svc-crm
+# - ewh-prod-re-svc-projects
+# With environment variables for realestate-specific DB/storage
+```
+
+**Pros:**
+- Complete isolation (security, compliance)
+- Independent scaling per vertical
+- Independent deployment cycles
+- Vertical can fail without affecting others
+- Easier to sell/spin-off a vertical
+
+**Cons:**
+- Higher infrastructure costs (~€200-400/month per vertical)
+- More complex CI/CD pipeline
+- Duplicate monitoring/alerting setup
+
+**Strategy C - Hybrid Approach** (Recommended for Production):
+
+```
+Phase 1 (MVP): Strategy A
+  - All verticals on shared infrastructure
+  - Separate databases per vertical
+  - Cost: ~€100/month
+
+Phase 2 (Growth): Migrate high-value verticals
+  - Medical → Separate infrastructure (compliance)
+  - Real Estate → Separate if volume justifies
+  - E-commerce → Remains shared
+  - Cost: ~€300-500/month
+
+Phase 3 (Enterprise): Tenant-specific infrastructure
+  - Enterprise clients get dedicated stacks
+  - White-label deployments
+  - Cost: Pass-through to client
+```
 
 ### Infrastructure as Code
 
@@ -474,30 +716,341 @@ Ogni request ha `x-correlation-id` per tracciare flusso cross-service
 
 ### ✅ v1.0 (MVP - Completato)
 
+**Focus:** Piattaforma funzionante per SMB (Small-Medium Business)
+
 - [x] 50+ microservizi deployati su Scalingo
 - [x] Autenticazione JWT multi-tenant
 - [x] API Gateway con routing base
 - [x] PostgreSQL per servizio
 - [x] S3 storage (Wasabi)
 - [x] Docker Compose per dev locale
+- [x] Vertical isolation (3-tier: schema/database/dedicated)
+- [x] Tenant migration framework documentato
 
-### 🚧 v2.0 (In Progress)
+**Stato:** ✅ Production-ready per SMB
+**Reliability:** ~99.5% uptime (single instance)
+**Target Customers:** Startup, Small Business, Freelancers
 
+---
+
+### 🚧 v2.0 (In Progress) - Monetization & Verticals
+
+**Focus:** Vertical-specific features e preparazione enterprise
+
+#### Vertical Management & Creation
+
+**Vertical Creator (Admin Console):**
+- [ ] Visual vertical builder (no-code)
+  - [ ] Define vertical metadata (name, icon, color scheme)
+  - [ ] Select enabled services (DMS, CRM, Projects, etc.)
+  - [ ] Configure database isolation tier (schema/database/dedicated)
+  - [ ] Set storage bucket strategy
+  - [ ] Define default pricing plan
+
+- [ ] Landing page editor per vertical
+  - [ ] Drag-and-drop page builder (visual editor)
+  - [ ] Template library (Real Estate, Medical, E-commerce)
+  - [ ] Custom blocks (hero, features, pricing, testimonials)
+  - [ ] SEO settings (meta tags, OpenGraph, structured data)
+  - [ ] Domain mapping (custom domains per vertical)
+  - [ ] Multi-language support
+  - [ ] A/B testing variants
+  - **Tech:** Headless CMS + `svc-site-builder`
+
+**Base App Landing Pages:**
+- [ ] Main platform landing (polosaas.it)
+- [ ] Per-vertical landing pages:
+  - [ ] realestate.polosaas.it
+  - [ ] medical.polosaas.it
+  - [ ] ecommerce.polosaas.it
+- [ ] Dynamic content based on vertical
+- [ ] Lead capture forms → `svc-crm`
+- [ ] Analytics integration (Plausible/Google Analytics)
+
+#### Contextual Help & Documentation System
+
+**In-App Documentation Drawer:**
+- [ ] Contextual help sidebar (slide-in drawer)
+  - [ ] Context-aware: mostra docs rilevanti per pagina corrente
+  - [ ] Search bar (fuzzy search su tutta la documentazione)
+  - [ ] Video tutorials embedded
+  - [ ] Quick links (getting started, FAQ, API docs)
+  - [ ] Markdown rendering con syntax highlighting
+  - **Tech:** `svc-kb` (Knowledge Base service) + Algolia search
+
+**Widget Tooltips (Fool-Proof UI):**
+- [ ] Interactive tooltips su ogni elemento UI
+  - [ ] Pulsanti: "Cosa fa questo pulsante? [?]"
+  - [ ] Grafici: "Come leggere questo grafico? [?]"
+  - [ ] Form fields: "Cosa inserire qui? [?]"
+  - [ ] Keyboard shortcuts overlay (Cmd+K)
+- [ ] Onboarding tours (step-by-step walkthroughs)
+  - [ ] First login tour (5-step intro)
+  - [ ] Feature-specific tours (es: "Carica il tuo primo documento")
+  - [ ] Progress tracking (checklist completamento)
+- [ ] Inline help videos (Loom/YouTube embedded)
+- [ ] "Copy to clipboard" buttons (API keys, code snippets)
+- **Tech:** `@floating-ui/react` + `react-joyride` + `svc-assistant` (AI help)
+
+**Documentation Widget System:**
+```tsx
+// Example: Button con tooltip contestuale
+<HelpButton
+  action="delete_document"
+  tooltip="Elimina definitivamente il documento. Azione irreversibile."
+  helpArticle="kb/documents/delete"
+  videoUrl="https://help.polosaas.it/videos/delete-doc.mp4"
+>
+  Elimina Documento
+</HelpButton>
+
+// Example: Grafico con tooltip
+<Chart
+  type="bar"
+  data={salesData}
+  helpTooltip={{
+    title: "Grafico Vendite per Regione",
+    description: "Mostra il totale vendite (€) per ogni regione negli ultimi 30 giorni",
+    helpArticle: "kb/analytics/sales-by-region",
+    interactive: true // Mostra valori al hover
+  }}
+/>
+```
+
+**Help Content Management:**
+- [ ] Admin panel per gestire help content
+  - [ ] WYSIWYG editor per articles (Markdown)
+  - [ ] Video upload/embed manager
+  - [ ] Tooltip library (riutilizzabili)
+  - [ ] Analytics: "Quali help sono più visualizzati?"
+  - [ ] A/B testing (varianti tooltip)
+
+**AI-Powered Help (svc-assistant):**
+- [ ] Chatbot in-app (bottom-right bubble)
+  - [ ] "Chiedimi qualsiasi cosa..." input
+  - [ ] GPT-4 trained su documentazione EWH
+  - [ ] Context-aware (sa cosa stai facendo in app)
+  - [ ] Suggerimenti proattivi: "Ho notato che stai caricando molti file. Vuoi provare il bulk upload?"
+  - [ ] Handoff to human support (se AI non può risolvere)
+
+#### Internationalization (i18n) System
+
+**Multi-Language Support:**
+- [ ] Frontend UI translations (11 languages)
+  - [ ] Tier 1: en, it, es, fr, de (native reviewed)
+  - [ ] Tier 2: pt, nl, pl, ja, zh, ar (AI-translated)
+  - [ ] next-intl integration (Next.js)
+  - [ ] Language switcher component
+  - [ ] RTL support (Arabic, Hebrew)
+
+- [ ] Dynamic content translations
+  - [ ] Database: JSONB multi-language fields
+  - [ ] User tags, descriptions, notes → auto-translated
+  - [ ] Per-tenant enabled languages
+  - [ ] Translation memory cache (Redis)
+
+- [ ] AI-Powered Auto-Translation
+  - [ ] GPT-4 integration for content translation
+  - [ ] Automatic translation on save
+  - [ ] Batch translate existing content
+  - [ ] User-editable AI translations
+  - [ ] Context-aware translations (business vs technical)
+  - **Cost:** €100-500/month (usage-based)
+
+- [ ] Translation Management CMS
+  - [ ] Admin panel: enable/disable languages
+  - [ ] Translation editor (edit AI results)
+  - [ ] Bulk translate tool with progress tracking
+  - [ ] Cost estimator per tenant
+  - [ ] Analytics: most viewed help articles per language
+
+**Email & Help Content i18n:**
+- [ ] Email templates per language
+- [ ] Help articles translation (11 languages)
+- [ ] Video subtitles (AI-generated)
+- [ ] Landing pages per vertical + language
+  - Example: realestate.polosaas.it/it
+            medical.polosaas.it/de
+
+**Tech Stack:**
+- `next-intl` (Frontend UI)
+- `OpenAI GPT-4 Turbo` (AI translation)
+- `Redis` (Translation cache)
+- `JSONB` (Multi-language DB fields)
+- **Effort:** 9 weeks
+
+#### Core Technical Features
+
+- [ ] Vertical plugins (Real Estate, Medical, E-commerce)
+- [ ] Tenant migration control panel (visual, no-code)
+- [ ] Scalingo API integration (automated provisioning)
 - [ ] Event-driven architecture (Redis Streams)
 - [ ] RLS PostgreSQL enforcement
-- [ ] Monitoring & observability (Sentry, Grafana)
-- [ ] CI/CD automatizzato (GitHub Actions)
 - [ ] API versioning (v1, v2)
-- [ ] GraphQL federation (Apollo)
 
-### 🔮 v3.0 (Future)
+**Timeline:** 5-6 mesi (extended per landing pages + help + i18n)
+**Stato:** 📝 Documented, ready for implementation
+**Target Customers:** Growing SMB, vertical-specific businesses, global expansion
 
+---
+
+### 🔮 v2.5 (Next 6 Months) - Enterprise Foundations
+
+**Focus:** Enterprise-Grade reliability e security
+
+#### Critical (Deal-breakers for Enterprise)
+
+**Backup & Disaster Recovery:**
+- [ ] WAL archiving con Point-in-Time Recovery (PITR 5 min)
+- [ ] Cross-region replication (EU-WEST + US-EAST)
+- [ ] Automated backup testing (monthly)
+- [ ] Disaster recovery runbook + quarterly drills
+- [ ] Retention: 30d/90d/12m/7y (compliance)
+- **Effort:** 3 weeks | **Cost:** +€100/month
+
+**High Availability (99.99% SLA):**
+- [ ] Multi-container deployment (min 2 instances)
+- [ ] PostgreSQL HA cluster (automatic failover)
+- [ ] Read replicas (2x per vertical)
+- [ ] Health checks + graceful shutdown
+- [ ] Zero-downtime deployments
+- **Effort:** 6 weeks | **Cost:** +€400/month
+
+**Security & Compliance:**
+- [ ] Multi-Factor Authentication (MFA) - TOTP, WebAuthn
+- [ ] Single Sign-On (SSO) - SAML, OAuth, LDAP
+- [ ] Secrets management (HashiCorp Vault)
+- [ ] Vulnerability scanning (Snyk, automated)
+- [ ] Penetration testing (quarterly)
+- [ ] Security headers (CSP, HSTS)
+- **Effort:** 8 weeks | **Cost:** +€100/month
+
+**Audit Logging (Immutable):**
+- [ ] Append-only audit trail (PostgreSQL + S3)
+- [ ] HMAC signatures per integrity verification
+- [ ] 7-year retention (S3 Object Lock)
+- [ ] Compliance reporting (GDPR, HIPAA)
+- [ ] Anomaly detection alerts
+- **Effort:** 3 weeks | **Cost:** +€50/month
+
+#### High Priority (Competitive Advantage)
+
+**Monitoring & Observability:**
+- [ ] Centralized logging (Datadog/New Relic)
+- [ ] Distributed tracing (OpenTelemetry)
+- [ ] APM (Application Performance Monitoring)
+- [ ] AI-powered anomaly detection
+- [ ] Custom dashboards per vertical
+- [ ] PagerDuty integration (on-call)
+- **Effort:** 4 weeks | **Cost:** +€400/month
+
+**Advanced RBAC:**
+- [ ] Fine-grained permissions (resource-level)
+- [ ] Custom role builder (UI)
+- [ ] Attribute-based access control (ABAC)
+- [ ] Permission conditions (e.g., order.amount < €10k)
+- [ ] Role templates per vertical
+- **Effort:** 4 weeks | **Cost:** €0
+
+#### Medium Priority (Nice-to-have)
+
+**Data Residency & Multi-Region:**
+- [ ] Multi-region deployment (EU/US/APAC)
+- [ ] Per-tenant data residency selection
+- [ ] Cross-region failover (automatic)
+- [ ] Geo-routing (Cloudflare)
+- **Effort:** 4 weeks | **Cost:** +€500/month
+
+**White-Label & Multi-Brand:**
+- [ ] Custom domains per tenant
+- [ ] Branded UI (logo, colors, fonts)
+- [ ] Custom email templates
+- [ ] Whitelabel mobile apps
+- **Effort:** 4 weeks | **Cost:** €0
+
+**Performance & Auto-Scaling:**
+- [ ] Redis caching layer (query results)
+- [ ] CDN optimization (Cloudflare Workers)
+- [ ] Database query optimization
+- [ ] Horizontal auto-scaling (CPU-based)
+- [ ] Connection pooling (PgBouncer)
+- **Effort:** 6 weeks | **Cost:** +€200/month
+
+**Timeline:** 6 mesi (con 2 FTE)
+**Investment:** ~€240k (personnel + infrastructure)
+**ROI:** Break-even con 40 clienti enterprise (€12k/mese)
+
+---
+
+### 🏆 v3.0 (9-12 Months) - Enterprise-Grade Certification
+
+**Focus:** SOC 2, HIPAA, ISO 27001 compliance
+
+**Compliance Certifications:**
+- [ ] SOC 2 Type II audit (6-9 mesi)
+  - [ ] Security officer designated
+  - [ ] Policy documentation (60+ policies)
+  - [ ] Evidence collection (3-6 mesi)
+  - [ ] External audit (Deloitte, PwC)
+  - **Cost:** €50k-80k one-time
+
+- [ ] HIPAA compliance (Medical vertical)
+  - [ ] Business Associate Agreements (BAA)
+  - [ ] PHI data classification
+  - [ ] Automatic PHI detection (ML)
+  - [ ] Breach notification workflow
+  - [ ] Annual risk assessment
+  - **Cost:** €30k one-time + €10k/year
+
+- [ ] ISO 27001 (optional)
+  - [ ] ISMS (Information Security Management System)
+  - [ ] Risk assessment framework
+  - [ ] Annual surveillance audit
+  - **Cost:** €40k one-time + €15k/year
+
+**Enterprise Features:**
+- [ ] 99.99%+ uptime SLA (contractual)
+- [ ] 24/7 support (P1: 15 min response)
+- [ ] Dedicated success manager
+- [ ] Custom SLA agreements
+- [ ] Legal: Master Service Agreement (MSA)
+- [ ] Legal: Data Processing Agreement (DPA)
+
+**Target Customers:** Fortune 500, Healthcare, Finance, Government
+
+**Timeline:** 9-12 mesi
+**Investment:** €150k-250k (audit + legal + infrastructure)
+
+---
+
+### 🚀 v4.0 (Future) - Scale & Innovation
+
+**Focus:** Hyperscale infrastructure e AI-native
+
+**Infrastructure Evolution:**
+- [ ] Kubernetes migration (da Scalingo)
 - [ ] Service mesh (Istio/Linkerd)
-- [ ] Kubernetes migration
-- [ ] Multi-region deployment
+- [ ] Multi-cloud (AWS + GCP + Azure)
 - [ ] CQRS + Event Sourcing pattern
 - [ ] gRPC inter-service communication
+- [ ] Edge computing (Cloudflare Workers)
+
+**AI-Native Features:**
+- [ ] AI-powered content generation (GPT-4)
+- [ ] Intelligent document classification
+- [ ] Predictive analytics (churn, revenue)
+- [ ] Natural language search
+- [ ] Auto-tagging e metadata extraction
+
+**Advanced Capabilities:**
+- [ ] Real-time collaboration (CRDT)
+- [ ] Blockchain audit trail (immutable proof)
+- [ ] Quantum-safe encryption
+- [ ] GraphQL federation (Apollo)
 - [ ] OpenID Connect SSO
+
+**Timeline:** 18-24 mesi
+**Prerequisite:** Product-market fit, €5M+ ARR
 
 ---
 

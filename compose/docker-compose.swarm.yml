@@ -1,0 +1,337 @@
+version: '3.8'
+
+# Configurazione per Docker Swarm multi-node
+# Alta disponibilità: servizi distribuiti su 3+ nodi
+
+x-node-common: &node_common
+  image: node:20-alpine
+  environment: &common_env
+    NODE_ENV: "production"
+    LOG_LEVEL: "info"
+    DATABASE_URL: "postgres://ewh:ewhpass@postgres:5432/ewh_master"
+    REDIS_URL: "redis://redis:6379/0"
+    S3_ENDPOINT: "http://minio:9000"
+    S3_ACCESS_KEY: "ewh"
+    S3_SECRET_KEY: "ewhminio"
+    S3_BUCKET: "ewh-prod"
+  networks:
+    - ewh_overlay
+  deploy:
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+    update_config:
+      parallelism: 1
+      delay: 10s
+      failure_action: rollback
+    rollback_config:
+      parallelism: 1
+      delay: 10s
+
+networks:
+  ewh_overlay:
+    driver: overlay
+    attachable: true
+
+volumes:
+  ewh_pg:
+  ewh_redis:
+  ewh_minio:
+  ewh_portainer:
+
+services:
+  # ============================================
+  # DATASTORES (Stateful - con constraint)
+  # ============================================
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: "ewh"
+      POSTGRES_PASSWORD: "ewhpass"
+      POSTGRES_DB: "ewh_master"
+      POSTGRES_MAX_CONNECTIONS: "200"
+    volumes:
+      - ewh_pg:/var/lib/postgresql/data
+    networks:
+      - ewh_overlay
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager  # PostgreSQL solo su manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ewh -d ewh_master"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - ewh_redis:/data
+    networks:
+      - ewh_overlay
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: "ewh"
+      MINIO_ROOT_PASSWORD: "ewhminio"
+    volumes:
+      - ewh_minio:/data
+    networks:
+      - ewh_overlay
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # API GATEWAY (Stateless - alta disponibilità)
+  # ============================================
+
+  svc-api-gateway:
+    <<: *node_common
+    image: ewh/svc-api-gateway:latest
+    environment:
+      <<: *common_env
+      PORT: "4000"
+      AUTH_SERVICE_URL: "http://svc-auth:4001"
+      AUTH_JWKS_URL: "http://svc-auth:4001/.well-known/jwks.json"
+    deploy:
+      replicas: 3  # 3 repliche su nodi diversi
+      placement:
+        max_replicas_per_node: 1  # Max 1 per nodo
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ============================================
+  # CORE SERVICES (Stateless - 2 repliche)
+  # ============================================
+
+  svc-auth:
+    <<: *node_common
+    image: ewh/svc-auth:latest
+    environment:
+      <<: *common_env
+      PORT: "4001"
+      DB_SCHEMA: "auth"
+      JWT_ISSUER: "https://api.ewh.com"
+      JWT_AUDIENCE: "ewh-saas"
+    deploy:
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4001/health"]
+      interval: 10s
+
+  svc-media:
+    <<: *node_common
+    image: ewh/svc-media:latest
+    environment:
+      <<: *common_env
+      PORT: "4003"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4003/health"]
+      interval: 10s
+
+  svc-billing:
+    <<: *node_common
+    image: ewh/svc-billing:latest
+    environment:
+      <<: *common_env
+      PORT: "4004"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # ============================================
+  # CREATIVE SERVICES (Stateless - 1 replica)
+  # ============================================
+
+  svc-image-orchestrator:
+    <<: *node_common
+    image: ewh/svc-image-orchestrator:latest
+    environment:
+      <<: *common_env
+      PORT: "4100"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+
+  svc-job-worker:
+    <<: *node_common
+    image: ewh/svc-job-worker:latest
+    environment:
+      <<: *common_env
+      PORT: "4101"
+    deploy:
+      replicas: 2  # 2 worker per parallelizzare job
+
+  # ============================================
+  # FRONTEND APPS (Stateless - 2 repliche)
+  # ============================================
+
+  app-web-frontend:
+    image: ewh/app-web-frontend:latest
+    environment:
+      PORT: "3100"
+      NEXT_PUBLIC_API_BASE_URL: "https://api.ewh.com"
+    networks:
+      - ewh_overlay
+    deploy:
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  app-admin-frontend:
+    image: ewh/app-admin-frontend:latest
+    environment:
+      PORT: "3200"
+      NEXT_PUBLIC_API_BASE_URL: "https://api.ewh.com"
+    networks:
+      - ewh_overlay
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # ============================================
+  # LOAD BALANCER (Traefik - su manager)
+  # ============================================
+
+  traefik:
+    image: traefik:v3.0
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@ewh.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443
+        mode: host
+      - target: 8080
+        published: 8080
+        mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_letsencrypt:/letsencrypt
+    networks:
+      - ewh_overlay
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.traefik.rule=Host(`traefik.ewh.com`)"
+        - "traefik.http.routers.traefik.service=api@internal"
+        - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+
+  # ============================================
+  # MONITORING (Portainer)
+  # ============================================
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ewh_portainer:/data
+    networks:
+      - ewh_overlay
+    ports:
+      - target: 9000
+        published: 9000
+        mode: host
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  traefik_letsencrypt:

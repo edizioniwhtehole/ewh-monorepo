@@ -1,0 +1,1 @@
+- ✅ svc-orders-sales: deps=✓, health=✓, auth=⚠ (port 6001)

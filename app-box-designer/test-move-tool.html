@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAD Tools Test - Select + Move + Draw</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #1e1e1e;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #toolbar {
+      background: #252526;
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      border-bottom: 1px solid #3e3e42;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 0 12px;
+      border-right: 1px solid #3e3e42;
+    }
+
+    .toolbar-group:last-child {
+      border-right: none;
+    }
+
+    .toolbar-label {
+      color: #cccccc;
+      font-size: 11px;
+      text-transform: uppercase;
+      margin-right: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    button {
+      background: #3c3c3c;
+      color: #cccccc;
+      border: 1px solid #555;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background: #505050;
+      border-color: #777;
+      color: #fff;
+    }
+
+    button.active {
+      background: #0e639c;
+      color: #fff;
+      border-color: #1177bb;
+      box-shadow: 0 0 8px rgba(14, 99, 156, 0.4);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .tool-btn {
+      min-width: 90px;
+    }
+
+    .info {
+      margin-left: auto;
+      font-family: 'Consolas', monospace;
+      color: #4ec9b0;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #1e1e1e;
+    }
+
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    #stats {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(37, 37, 38, 0.95);
+      padding: 15px;
+      border-radius: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      color: #cccccc;
+      min-width: 240px;
+      border: 1px solid #3e3e42;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .stat-line {
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stat-label {
+      color: #9cdcfe;
+    }
+
+    .stat-value {
+      color: #4ec9b0;
+      font-weight: bold;
+    }
+
+    .stat-divider {
+      border-top: 1px solid #3e3e42;
+      margin: 10px 0;
+    }
+
+    #help {
+      background: #252526;
+      padding: 16px;
+      border-top: 1px solid #3e3e42;
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+      line-height: 1.8;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+    }
+
+    .help-title {
+      color: #4ec9b0;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .help-row {
+      display: flex;
+      gap: 40px;
+    }
+
+    .help-col {
+      flex: 1;
+    }
+
+    .help-item {
+      margin-bottom: 4px;
+      color: #cccccc;
+    }
+
+    .help-key {
+      color: #ce9178;
+      font-weight: bold;
+      background: #3c3c3c;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-right: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <div class="toolbar-group">
+      <span class="toolbar-label">Tools</span>
+      <button id="btn-select" class="tool-btn active" onclick="selectTool('select')">Select (S)</button>
+      <button id="btn-move" class="tool-btn" onclick="selectTool('move')">Move (M)</button>
+      <button id="btn-line" class="tool-btn" onclick="selectTool('line')">Line (L)</button>
+      <button id="btn-rectangle" class="tool-btn" onclick="selectTool('rectangle')">Rectangle (R)</button>
+      <button id="btn-circle" class="tool-btn" onclick="selectTool('circle')">Circle (C)</button>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="toolbar-label">Line Type</span>
+      <button id="btn-cut" class="active" onclick="setLineType('cut')">Cut</button>
+      <button id="btn-crease" onclick="setLineType('crease')">Crease</button>
+      <button id="btn-perf" onclick="setLineType('perforation')">Perf</button>
+      <button id="btn-bleed" onclick="setLineType('bleed')">Bleed</button>
+    </div>
+
+    <div class="toolbar-group">
+      <button onclick="quickTest()">Quick Test (100 objects)</button>
+      <button onclick="clearAll()">Clear All</button>
+      <button onclick="toggleProfiling()">Profiling</button>
+      <button onclick="toggleGrid()">Toggle Grid</button>
+    </div>
+
+    <div class="info" id="info">Ready</div>
+  </div>
+
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+    <div id="stats">
+      <div class="stat-line">
+        <span class="stat-label">Lines:</span>
+        <span class="stat-value" id="stat-lines">0</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Rectangles:</span>
+        <span class="stat-value" id="stat-rects">0</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Circles:</span>
+        <span class="stat-value" id="stat-circles">0</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Total Objects:</span>
+        <span class="stat-value" id="stat-total">0</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-line">
+        <span class="stat-label">Selected:</span>
+        <span class="stat-value" id="stat-selected">0</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-line">
+        <span class="stat-label">FPS:</span>
+        <span class="stat-value" id="stat-fps">0</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Render:</span>
+        <span class="stat-value" id="stat-render">0ms</span>
+      </div>
+      <div class="stat-line">
+        <span class="stat-label">Zoom:</span>
+        <span class="stat-value" id="stat-zoom">100%</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="help">
+    <div class="help-title">⌨️ Keyboard Shortcuts</div>
+    <div class="help-row">
+      <div class="help-col">
+        <div class="help-item"><span class="help-key">S</span> Select Tool</div>
+        <div class="help-item"><span class="help-key">M</span> Move Tool</div>
+        <div class="help-item"><span class="help-key">L</span> Line Tool</div>
+        <div class="help-item"><span class="help-key">R</span> Rectangle Tool</div>
+        <div class="help-item"><span class="help-key">C</span> Circle Tool</div>
+        <div class="help-item"><span class="help-key">ESC</span> Cancel / Deselect</div>
+      </div>
+      <div class="help-col">
+        <div class="help-item"><span class="help-key">Select:</span> Click, Shift+Click, Drag, Delete</div>
+        <div class="help-item"><span class="help-key">Move:</span> Drag selected objects</div>
+        <div class="help-item"><span class="help-key">M</span> Coordinate input (in Move tool)</div>
+        <div class="help-item"><span class="help-key">S</span> Toggle snap to objects (during move)</div>
+        <div class="help-item"><span class="help-key">G</span> Toggle snap to grid (during move)</div>
+      </div>
+      <div class="help-col">
+        <div class="help-item"><span class="help-key">Ctrl+A</span> Select All</div>
+        <div class="help-item"><span class="help-key">Ctrl+Z</span> Undo</div>
+        <div class="help-item"><span class="help-key">Ctrl+Y</span> Redo</div>
+        <div class="help-item"><span class="help-key">Wheel</span> Zoom in/out</div>
+        <div class="help-item"><span class="help-key">Drag</span> Ghost preview (Move tool)</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { CADEngine } from './cad-tools/CADEngine.js';
+
+    // Initialize canvas
+    const canvas = document.getElementById('canvas');
+    const updateCanvasSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight - 200;
+      if (window.engine) {
+        engine.render();
+      }
+    };
+    updateCanvasSize();
+
+    // Initialize CAD Engine
+    const engine = new CADEngine(canvas);
+    window.engine = engine;
+
+    // Enable profiling
+    engine.toggleProfiling(true);
+
+    // Activate select tool by default
+    engine.setTool('select');
+
+    // Resize handler
+    window.addEventListener('resize', updateCanvasSize);
+
+    // Global keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+      // Don't interfere with tool shortcuts or browser shortcuts
+      if (e.ctrlKey || e.metaKey) return;
+
+      switch(e.key.toLowerCase()) {
+        case 's':
+          // Only switch to select if not in a mode that uses 's'
+          const currentTool = engine.currentTool;
+          if (!currentTool || !currentTool.isMoving) {
+            selectTool('select');
+          }
+          break;
+        case 'm':
+          // Only switch to move tool if 'm' pressed at top level
+          const moveTool = engine.tools.move;
+          if (!moveTool || !moveTool.coordinateInputMode) {
+            selectTool('move');
+          }
+          break;
+        case 'l':
+          selectTool('line');
+          break;
+        case 'r':
+          if (!e.shiftKey) {
+            selectTool('rectangle');
+          }
+          break;
+        case 'c':
+          if (!engine.currentTool || engine.currentToolName !== 'line') {
+            selectTool('circle');
+          }
+          break;
+      }
+    });
+
+    // Update stats
+    function updateStats() {
+      const lineCount = engine.objects.filter(obj => obj.type === 'line').length;
+      const rectCount = engine.objects.filter(obj => obj.type === 'rectangle').length;
+      const circleCount = engine.objects.filter(obj => obj.type === 'circle').length;
+
+      document.getElementById('stat-lines').textContent = lineCount;
+      document.getElementById('stat-rects').textContent = rectCount;
+      document.getElementById('stat-circles').textContent = circleCount;
+      document.getElementById('stat-total').textContent = engine.objects.length;
+      document.getElementById('stat-fps').textContent = engine.profiling.fps.toFixed(1);
+      document.getElementById('stat-render').textContent = engine.profiling.lastRenderTime.toFixed(2) + 'ms';
+      document.getElementById('stat-zoom').textContent = (engine.zoom * 100).toFixed(0) + '%';
+
+      // Update selected count
+      const selectTool = engine.tools.select;
+      const selectedCount = selectTool ? selectTool.selectedObjects.length : 0;
+      document.getElementById('stat-selected').textContent = selectedCount;
+
+      document.getElementById('info').textContent = engine.statusMessage || 'Ready';
+    }
+
+    setInterval(updateStats, 100);
+
+    // Tool selection
+    window.selectTool = (toolName) => {
+      engine.setTool(toolName);
+
+      // Update UI
+      document.querySelectorAll('.tool-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById('btn-' + toolName).classList.add('active');
+    };
+
+    // Line type selection
+    window.setLineType = (lineType) => {
+      const currentTool = engine.currentTool;
+      if (currentTool && currentTool.setLineType) {
+        currentTool.setLineType(lineType);
+      }
+
+      // Update UI
+      document.querySelectorAll('[id^="btn-cut"], [id^="btn-crease"], [id^="btn-perf"], [id^="btn-bleed"]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      const btnId = {
+        'cut': 'btn-cut',
+        'crease': 'btn-crease',
+        'perforation': 'btn-perf',
+        'bleed': 'btn-bleed'
+      }[lineType];
+
+      if (btnId) {
+        document.getElementById(btnId).classList.add('active');
+      }
+    };
+
+    // Quick test - create 100 mixed objects
+    window.quickTest = () => {
+      const startTime = performance.now();
+      const types = ['line', 'rectangle', 'circle'];
+      const lineTypes = ['cut', 'crease', 'perforation', 'bleed'];
+
+      for (let i = 0; i < 100; i++) {
+        const type = types[Math.floor(Math.random() * types.length)];
+        const lineType = lineTypes[Math.floor(Math.random() * lineTypes.length)];
+        const x = Math.random() * 800;
+        const y = Math.random() * 600;
+
+        let obj = { type, lineType };
+
+        switch (type) {
+          case 'line':
+            obj.p1 = { x, y };
+            obj.p2 = { x: x + Math.random() * 200 - 100, y: y + Math.random() * 200 - 100 };
+            break;
+
+          case 'rectangle':
+            obj.x = x;
+            obj.y = y;
+            obj.width = Math.random() * 100 + 20;
+            obj.height = Math.random() * 100 + 20;
+            break;
+
+          case 'circle':
+            obj.cx = x;
+            obj.cy = y;
+            obj.radius = Math.random() * 50 + 10;
+            break;
+        }
+
+        engine.addObject(obj);
+      }
+
+      engine.saveHistory();
+      engine.render();
+
+      const createTime = performance.now() - startTime;
+      console.log(`Created 100 mixed objects in ${createTime.toFixed(2)}ms`);
+      console.log(`Render time: ${engine.profiling.lastRenderTime.toFixed(2)}ms`);
+    };
+
+    // Clear all
+    window.clearAll = () => {
+      if (engine.objects.length > 0 && !confirm(`Delete ${engine.objects.length} objects?`)) {
+        return;
+      }
+      engine.objects = [];
+
+      // Clear selection
+      if (engine.tools.select) {
+        engine.tools.select.selectedObjects = [];
+      }
+
+      // Clear move tool
+      if (engine.tools.move) {
+        engine.tools.move.objectsToMove = [];
+      }
+
+      engine.saveHistory();
+      engine.render();
+    };
+
+    // Toggle profiling
+    window.toggleProfiling = () => {
+      engine.toggleProfiling(!engine.enableProfiling);
+    };
+
+    // Toggle grid
+    window.toggleGrid = () => {
+      engine.showGrid = !engine.showGrid;
+      engine.render();
+    };
+
+    console.log('🎨 CAD Tools Test Ready - MOVE TOOL FOCUS!');
+    console.log('📐 Tools: Select (S), Move (M), Line (L), Rectangle (R), Circle (C)');
+    console.log('🖱️  Move: Select objects first, then press M and drag');
+    console.log('⌨️  Move shortcuts: M (coordinate input), S (snap toggle), G (grid toggle), ESC (cancel)');
+    console.log('✨ Features: Ghost preview, snap to grid/objects, coordinate input');
+  </script>
+</body>
+</html>

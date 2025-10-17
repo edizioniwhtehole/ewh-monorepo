@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EWH Mac Studio Manager PRO</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 1600px; margin: 0 auto; }
+
+    header {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    h1 { font-size: 28px; color: #667eea; }
+    .header-stats {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+    .stat { font-weight: 600; }
+    .stat span { color: #667eea; font-size: 18px; }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .btn:hover { transform: scale(1.05); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-info { background: #3b82f6; color: white; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .section {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f3f4f6;
+    }
+    .section-title { font-size: 22px; font-weight: bold; color: #1f2937; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+    }
+
+    .card {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .card:hover { border-color: #667eea; transform: translateY(-2px); }
+    .card.running { border-color: #10b981; background: #f0fdf4; }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .card-name {
+      font-weight: 600;
+      color: #1f2937;
+      font-size: 14px;
+      flex: 1;
+    }
+    .card-badges {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+    }
+    .badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-info { background: #dbeafe; color: #1e40af; }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #9ca3af;
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .status-dot.online { background: #10b981; animation: pulse 2s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .card-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 11px;
+      margin-bottom: 12px;
+      color: #6b7280;
+    }
+    .card-stats div strong { color: #1f2937; }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .card-actions.full {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s;
+    }
+    .modal.show { display: flex; align-items: center; justify-content: center; }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      animation: slideUp 0.3s;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 2px solid #f3f4f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h2 { font-size: 20px; color: #1f2937; }
+    .close {
+      font-size: 28px;
+      font-weight: bold;
+      color: #9ca3af;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .close:hover { color: #000; }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .log-output {
+      background: #1f2937;
+      color: #10b981;
+      padding: 20px;
+      border-radius: 10px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .log-output.loading {
+      text-align: center;
+      color: #6b7280;
+      padding: 40px;
+    }
+
+    .modal-footer {
+      padding: 15px 20px;
+      border-top: 2px solid #f3f4f6;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .loading { text-align: center; padding: 40px; color: #6b7280; }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f4f6;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 8px 16px;
+      border: 2px solid #e5e7eb;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: #667eea; }
+    .filter-btn.active { background: #667eea; color: white; border-color: #667eea; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>🖥️ EWH Mac Studio Manager PRO</h1>
+      </div>
+      <div class="header-stats">
+        <div class="stat">Services: <span id="servicesCount">0</span></div>
+        <div class="stat">Apps: <span id="appsCount">0</span></div>
+        <div class="stat">Running: <span id="runningCount">0</span></div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-success" onclick="startAll()">▶️ Avvia Tutti</button>
+        <button class="btn btn-danger" onclick="stopAll()">⏸️ Ferma Tutti</button>
+        <button class="btn btn-primary" onclick="refresh()">🔄 Aggiorna</button>
+      </div>
+    </header>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🔧 Services (<span id="servicesTotal">0</span>)</div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterServices('all')">Tutti</button>
+          <button class="filter-btn" onclick="filterServices('running')">Running</button>
+          <button class="filter-btn" onclick="filterServices('stopped')">Stopped</button>
+          <button class="filter-btn" onclick="filterServices('no-deps')">Senza Dipendenze</button>
+        </div>
+      </div>
+      <div class="grid" id="servicesGrid">
+        <div class="loading"><div class="spinner"></div>Caricamento...</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">📱 Apps (<span id="appsTotal">0</span>)</div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterApps('all')">Tutti</button>
+          <button class="filter-btn" onclick="filterApps('running')">Running</button>
+          <button class="filter-btn" onclick="filterApps('stopped')">Stopped</button>
+          <button class="filter-btn" onclick="filterApps('no-deps')">Senza Dipendenze</button>
+        </div>
+      </div>
+      <div class="grid" id="appsGrid">
+        <div class="loading"><div class="spinner"></div>Caricamento...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Azione in corso...</h2>
+        <span class="close" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="log-output loading" id="modalOutput">
+          <div class="spinner"></div>
+          Esecuzione in corso...
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="closeModal()">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allData = { services: [], apps: [] };
+    let serviceFilter = 'all';
+    let appFilter = 'all';
+
+    async function api(endpoint, method = 'GET', body = null) {
+      const options = { method };
+      if (body) {
+        options.headers = { 'Content-Type': 'application/json' };
+        options.body = JSON.stringify(body);
+      }
+      const res = await fetch('/api' + endpoint, options);
+      return res.json();
+    }
+
+    async function loadData() {
+      const data = await api('/projects');
+      allData = data;
+
+      document.getElementById('servicesCount').textContent = data.services.length;
+      document.getElementById('appsCount').textContent = data.apps.length;
+      document.getElementById('servicesTotal').textContent = data.services.length;
+      document.getElementById('appsTotal').textContent = data.apps.length;
+
+      const running = data.services.filter(s => s.running).length +
+                     data.apps.filter(a => a.running).length;
+      document.getElementById('runningCount').textContent = running;
+
+      renderServices();
+      renderApps();
+    }
+
+    function renderServices() {
+      render('services', 'servicesGrid', serviceFilter);
+    }
+
+    function renderApps() {
+      render('apps', 'appsGrid', appFilter);
+    }
+
+    function render(type, gridId, filter) {
+      const grid = document.getElementById(gridId);
+      let items = allData[type];
+
+      if (filter === 'running') items = items.filter(i => i.running);
+      if (filter === 'stopped') items = items.filter(i => !i.running);
+      if (filter === 'no-deps') items = items.filter(i => !i.has_dependencies);
+
+      if (items.length === 0) {
+        grid.innerHTML = '<div class="loading">Nessun elemento trovato</div>';
+        return;
+      }
+
+      grid.innerHTML = items.map(item => createCard(item)).join('');
+    }
+
+    function createCard(item) {
+      const isRunning = item.running;
+      const hasDeps = item.has_dependencies;
+      const cardClass = isRunning ? 'running' : '';
+      const port = item.port;
+
+      return `
+        <div class="card ${cardClass}">
+          <div class="card-header">
+            <div class="card-name">
+              <span class="status-dot ${isRunning ? 'online' : ''}"></span>
+              ${item.name}
+            </div>
+            <div class="card-badges">
+              ${hasDeps ?
+                '<span class="badge badge-success">✓ Deps</span>' :
+                '<span class="badge badge-danger">✗ Deps</span>'
+              }
+              ${port ? `<span class="badge badge-info">:${port}</span>` : ''}
+            </div>
+          </div>
+          ${isRunning ? `
+            <div class="card-stats">
+              <div>CPU: <strong>${item.cpu}%</strong></div>
+              <div>RAM: <strong>${item.memory}MB</strong></div>
+            </div>
+          ` : ''}
+          <div class="card-actions ${port ? 'full' : ''}">
+            ${isRunning ?
+              `<button class="btn btn-danger btn-sm" onclick="stopWithModal('${item.name}')">⏸️ Stop</button>` :
+              `<button class="btn btn-success btn-sm" onclick="startWithModal('${item.name}')" ${!hasDeps ? 'disabled title="Installa prima le dipendenze"' : ''}>▶️ Start</button>`
+            }
+            <button class="btn btn-primary btn-sm" onclick="restartWithModal('${item.name}')" ${!isRunning ? 'disabled' : ''}>🔄 Restart</button>
+            ${port && isRunning ?
+              `<button class="btn btn-info btn-sm" onclick="openInBrowser(${port})">🌐 Apri</button>` :
+              ''
+            }
+          </div>
+          ${!hasDeps ?
+            `<div style="margin-top: 8px;">
+              <button class="btn btn-warning btn-sm" style="width: 100%;" onclick="installWithModal('${item.name}')">📦 Installa Dipendenze</button>
+            </div>` :
+            ''
+          }
+        </div>
+      `;
+    }
+
+    function openModal(title) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalOutput').innerHTML = '<div class="spinner"></div>Esecuzione in corso...';
+      document.getElementById('modalOutput').className = 'log-output loading';
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('show');
+    }
+
+    async function startWithModal(name) {
+      openModal(`Avvio ${name}`);
+      const result = await api('/start', 'POST', { name });
+      showOutput(result.output, result.success);
+      setTimeout(loadData, 2000);
+    }
+
+    async function stopWithModal(name) {
+      openModal(`Stop ${name}`);
+      const result = await api('/stop', 'POST', { name });
+      showOutput(result.output, result.success);
+      setTimeout(loadData, 1000);
+    }
+
+    async function restartWithModal(name) {
+      openModal(`Restart ${name}`);
+      const result = await api('/restart', 'POST', { name });
+      showOutput(result.output, result.success);
+      setTimeout(loadData, 2000);
+    }
+
+    async function installWithModal(name) {
+      openModal(`Installazione dipendenze ${name}`);
+      const result = await api('/install', 'POST', { name });
+      showOutput(result.output, result.success);
+      setTimeout(loadData, 1000);
+    }
+
+    function showOutput(output, success) {
+      const outputEl = document.getElementById('modalOutput');
+      outputEl.className = 'log-output';
+      outputEl.textContent = output || (success ? '✅ Operazione completata' : '❌ Errore');
+    }
+
+    function openInBrowser(port) {
+      window.open(`http://localhost:${port}`, '_blank');
+    }
+
+    async function startAll() {
+      if (!confirm('Avviare TUTTI i servizi? (PESANTE!)')) return;
+      openModal('Avvio globale in corso...');
+      await api('/start-all', 'POST');
+      showOutput('✅ Tutti i servizi sono stati avviati', true);
+      setTimeout(loadData, 2000);
+    }
+
+    async function stopAll() {
+      if (!confirm('Fermare TUTTI i servizi?')) return;
+      await api('/stop-all', 'POST');
+      setTimeout(loadData, 1000);
+    }
+
+    function filterServices(filter) {
+      serviceFilter = filter;
+      document.querySelectorAll('.section:nth-child(2) .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      renderServices();
+    }
+
+    function filterApps(filter) {
+      appFilter = filter;
+      document.querySelectorAll('.section:nth-child(3) .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      renderApps();
+    }
+
+    function refresh() {
+      loadData();
+    }
+
+    // Auto-refresh ogni 5 secondi
+    loadData();
+    setInterval(loadData, 5000);
+
+    // Close modal con ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Close modal cliccando fuori
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target.id === 'modal') closeModal();
+    });
+  </script>
+</body>
+</html>

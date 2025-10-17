@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EWH Dashboard - Final</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'SF Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #d2d2d7;
+            flex-shrink: 0;
+        }
+
+        .header h1 { font-size: 22px; font-weight: 600; }
+
+        .header-right { display: flex; gap: 16px; align-items: center; }
+
+        .telemetry {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #6e6e73;
+        }
+
+        .telemetry-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f5f5f7;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #d2d2d7;
+            padding: 0 24px;
+            flex-shrink: 0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover { background: #f5f5f7; }
+        .tab.active {
+            border-bottom-color: #007aff;
+            color: #007aff;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { opacity: 0.8; }
+        .btn-primary { background: #007aff; color: white; }
+        .btn-success { background: #34c759; color: white; }
+        .btn-danger { background: #ff3b30; color: white; }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .services-view {
+            flex: 1;
+            padding: 16px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .docs-view {
+            flex: 1;
+            padding: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e5e5ea;
+            overflow: hidden;
+        }
+
+        .column-header {
+            padding: 16px;
+            border-bottom: 2px solid #f5f5f7;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .column-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .column-subtitle {
+            font-size: 11px;
+            color: #6e6e73;
+            font-weight: 400;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-top: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box:focus {
+            border-color: #007aff;
+        }
+
+        .search-box::placeholder {
+            color: #86868b;
+        }
+
+        .column-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .column-body.drag-over {
+            background: #f0f9ff;
+        }
+
+        .section-divider {
+            border-top: 3px solid #ff9500;
+            margin: 16px 0 12px 0;
+            padding-top: 12px;
+            position: relative;
+        }
+
+        .section-divider::before {
+            content: '⭐ ESSENZIALI';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 0 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #ff9500;
+            letter-spacing: 0.5px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            border: 2px solid #e5e5ea;
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .service-card:hover {
+            border-color: #007aff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .service-card:active { cursor: grabbing; }
+        .service-card.dragging { opacity: 0.3; }
+
+        .service-card.running {
+            background: #d1f4e0;
+            border-left: 4px solid #34c759;
+        }
+
+        .service-card.error {
+            background: #ffe5e5;
+            border-left: 4px solid #ff3b30;
+        }
+
+        .service-card.stopped {
+            border-left: 4px solid #d1d1d6;
+        }
+
+        .service-card.selected {
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.3);
+        }
+
+        .service-card.hidden {
+            opacity: 0.4;
+            filter: grayscale(100%);
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .service-name {
+            font-weight: 600;
+            font-size: 12px;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .star-btn:hover { transform: scale(1.2); }
+
+        .status-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .badge-online { background: #248a3d; color: white; }
+        .badge-stopped { background: #6e6e73; color: white; }
+        .badge-error { background: #d70015; color: white; }
+
+        .service-info {
+            font-size: 10px;
+            color: #6e6e73;
+            margin-bottom: 6px;
+            min-height: 14px;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 3px 6px;
+            font-size: 9px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-sm:hover { opacity: 0.8; }
+        .btn-start { background: #34c759; color: white; }
+        .btn-stop { background: #ff3b30; color: white; }
+        .btn-restart { background: #ff9500; color: white; }
+        .btn-logs { background: #007aff; color: white; }
+        .btn-open { background: #5ac8fa; color: white; }
+        .btn-hide { background: #86868b; color: white; }
+        .btn-debug { background: #ff2d55; color: white; }
+        .btn-warning { background: #ff9500; color: white; }
+
+        .placeholder-card {
+            background: linear-gradient(135deg, #f5f5f7 0%, #e5e5ea 100%);
+            border-radius: 8px;
+            padding: 12px;
+            border: 2px dashed #d2d2d7;
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+            text-align: center;
+        }
+
+        .placeholder-card:hover {
+            border-color: #007aff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #e8f4ff 0%, #d0e8ff 100%);
+        }
+
+        .placeholder-card:active { cursor: grabbing; }
+
+        .placeholder-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+
+        .placeholder-text {
+            font-size: 11px;
+            color: #86868b;
+            font-weight: 500;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90vw;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #d2d2d7;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .modal-toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-right: 12px;
+        }
+
+        .modal-close {
+            background: #f5f5f7;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .modal-close:hover {
+            background: #e5e5ea;
+        }
+
+        #modal-body {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .log {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Menlo', monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .spinner {
+            border: 3px solid #e5e5ea;
+            border-top: 3px solid #007aff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6e6e73;
+            font-size: 12px;
+        }
+
+        .finder-container {
+            display: flex;
+            height: 100%;
+            gap: 1px;
+            background: #d2d2d7;
+            border-radius: 8px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .finder-column {
+            flex: 1;
+            background: white;
+            overflow-y: auto;
+            min-width: 200px;
+        }
+
+        .finder-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f5f5f7;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .finder-item:hover {
+            background: #f5f5f7;
+        }
+
+        .finder-item.selected {
+            background: #007aff;
+            color: white;
+        }
+
+        .finder-item.folder::before {
+            content: '📁';
+        }
+
+        .finder-item.file::before {
+            content: '📄';
+        }
+
+        .doc-editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .doc-editor {
+            flex: 1;
+            font-family: 'Menlo', monospace;
+            font-size: 13px;
+            padding: 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+        }
+
+        .doc-editor:focus {
+            border-color: #007aff;
+        }
+
+        .editor-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 11px;
+            color: #6e6e73;
+            padding: 8px 12px;
+            background: #f5f5f7;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .editor-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 EWH Dashboard</h1>
+        <div class="header-right">
+            <div class="telemetry">
+                <div class="telemetry-item">
+                    <span>🖥️</span>
+                    <strong id="cpu">-</strong>
+                </div>
+                <div class="telemetry-item">
+                    <span>💾</span>
+                    <strong id="ram">-</strong>
+                </div>
+                <div class="telemetry-item">
+                    <span>💿</span>
+                    <strong id="disk">-</strong>
+                </div>
+            </div>
+            <button class="btn btn-success" onclick="startSelected()">▶️ Start Sel.</button>
+            <button class="btn btn-danger" onclick="stopSelected()">⏹️ Stop Sel.</button>
+            <button class="btn btn-warning" onclick="stopAll()">⏹️ Stop Tutti</button>
+            <button class="btn btn-warning" onclick="restartAll()">🔄 Restart Tutti</button>
+            <button class="btn btn-primary" onclick="toggleShowHidden()" id="toggle-hidden-btn">👁️ Mostra nascosti</button>
+            <button class="btn btn-primary" onclick="discover()">🔄 Rileva</button>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('services')">⚙️ Servizi</div>
+        <div class="tab" onclick="switchTab('docs')">📄 Documentazione</div>
+    </div>
+
+    <div class="tab-content active" id="services-tab">
+        <div class="services-view">
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">🎨 Frontend</div>
+                    <div class="column-subtitle" id="frontend-count">0 servizi</div>
+                    <input type="text" class="search-box" placeholder="🔍 Cerca..." oninput="filterColumn('frontend', this.value)">
+                </div>
+                <div class="column-body" id="frontend-column" data-col="frontend"></div>
+            </div>
+
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">🔧 Backend</div>
+                    <div class="column-subtitle" id="backend-count">0 servizi</div>
+                    <input type="text" class="search-box" placeholder="🔍 Cerca..." oninput="filterColumn('backend', this.value)">
+                </div>
+                <div class="column-body" id="backend-column" data-col="backend"></div>
+            </div>
+
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">⚙️ Solo Backend</div>
+                    <div class="column-subtitle" id="solobackend-count">0 servizi</div>
+                    <input type="text" class="search-box" placeholder="🔍 Cerca..." oninput="filterColumn('solobackend', this.value)">
+                </div>
+                <div class="column-body" id="solobackend-column" data-col="solobackend"></div>
+            </div>
+
+            <div class="column">
+                <div class="column-header">
+                    <div class="column-title">📦 Altro</div>
+                    <div class="column-subtitle" id="other-count">0 servizi</div>
+                    <input type="text" class="search-box" placeholder="🔍 Cerca..." oninput="filterColumn('other', this.value)">
+                </div>
+                <div class="column-body" id="other-column" data-col="other"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="docs-tab">
+        <div class="docs-view">
+            <div class="finder-container" id="finder-container">
+                <div class="empty-state" style="width:100%;">Caricamento documentazione...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">...</h3>
+                <div class="modal-toolbar" id="modal-toolbar"></div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div id="modal-body"><div class="spinner"></div></div>
+        </div>
+    </div>
+
+    <script>
+        const PORTS = {
+            'svc-auth': 4001, 'svc-api-gateway': 4000, 'svc-pm': 5500,
+            'app-pm-frontend': 5400, 'app-dam': 5100, 'app-cms-frontend': 5200,
+            'app-admin-frontend': 3200, 'svc-media': 4003, 'svc-boards': 4010,
+            'svc-bi': 4011, 'svc-projects': 4012, 'app-web-frontend': 3100,
+            'app-shell-frontend': 3150, 'svc-dms': 4013, 'svc-crm': 4014,
+        };
+
+        let allServices = [];
+        let pm2Services = [];
+        let layout = {
+            frontend: [],
+            backend: [],
+            solobackend: [],
+            other: [],
+            essentials: [],
+            hidden: []
+        };
+        let selected = new Set();
+        let filters = { frontend: '', backend: '', solobackend: '', other: '' };
+        let showHidden = false;
+        let currentTab = 'services';
+
+        // Finder state
+        let finderColumns = [[]];
+        let finderPath = [];
+        let currentEditFile = null;
+        let isLoadingFolder = false;
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            // Load docs if switching to docs tab
+            if (tabName === 'docs' && finderColumns[0].length === 0) {
+                loadDocs();
+            }
+        }
+
+        async function loadDocs() {
+            const container = document.getElementById('finder-container');
+            container.innerHTML = '<div class="empty-state" style="width:100%;"><div class="spinner"></div></div>';
+
+            try {
+                const res = await fetch('/docs');
+                const items = await res.json();
+
+                finderColumns = [items];
+                finderPath = [];
+                renderFinder();
+            } catch (e) {
+                container.innerHTML = `<div class="empty-state" style="width:100%;">❌ Errore caricamento: ${e.message}</div>`;
+            }
+        }
+
+        function renderFinder() {
+            const container = document.getElementById('finder-container');
+            let html = '';
+
+            finderColumns.forEach((col, colIdx) => {
+                html += '<div class="finder-column">';
+
+                // Separa cartelle e file (già ordinati dal backend)
+                const folders = col.filter(item => item.type === 'folder');
+                const files = col.filter(item => item.type === 'file');
+
+                // Rendi prima le cartelle
+                folders.forEach((item) => {
+                    const isSelected = finderPath[colIdx] === item.path;
+                    const className = `finder-item ${item.type} ${isSelected ? 'selected' : ''}`;
+                    html += `<div class="${className}" onclick="selectFolder(${colIdx}, '${item.path}', event)">${item.name}</div>`;
+                });
+
+                // Poi i file
+                files.forEach((item) => {
+                    const isSelected = finderPath[colIdx] === item.path;
+                    const className = `finder-item ${item.type} ${isSelected ? 'selected' : ''}`;
+                    html += `<div class="${className}" onclick="openFile('${item.path}', event)">${item.name}</div>`;
+                });
+
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        async function selectFolder(colIdx, folderPath, event) {
+            // Previeni doppio click
+            if (isLoadingFolder) {
+                console.log('Già in caricamento, ignoro click');
+                return;
+            }
+
+            // Previeni click multipli
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            // Se ho già caricato questa cartella, non ricaricare
+            if (finderPath[colIdx] === folderPath && finderColumns[colIdx + 1]) {
+                console.log('Cartella già caricata');
+                return;
+            }
+
+            isLoadingFolder = true;
+
+            // Update path
+            finderPath = finderPath.slice(0, colIdx);
+            finderPath.push(folderPath);
+
+            // Remove subsequent columns
+            finderColumns = finderColumns.slice(0, colIdx + 1);
+            renderFinder(); // Mostra subito la selezione
+
+            // Load folder content
+            try {
+                const res = await fetch(`/docs/${folderPath}`);
+                const items = await res.json();
+
+                finderColumns.push(items);
+                renderFinder();
+            } catch (e) {
+                console.error('Error loading folder:', e);
+            } finally {
+                isLoadingFolder = false;
+            }
+        }
+
+        async function openFile(filePath) {
+            const fileName = filePath.split('/').pop();
+            document.getElementById('modal-title').textContent = `✏️ ${fileName}`;
+            document.getElementById('modal-toolbar').innerHTML = `
+                <button class="btn btn-success" onclick="saveDoc()">💾 Salva</button>
+            `;
+            document.getElementById('modal-body').innerHTML = '<div class="spinner"></div>';
+            document.getElementById('modal').classList.add('show');
+
+            try {
+                const res = await fetch(`/doc/${filePath}`);
+                const content = await res.text();
+
+                currentEditFile = filePath;
+
+                const lines = content.split('\n').length;
+                const words = content.split(/\s+/).filter(w => w.length > 0).length;
+                const chars = content.length;
+
+                const html = `
+                    <div class="editor-stats">
+                        <span>📊 Linee: <strong id="line-count">${lines}</strong></span>
+                        <span>📝 Parole: <strong id="word-count">${words}</strong></span>
+                        <span>🔤 Caratteri: <strong id="char-count">${chars}</strong></span>
+                    </div>
+                    <textarea id="doc-editor" class="doc-editor" oninput="updateStats()">${content}</textarea>
+                `;
+
+                document.getElementById('modal-body').innerHTML = html;
+            } catch (e) {
+                showOutput('Errore caricamento file: ' + e.message, false);
+            }
+        }
+
+        function updateStats() {
+            const content = document.getElementById('doc-editor').value;
+            const lines = content.split('\n').length;
+            const words = content.split(/\s+/).filter(w => w.length > 0).length;
+            const chars = content.length;
+
+            document.getElementById('line-count').textContent = lines;
+            document.getElementById('word-count').textContent = words;
+            document.getElementById('char-count').textContent = chars;
+        }
+
+        async function saveDoc() {
+            const content = document.getElementById('doc-editor').value;
+
+            try {
+                const res = await fetch(`/doc/${currentEditFile}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content })
+                });
+
+                const result = await res.json();
+
+                if (result.success) {
+                    alert('✅ Documento salvato!');
+                    closeModal();
+                } else {
+                    alert('❌ Errore: ' + result.error);
+                }
+            } catch (e) {
+                alert('❌ Errore salvataggio: ' + e.message);
+            }
+        }
+
+        async function loadLayout() {
+            try {
+                const res = await fetch('/layout');
+                const loaded = await res.json();
+
+                // Assicura che tutti i campi esistano
+                layout = {
+                    frontend: loaded.frontend || [],
+                    backend: loaded.backend || [],
+                    solobackend: loaded.solobackend || [],
+                    other: loaded.other || [],
+                    essentials: loaded.essentials || [],
+                    hidden: loaded.hidden || []
+                };
+
+                console.log('✅ Layout loaded:', layout);
+            } catch (e) {
+                console.error('Error loading layout:', e);
+                // Inizializza con layout vuoto in caso di errore
+                layout = {
+                    frontend: [],
+                    backend: [],
+                    solobackend: [],
+                    other: [],
+                    essentials: [],
+                    hidden: []
+                };
+            }
+        }
+
+        async function saveLayout() {
+            try {
+                await fetch('/layout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(layout)
+                });
+            } catch (e) {
+                console.error('Error saving layout:', e);
+            }
+        }
+
+        async function api(command) {
+            const res = await fetch('/api', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command })
+            });
+            return res.json();
+        }
+
+        async function getTelemetry() {
+            const res = await fetch('/telemetry');
+            const data = await res.json();
+            if (data.success) {
+                const output = data.output;
+                const cpuMatch = output.match(/CPU usage: ([\d.]+)% user/);
+                if (cpuMatch) document.getElementById('cpu').textContent = cpuMatch[1] + '%';
+                const ramMatch = output.match(/PhysMem: ([\d.]+[GM]) used/);
+                if (ramMatch) document.getElementById('ram').textContent = ramMatch[1];
+                const diskMatch = output.match(/(\d+)%\s+\/System/);
+                if (diskMatch) document.getElementById('disk').textContent = diskMatch[1] + '%';
+            }
+        }
+
+        async function discover() {
+            console.log('🔍 Discover start');
+            openModal('🔍 Rilevamento servizi', '<div class="spinner"></div>');
+            const r = await api('ls -d app-* svc-* 2>/dev/null');
+            console.log('📦 API response:', r);
+
+            if (r.success) {
+                allServices = r.output.trim().split('\n').filter(Boolean);
+                console.log('✅ Found services:', allServices.length);
+
+                allServices.forEach(s => {
+                    const exists = layout.frontend.includes(s) ||
+                                 layout.backend.includes(s) ||
+                                 layout.solobackend.includes(s) ||
+                                 layout.other.includes(s);
+                    if (!exists) {
+                        layout.other.push(s);
+                    }
+                });
+
+                console.log('💾 Saving layout...');
+                await saveLayout();
+                showOutput(`Trovati ${allServices.length} servizi`, true);
+                console.log('⏱️ Waiting 1.5s before render...');
+                setTimeout(() => {
+                    console.log('🎨 Closing modal and rendering...');
+                    closeModal();
+                    render();
+                    console.log('✅ Render complete!');
+                }, 1500);
+            } else {
+                console.error('❌ API failed:', r.output);
+            }
+        }
+
+        function openModal(title, body = '<div class="spinner"></div>') {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-toolbar').innerHTML = '';
+            document.getElementById('modal-body').innerHTML = body;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            document.getElementById('modal-toolbar').innerHTML = '';
+        }
+
+        function showOutput(output, success) {
+            document.getElementById('modal-body').innerHTML =
+                `<div class="log">${output || 'Nessun output'}</div>`;
+        }
+
+        async function start(name) {
+            openModal(`🚀 ${name}`);
+            const r = await api(`cd ${name} && pm2 start npm --name ${name} -- run dev`);
+            showOutput(r.output, r.success);
+            setTimeout(load, 2000);
+        }
+
+        async function stop(name) {
+            openModal(`⏹️ ${name}`);
+            const r = await api(`pm2 stop ${name}`);
+            showOutput(r.output, r.success);
+            setTimeout(load, 2000);
+        }
+
+        async function restart(name) {
+            openModal(`🔄 ${name}`);
+            const r = await api(`pm2 restart ${name}`);
+            showOutput(r.output, r.success);
+            setTimeout(load, 2000);
+        }
+
+        async function logs(name) {
+            openModal(`📋 ${name}`, '<div class="spinner"></div>');
+            const r = await api(`pm2 logs ${name} --lines 100 --nostream`);
+            showOutput(r.output, true);
+        }
+
+        function openUrl(port) {
+            window.open(`http://192.168.1.47:${port}`, '_blank');
+        }
+
+        function toggleSelect(name) {
+            if (selected.has(name)) {
+                selected.delete(name);
+            } else {
+                selected.add(name);
+            }
+            render();
+        }
+
+        function toggleEssential(name) {
+            if (layout.essentials.includes(name)) {
+                layout.essentials = layout.essentials.filter(n => n !== name);
+            } else {
+                layout.essentials.push(name);
+            }
+            saveLayout();
+            render();
+        }
+
+        function toggleHide(name) {
+            if (layout.hidden.includes(name)) {
+                layout.hidden = layout.hidden.filter(n => n !== name);
+            } else {
+                layout.hidden.push(name);
+            }
+            saveLayout();
+            render();
+        }
+
+        function toggleShowHidden() {
+            showHidden = !showHidden;
+            document.getElementById('toggle-hidden-btn').textContent = showHidden ? '🙈 Nascondi' : '👁️ Mostra nascosti';
+            render();
+        }
+
+        async function startSelected() {
+            if (selected.size === 0) {
+                alert('Seleziona almeno un servizio');
+                return;
+            }
+            openModal(`🚀 Avvio ${selected.size} servizi`);
+            for (const name of selected) {
+                await api(`cd ${name} && pm2 start npm --name ${name} -- run dev`);
+            }
+            showOutput('Servizi avviati!', true);
+            selected.clear();
+            setTimeout(load, 2000);
+        }
+
+        async function stopSelected() {
+            if (selected.size === 0) {
+                alert('Seleziona almeno un servizio');
+                return;
+            }
+            openModal(`⏹️ Stop ${selected.size} servizi`);
+            for (const name of selected) {
+                await api(`pm2 stop ${name}`);
+            }
+            showOutput('Servizi fermati!', true);
+            selected.clear();
+            setTimeout(load, 2000);
+        }
+
+        async function stopAll() {
+            if (!confirm('⚠️ Vuoi fermare TUTTI i servizi?')) return;
+
+            openModal('⏹️ Stop di tutti i servizi', '<div class="spinner"></div>');
+            const r = await api('pm2 stop all');
+            showOutput(r.output, r.success);
+            setTimeout(load, 2000);
+        }
+
+        async function restartAll() {
+            if (!confirm('⚠️ Vuoi riavviare TUTTI i servizi?')) return;
+
+            openModal('🔄 Restart di tutti i servizi', '<div class="spinner"></div>');
+            const r = await api('pm2 restart all');
+            showOutput(r.output, r.success);
+            setTimeout(load, 2000);
+        }
+
+        async function debug(name) {
+            openModal(`🐛 Debug ${name}`, '<div class="spinner"></div>');
+
+            // Prende ultimi 200 log per vedere gli errori
+            const logsRes = await api(`pm2 logs ${name} --lines 200 --nostream --err`);
+
+            // Prende info dettagliate
+            const infoRes = await api(`pm2 info ${name}`);
+
+            const debugInfo = `
+=== 🐛 DEBUG INFO: ${name} ===
+
+📋 LOG ERRORI (ultimi 200):
+${logsRes.output}
+
+---
+
+📊 INFO PROCESSO:
+${infoRes.output}
+            `;
+
+            showOutput(debugInfo, true);
+        }
+
+        function renderPlaceholderCard(name) {
+            const isEssential = name ? layout.essentials.includes(name) : false;
+            const actualName = name || '__placeholder_master__';
+
+            return `
+                <div class="placeholder-card"
+                     draggable="true"
+                     ondragstart="dragStartPlaceholder(event, '${actualName}')"
+                     ondragover="allowDrop(event)"
+                     ondrop="dropOnCard(event, '${actualName}')">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                        <div class="placeholder-icon" style="margin:0;">📋</div>
+                        ${name ? `<button class="star-btn" onclick="toggleEssential('${name}'); event.stopPropagation();">
+                            ${isEssential ? '⭐' : '☆'}
+                        </button>` : ''}
+                    </div>
+                    <div class="placeholder-text">Segnaposto</div>
+                    <div class="placeholder-text" style="font-size:9px;margin-top:4px;">${name ? 'Riordina trascinando' : 'Trascina per duplicare'}</div>
+                </div>
+            `;
+        }
+
+        function renderServiceCard(name, pm2Data) {
+            const service = pm2Data;
+            const isSelected = selected.has(name);
+            const isEssential = layout.essentials.includes(name);
+
+            const on = service?.pm2_env.status === 'online';
+            const err = service?.pm2_env.status === 'errored';
+            const cpu = service?.monit.cpu || 0;
+            const mem = service ? Math.round(service.monit.memory / 1024 / 1024) : 0;
+            const port = PORTS[name];
+
+            const isHidden = layout.hidden.includes(name);
+
+            return `
+                <div class="service-card ${on ? 'running' : err ? 'error' : 'stopped'} ${isSelected ? 'selected' : ''} ${isHidden ? 'hidden' : ''}"
+                     draggable="true"
+                     ondragstart="dragStart(event, '${name}')"
+                     ondragover="allowDrop(event)"
+                     ondrop="dropOnCard(event, '${name}')">
+                    <div class="service-header">
+                        <input type="checkbox" class="checkbox"
+                               ${isSelected ? 'checked' : ''}
+                               onchange="toggleSelect('${name}')"
+                               onclick="event.stopPropagation()">
+                        <div class="service-name" title="${name}">${name}</div>
+                        <button class="star-btn" onclick="toggleEssential('${name}'); event.stopPropagation();">
+                            ${isEssential ? '⭐' : '☆'}
+                        </button>
+                        <span class="status-badge badge-${on ? 'online' : err ? 'error' : 'stopped'}">
+                            ${on ? 'ON' : err ? 'ERR' : 'OFF'}
+                        </span>
+                    </div>
+                    <div class="service-info">
+                        ${on ? `🔥 ${cpu}% | 💾 ${mem}MB` : ''}
+                        ${port ? `${on ? ' | ' : ''}🌐 :${port}` : ''}
+                    </div>
+                    <div class="service-actions" onclick="event.stopPropagation()">
+                        ${on ? `
+                            <button class="btn btn-sm btn-stop" onclick="stop('${name}')">⏹️</button>
+                            <button class="btn btn-sm btn-restart" onclick="restart('${name}')">🔄</button>
+                        ` : err ? `
+                            <button class="btn btn-sm btn-start" onclick="start('${name}')">▶️</button>
+                            <button class="btn btn-sm btn-debug" onclick="debug('${name}')">🐛 Debug</button>
+                        ` : `
+                            <button class="btn btn-sm btn-start" onclick="start('${name}')">▶️</button>
+                        `}
+                        <button class="btn btn-sm btn-logs" onclick="logs('${name}')">📋</button>
+                        ${port && on ? `<button class="btn btn-sm btn-open" onclick="openUrl(${port})">🌐</button>` : ''}
+                        <button class="btn btn-sm btn-hide" onclick="toggleHide('${name}')">${isHidden ? '👁️' : '🙈'}</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterColumn(colName, searchTerm) {
+            filters[colName] = searchTerm.toLowerCase();
+            render();
+        }
+
+        function renderColumn(items, pm2Map, colName) {
+            // Apply filter if present
+            const filterTerm = filters[colName];
+            let filteredItems = filterTerm
+                ? items.filter(name => name.toLowerCase().includes(filterTerm))
+                : items;
+
+            // Exclude hidden if showHidden is false
+            if (!showHidden) {
+                filteredItems = filteredItems.filter(name => !layout.hidden.includes(name));
+            }
+
+            const essentials = filteredItems.filter(name => layout.essentials.includes(name));
+            const normal = filteredItems.filter(name => !layout.essentials.includes(name));
+
+            let html = '';
+
+            // Se è la colonna "Altro", aggiungi il placeholder SEMPRE in cima
+            if (colName === 'other') {
+                html += renderPlaceholderCard();
+            }
+
+            if (essentials.length > 0) {
+                html += essentials.map(name => {
+                    if (name.startsWith('__placeholder_')) {
+                        return renderPlaceholderCard(name);
+                    }
+                    return renderServiceCard(name, pm2Map[name]);
+                }).join('');
+            }
+
+            if (essentials.length > 0 && normal.length > 0) {
+                html += '<div class="section-divider"></div>';
+            }
+
+            if (normal.length > 0) {
+                html += normal.map(name => {
+                    if (name.startsWith('__placeholder_')) {
+                        return renderPlaceholderCard(name);
+                    }
+                    return renderServiceCard(name, pm2Map[name]);
+                }).join('');
+            }
+
+            return html;
+        }
+
+        function render() {
+            console.log('🎨 Render() called');
+            console.log('  Layout:', {
+                frontend: layout.frontend.length,
+                backend: layout.backend.length,
+                solobackend: layout.solobackend.length,
+                other: layout.other.length
+            });
+
+            const pm2Map = {};
+            pm2Services.forEach(s => pm2Map[s.name] = s);
+            console.log('  PM2 services:', pm2Services.length);
+
+            ['frontend', 'backend', 'solobackend', 'other'].forEach(col => {
+                const html = renderColumn(layout[col], pm2Map, col);
+                const element = document.getElementById(`${col}-column`);
+                console.log(`  Rendering ${col}: ${layout[col].length} services`);
+                element.innerHTML = html || '<div class="empty-state">Trascina qui</div>';
+
+                // Count filtered services
+                const filterTerm = filters[col];
+                const filteredCount = filterTerm
+                    ? layout[col].filter(name => name.toLowerCase().includes(filterTerm)).length
+                    : layout[col].length;
+
+                document.getElementById(`${col}-count`).textContent =
+                    filterTerm ? `${filteredCount}/${layout[col].length} servizi` : `${layout[col].length} servizi`;
+            });
+
+            console.log('✅ Render() complete');
+        }
+
+        let dragData = null;
+        let dragType = 'service'; // 'service' o 'placeholder'
+        let placeholderCounter = 1;
+
+        function dragStart(event, name) {
+            dragData = name;
+            dragType = 'service';
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function dragStartPlaceholder(event, name) {
+            if (name === '__placeholder_master__') {
+                // Master placeholder: crea nuova copia
+                dragData = `__placeholder_${placeholderCounter++}__`;
+                dragType = 'placeholder';
+                event.dataTransfer.effectAllowed = 'copy';
+            } else {
+                // Placeholder esistente: sposta normalmente
+                dragData = name;
+                dragType = 'service';
+                event.dataTransfer.effectAllowed = 'move';
+            }
+            event.target.classList.add('dragging');
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        function dropOnCard(event, targetName) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!dragData || dragData === targetName) return;
+
+            // Trova in quale colonna è la card target
+            let targetCol = null;
+            ['frontend', 'backend', 'solobackend', 'other'].forEach(col => {
+                if (layout[col].includes(targetName)) {
+                    targetCol = col;
+                }
+            });
+
+            if (!targetCol) return;
+
+            if (dragType === 'placeholder') {
+                // Placeholder master: aggiungi copia nella posizione della target
+                const targetIndex = layout[targetCol].indexOf(targetName);
+                layout[targetCol].splice(targetIndex, 0, dragData);
+                console.log('📋 Placeholder inserted at index', targetIndex);
+            } else {
+                // Servizio normale o placeholder esistente: riordina
+                // Rimuovi da tutte le colonne
+                ['frontend', 'backend', 'solobackend', 'other'].forEach(col => {
+                    layout[col] = layout[col].filter(n => n !== dragData);
+                });
+
+                // Inserisci nella posizione della target
+                const targetIndex = layout[targetCol].indexOf(targetName);
+                layout[targetCol].splice(targetIndex, 0, dragData);
+                console.log('🔄 Moved to', targetCol, 'at index', targetIndex);
+            }
+
+            saveLayout();
+            render();
+            dragData = null;
+            dragType = 'service';
+        }
+
+        function setupDropZones() {
+            document.querySelectorAll('.column-body').forEach(col => {
+                col.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    col.classList.add('drag-over');
+                });
+
+                col.addEventListener('dragleave', () => {
+                    col.classList.remove('drag-over');
+                });
+
+                col.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    col.classList.remove('drag-over');
+
+                    if (!dragData) return;
+
+                    const targetCol = col.dataset.col;
+                    const name = dragData;
+
+                    if (dragType === 'placeholder') {
+                        // Placeholder: aggiungi una copia (non rimuovere l'originale)
+                        layout[targetCol].push(name);
+                        console.log('📋 Placeholder duplicated to', targetCol);
+                    } else {
+                        // Servizio normale: sposta (rimuovi da tutte le colonne e aggiungi alla nuova)
+                        ['frontend', 'backend', 'solobackend', 'other'].forEach(c => {
+                            layout[c] = layout[c].filter(n => n !== name);
+                        });
+                        layout[targetCol].push(name);
+                        console.log('🔄 Service moved to', targetCol);
+                    }
+
+                    saveLayout();
+                    render();
+                    dragData = null;
+                    dragType = 'service';
+                });
+            });
+
+        }
+
+        async function load() {
+            try {
+                const r = await api('pm2 jlist');
+                if (!r.success) {
+                    console.error('PM2 error:', r.output);
+                    return;
+                }
+                pm2Services = JSON.parse(r.output);
+
+                if (allServices.length === 0) {
+                    await discover();
+                } else {
+                    render();
+                }
+            } catch (e) {
+                console.error('Load error:', e);
+            }
+        }
+
+        document.addEventListener('dragend', () => {
+            document.querySelectorAll('.dragging').forEach(el => {
+                el.classList.remove('dragging');
+            });
+        });
+
+        async function init() {
+            await loadLayout();
+            setupDropZones();
+            setInterval(load, 5000);
+            setInterval(getTelemetry, 3000);
+            discover();
+            getTelemetry();
+        }
+
+        init();
+
+        document.getElementById('modal').onclick = (e) => {
+            if (e.target.id === 'modal') closeModal();
+        };
+    </script>
+</body>
+</html>

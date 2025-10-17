@@ -93,6 +93,42 @@ services:
       timeout: 5s
       retries: 30
 
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: ewh_n8n
+    restart: unless-stopped
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=ewh_master
+      - DB_POSTGRESDB_USER=ewh
+      - DB_POSTGRESDB_PASSWORD=ewhpass
+      - DB_POSTGRESDB_SCHEMA=n8n
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=Europe/Rome
+      - N8N_ENCRYPTION_KEY=ewh-n8n-encryption-key-change-in-production
+      - N8N_USER_MANAGEMENT_DISABLED=false
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_HIRING_BANNER_ENABLED=false
+    ports:
+      - "5678:5678"
+    volumes:
+      - ewh_n8n:/home/node/.n8n
+    networks: [ ewh_net ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:5678/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    profiles: [ "default","apps","automation" ]
+
   # === Apps ===
   app-web-frontend:
     <<: *react_app
@@ -184,6 +220,25 @@ services:
       - ewh_pnpm:/pnpm-store
       - /var/run/docker.sock:/var/run/docker.sock
     profiles: [ "default","apps","dam" ]
+
+  app-box-designer:
+    <<: *react_app
+    container_name: app_box_designer
+    working_dir: /workspace/app-box-designer
+    environment:
+      NODE_ENV: "development"
+      PORT: "3350"
+      VITE_API_BASE_URL: "/api/box"
+      VITE_BACKEND_URL: "http://svc-box-designer:5850"
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "1000"
+    ports: [ "3350:3350" ]
+    volumes:
+      - "${EWH_ROOT:-..}:/workspace:cached"
+      - ewh_pnpm:/pnpm-store
+      - /var/run/docker.sock:/var/run/docker.sock
+    profiles: [ "default","apps","design","manufacturing" ]
 
   svc-metrics-collector:
     <<: *node_common
@@ -277,6 +332,9 @@ services:
   svc-site-publisher: { <<: *node_common, container_name: svc_site_publisher, working_dir: /workspace/svc-site-publisher, environment: { PORT: "4204" }, ports: [ "4204:4204" ], profiles: [ "default","publishing" ] }
   svc-connectors-web: { <<: *node_common, container_name: svc_connectors_web, working_dir: /workspace/svc-connectors-web, environment: { PORT: "4205" }, ports: [ "4205:4205" ], profiles: [ "default","publishing" ] }
 
+  # === Packaging & Manufacturing ===
+  svc-box-designer: { <<: *node_common, container_name: svc_box_designer, working_dir: /workspace/svc-box-designer, environment: { PORT: "5850", DB_HOST: "postgres", DB_PORT: "5432", DB_NAME: "ewh_platform", DB_USER: "ewh", DB_PASSWORD: "ewhpass", JWT_SECRET: "dev-secret-key" }, ports: [ "5850:5850" ], profiles: [ "default","manufacturing" ] }
+
   # === ERP ===
   svc-products:     { <<: *node_common, container_name: svc_products,     working_dir: /workspace/svc-products,     environment: { PORT: "4300" }, ports: [ "4300:4300" ], profiles: [ "default","erp" ] }
   svc-orders:       { <<: *node_common, container_name: svc_orders,       working_dir: /workspace/svc-orders,       environment: { PORT: "4301" }, ports: [ "4301:4301" ], profiles: [ "default","erp" ] }
@@ -305,16 +363,6 @@ services:
   svc-comm:         { <<: *node_common, container_name: svc_comm,         working_dir: /workspace/svc-comm,         environment: { PORT: "4500" }, ports: [ "4500:4500" ], profiles: [ "default","platform" ] }
   svc-enrichment:   { <<: *node_common, container_name: svc_enrichment,   working_dir: /workspace/svc-enrichment,   environment: { PORT: "4501" }, ports: [ "4501:4501" ], profiles: [ "default","platform" ] }
   svc-bi:           { <<: *node_common, container_name: svc_bi,           working_dir: /workspace/svc-bi,           environment: { PORT: "4502" }, ports: [ "4502:4502" ], profiles: [ "default","platform" ] }
-  svc-n8n:
-    image: n8nio/n8n:latest
-    container_name: svc_n8n
-    restart: unless-stopped
-    environment:
-      - GENERIC_TIMEZONE=Europe/Rome
-      - N8N_DIAGNOSTICS_ENABLED=false
-    ports: [ "5678:5678" ]
-    volumes: [ ewh_n8n:/home/node/.n8n ]
-    networks: [ ewh_net ]
 
 networks:
   ewh_net: {}

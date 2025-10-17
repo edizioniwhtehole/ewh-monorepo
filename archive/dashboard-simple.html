@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EWH Manager Simple</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f7;
+            padding: 20px;
+        }
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header h1 { color: #1d1d1f; margin-bottom: 8px; }
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .toggle-container {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: #ccc;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .toggle.on { background: #34c759; }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+        .toggle.on::after { left: 24px; }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .btn:hover { opacity: 0.8; }
+        .btn-primary { background: #007aff; color: white; }
+        .btn-success { background: #34c759; color: white; }
+        .btn-danger { background: #ff3b30; color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section h2 { font-size: 18px; margin-bottom: 16px; color: #1d1d1f; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid #ccc;
+        }
+        .card.running { border-left-color: #34c759; background: #f0fdf4; }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .card-title { font-weight: 600; font-size: 14px; }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-online { background: #34c759; color: white; }
+        .badge-offline { background: #ccc; color: #666; }
+        .badge-deps { background: #007aff; color: white; }
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .modal-close {
+            background: #f0f0f0;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .output {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007aff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛠️ EWH Manager Simple</h1>
+        <p style="color: #86868b; font-size: 14px;">Gestione semplice sviluppo locale + remoto</p>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-primary" onclick="refresh()">🔄 Aggiorna</button>
+        <button class="btn btn-success" onclick="setupTunnels()">🌐 Setup Tunnel SSH</button>
+
+        <div class="toggle-container">
+            <span style="font-size: 13px; color: #86868b;">Auto-Sync:</span>
+            <div class="toggle" id="auto-sync-toggle" onclick="toggleAutoSync()"></div>
+            <span id="sync-status" style="font-size: 12px; color: #86868b;">OFF</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔧 Servizi Backend</h2>
+        <div class="grid" id="services-grid"></div>
+    </div>
+
+    <div class="section">
+        <h2>📱 App Frontend</h2>
+        <div class="grid" id="apps-grid"></div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Operazione...</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div id="modal-body"><div class="spinner"></div></div>
+        </div>
+    </div>
+
+    <script>
+        let autoSync = false;
+
+        async function api(endpoint, method = 'GET', body = null) {
+            const options = { method };
+            if (body) {
+                options.headers = { 'Content-Type': 'application/json' };
+                options.body = JSON.stringify(body);
+            }
+            const response = await fetch(endpoint, options);
+            return response.json();
+        }
+
+        function openModal(title, body = '<div class="spinner"></div>') {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = body;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function showOutput(output, success) {
+            document.getElementById('modal-body').innerHTML =
+                `<div class="output">${output || 'Nessun output'}</div>`;
+        }
+
+        function toggleAutoSync() {
+            autoSync = !autoSync;
+            const toggle = document.getElementById('auto-sync-toggle');
+            const status = document.getElementById('sync-status');
+
+            if (autoSync) {
+                toggle.classList.add('on');
+                status.textContent = 'ON';
+                status.style.color = '#34c759';
+            } else {
+                toggle.classList.remove('on');
+                status.textContent = 'OFF';
+                status.style.color = '#86868b';
+            }
+            localStorage.setItem('auto-sync', autoSync);
+        }
+
+        async function syncProject(name) {
+            openModal(`🔄 Sincronizzazione ${name}`);
+            const result = await api('/api/sync', 'POST', { name });
+            showOutput(result.output, result.success);
+            setTimeout(refresh, 1000);
+        }
+
+        async function startRemote(name) {
+            openModal(`▶️ Avvio remoto ${name}`);
+            const result = await api('/api/start-remote', 'POST', { name });
+            showOutput(result.output, result.success);
+            setTimeout(refresh, 2000);
+        }
+
+        async function stopRemote(name) {
+            openModal(`⏹️ Stop remoto ${name}`);
+            const result = await api('/api/stop-remote', 'POST', { name });
+            showOutput(result.output, result.success);
+            setTimeout(refresh, 2000);
+        }
+
+        async function restartRemote(name) {
+            openModal(`🔄 Restart remoto ${name}`);
+            const result = await api('/api/restart-remote', 'POST', { name });
+            showOutput(result.output, result.success);
+            setTimeout(refresh, 2000);
+        }
+
+        async function installDeps(name) {
+            openModal(`📦 Installazione dipendenze ${name}`, '<div class="spinner"></div><p style="text-align:center;margin-top:12px;">Attendere...</p>');
+            const result = await api('/api/install', 'POST', { name });
+            showOutput(result.output, result.success);
+            setTimeout(refresh, 2000);
+        }
+
+        function openLocalhost(port) {
+            window.open(`http://localhost:${port}`, '_blank');
+        }
+
+        function openNetwork(port) {
+            window.open(`http://192.168.1.47:${port}`, '_blank');
+        }
+
+        function setupTunnels() {
+            openModal('🌐 Setup Tunnel SSH', '<div class="output">Apri un terminale ed esegui:\n\n/Users/andromeda/dev/ewh/setup-port-forwarding.sh\n\nQuesto creerà i tunnel SSH per tutte le porte.</div>');
+        }
+
+        function renderProject(project, container) {
+            const card = document.createElement('div');
+            card.className = `card ${project.running ? 'running' : ''}`;
+
+            const port = project.port;
+            const hasDeps = project.has_dependencies;
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title">${project.name}</div>
+                    <span class="badge ${project.running ? 'badge-online' : 'badge-offline'}">
+                        ${project.running ? 'ONLINE' : 'OFFLINE'}
+                    </span>
+                </div>
+                ${project.running ? `<div style="font-size:12px;color:#666;margin-bottom:8px;">CPU: ${project.cpu}% | RAM: ${project.memory}MB</div>` : ''}
+                <div style="margin:8px 0;">
+                    ${hasDeps ? '<span class="badge badge-deps">✓ Deps</span>' : ''}
+                    ${port ? `<span class="badge" style="background:#666;color:white;">:${port}</span>` : ''}
+                </div>
+                <div class="card-actions">
+                    ${!project.running ?
+                        `<button class="btn btn-success btn-sm" onclick="startRemote('${project.name}')">▶️ Start (remoto)</button>` :
+                        `<button class="btn btn-danger btn-sm" onclick="stopRemote('${project.name}')">⏹️ Stop</button>
+                         <button class="btn btn-primary btn-sm" onclick="restartRemote('${project.name}')">🔄 Restart</button>`
+                    }
+                    <button class="btn btn-primary btn-sm" onclick="syncProject('${project.name}')">🔄 Sync</button>
+                    ${!hasDeps ? `<button class="btn btn-sm" style="background:#ff9500;color:white;" onclick="installDeps('${project.name}')">📦 Install</button>` : ''}
+                    ${port ? `
+                        <button class="btn btn-sm" style="background:#5856d6;color:white;" onclick="openLocalhost(${port})">🖥️ Localhost</button>
+                        <button class="btn btn-sm" style="background:#007aff;color:white;" onclick="openNetwork(${port})">🌐 Network</button>
+                    ` : ''}
+                </div>
+            `;
+
+            container.appendChild(card);
+        }
+
+        async function refresh() {
+            const data = await api('/api/projects');
+
+            const servicesGrid = document.getElementById('services-grid');
+            const appsGrid = document.getElementById('apps-grid');
+
+            servicesGrid.innerHTML = '';
+            appsGrid.innerHTML = '';
+
+            data.services.forEach(s => renderProject(s, servicesGrid));
+            data.apps.forEach(a => renderProject(a, appsGrid));
+        }
+
+        // Auto-refresh ogni 5 secondi
+        setInterval(refresh, 5000);
+
+        // Restore auto-sync preference
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('auto-sync');
+            if (saved === 'true') {
+                toggleAutoSync();
+            }
+            refresh();
+        });
+
+        // Close modal on click outside
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') closeModal();
+        });
+    </script>
+</body>
+</html>
