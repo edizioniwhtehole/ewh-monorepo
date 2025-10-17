@@ -8,7 +8,25 @@
 [![Node](https://img.shields.io/badge/node-20.x-green.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/typescript-5.6+-blue.svg)](https://typescriptlang.org)
 
+---
+
+## 🔴 CRITICAL: Plugin-First Architecture
+
+> **ALL services and applications MUST follow Plugin-First Architecture.**
+>
+> **Core = Minimal infrastructure only. Features = Plugins.**
+>
+> 📖 **Read this BEFORE coding ANY feature:** [PLUGIN_FIRST_ARCHITECTURE.md](docs/architecture/PLUGIN_FIRST_ARCHITECTURE.md)
+>
+> See also: [PLATFORM_STANDARDS.md](docs/infrastructure/PLATFORM_STANDARDS.md) - Section 0
+
+---
+
 ## 📚 Documentazione
+
+### 🗺️ Navigation
+- **🤖 [AGENTS.md](AGENTS.md)** - **AI Agents start here!** Essential rules & quick links
+- **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** - 🔍 **Complete documentation index**
 
 ### Core Documentation
 - **[SETUP_COMPLETE_SUMMARY.md](SETUP_COMPLETE_SUMMARY.md)** - ✅ Riepilogo setup completo (START HERE!)
@@ -16,6 +34,12 @@
 - **[ADMIN_SETUP_INSTRUCTIONS.md](ADMIN_SETUP_INSTRUCTIONS.md)** - Setup admin panel (roadmap + task board)
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Architettura microservizi legacy
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** - Setup ambiente, workflow sviluppo, testing, debugging
+
+### Version Management 🆕
+- **🔴 [VERSIONING_STRATEGY.md](docs/infrastructure/VERSIONING_STRATEGY.md)** - **CRITICAL:** Complete versioning strategy
+- **[VERSION_TRACKING.md](VERSION_TRACKING.md)** - Central version registry (all components)
+- **[VERSIONING_SYSTEM_COMPLETE.md](VERSIONING_SYSTEM_COMPLETE.md)** - Implementation summary
+- **[scripts/README.md](scripts/README.md)** - Automation scripts documentation
 
 ## 🏗️ Architettura
 
